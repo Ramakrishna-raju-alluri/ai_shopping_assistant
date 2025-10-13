@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+boto3
+langchain
+langchain-aws
+langchain-core
+langgraph
+python-dotenv
+pydantic
+pydantic[email]
+requests
+PyJWT
+email-validator

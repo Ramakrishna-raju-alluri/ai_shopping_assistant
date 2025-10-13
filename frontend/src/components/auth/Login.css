@@ -1,0 +1,160 @@
+/* Login.css - Coles Shopping Assistant */
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #e5e5e5;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-logo {
+  margin-bottom: 16px;
+}
+
+.auth-logo .coles-logo {
+  height: 48px;
+  width: auto;
+}
+
+.auth-title {
+  color: #e10000;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.auth-subtitle {
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.auth-description {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #e10000;
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+.error-message {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 6px;
+  padding: 12px;
+  color: #c33;
+  font-size: 14px;
+}
+
+.auth-button {
+  background: #e10000 !important;
+  color: white !important;
+  border-color: #e10000 !important;
+  padding: 14px 24px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.auth-button:hover {
+  background: #c10000 !important;
+  border-color: #c10000 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(225, 0, 0, 0.3) !important;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.switch-button {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.switch-button:hover {
+  color: #e10000;
+}
+
+.switch-highlight {
+  color: #e10000;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px;
+    margin: 16px;
+  }
+  
+  .auth-title {
+    font-size: 20px;
+  }
+  
+  .auth-subtitle {
+    font-size: 16px;
+  }
+} 

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Action Buttons Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .chat-message {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .cart-summary {
+            background: #e8f5e8;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .cart-options {
+            background: #fff3cd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .cart-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .cart-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-add-all {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-view-catalog {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-feedback {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .cart-items {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: right;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🛒 Cart Action Buttons Demo</h1>
+        <p>This demonstrates how the cart action buttons should appear in your React frontend.</p>
+
+        <!-- Chat Message with Cart Options -->
+        <div class="chat-message">
+            <h3>🤖 AI Assistant</h3>
+            
+            <div class="cart-summary">
+                <h4>📋 Final Cart with Stock Check and Promotions:</h4>
+                <div class="cart-items">
+                    <div class="cart-item">
+                        <span>1. Organic Cucumber (1lb)</span>
+                        <span>$2.49</span>
+                    </div>
+                    <div class="cart-item">
+                        <span>2. Organic Tomatoes (1lb)</span>
+                        <span>$2.99</span>
+                    </div>
+                    <div class="cart-item">
+                        <span>3. Organic Spinach (8oz)</span>
+                        <span>$3.99</span>
+                    </div>
+                    <div class="cart-item">
+                        <span>4. Feta Cheese (6oz)</span>
+                        <span>$4.99</span>
+                    </div>
+                    <div class="cart-item">
+                        <span>5. Organic Quinoa</span>
+                        <span>$8.99</span>
+                    </div>
+                    <div class="cart-item">
+                        <span>6. Extra Virgin Olive Oil (16oz)</span>
+                        <span>$8.99</span>
+                    </div>
+                    <div class="total">
+                        <span>Total cost: $32.44</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-options">
+                <h4>🛒 Add to Cart Options:</h4>
+                <p>• Click 'Add All to Cart' to add all 6 items to your shopping cart</p>
+                <p>• Click 'View Product Catalog' to browse and add individual items</p>
+                <p>• Click 'Continue with Feedback' to provide feedback on these recommendations</p>
+            </div>
+
+            <p><strong>What would you like to do? (Add All to Cart / View Catalog / Continue with Feedback)</strong></p>
+
+            <!-- Cart Action Buttons -->
+            <div class="cart-buttons">
+                <button class="cart-btn btn-add-all" onclick="addAllToCart()">
+                    🛒 Add All to Cart
+                </button>
+                <button class="cart-btn btn-view-catalog" onclick="viewCatalog()">
+                    🛍️ View Product Catalog
+                </button>
+                <button class="cart-btn btn-feedback" onclick="continueFeedback()">
+                    📝 Continue with Feedback
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            <h4>✅ Success!</h4>
+            <p>Successfully added 6 items to your shopping cart!</p>
+            <p><strong>Your cart now contains 6 items</strong></p>
+            <p><strong>Total cart value: $32.44</strong></p>
+            <p>🛒 You can view your cart anytime by asking 'Show my cart'</p>
+            <p>🛍️ Browse more products by asking 'Show me products'</p>
+        </div>
+    </div>
+
+    <script>
+        function addAllToCart() {
+            // Simulate API call
+            console.log('🛒 Adding all items to cart...');
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Scroll to success message
+            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function viewCatalog() {
+            console.log('🛍️ Opening product catalog...');
+            alert('This would open the product catalog with categories and individual items.');
+        }
+
+        function continueFeedback() {
+            console.log('📝 Continuing with feedback...');
+            alert('This would continue to the feedback collection flow.');
+        }
+    </script>
+</body>
+</html> 

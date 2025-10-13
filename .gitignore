@@ -1,0 +1,14 @@
+# Ignore .env file
+**/.env
+
+# Ignore node_modules
+frontend/node_modules/
+
+env/
+venv/
+
+pycache/
+
+**/pycache/
+
+*.pyc

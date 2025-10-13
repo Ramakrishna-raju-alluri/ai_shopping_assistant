@@ -1,0 +1,194 @@
+[
+  {
+    "item_id": "item_007",
+    "in_stock": false,
+    "discount_percent": 20,
+    "replacement_suggestion": "Canned Tuna in Olive Oil (5oz)"
+  },
+  {
+    "item_id": "item_015",
+    "in_stock": true,
+    "discount_percent": 25,
+    "replacement_suggestion": "Organic Tempeh (8oz)"
+  },
+  {
+    "item_id": "item_023",
+    "in_stock": false,
+    "discount_percent": 15,
+    "replacement_suggestion": "Organic Mushrooms (8oz)"
+  },
+  {
+    "item_id": "item_031",
+    "in_stock": true,
+    "discount_percent": 30,
+    "replacement_suggestion": "Organic Hemp Seeds (8oz)"
+  },
+  {
+    "item_id": "item_042",
+    "in_stock": false,
+    "discount_percent": 10,
+    "replacement_suggestion": "Butter (1lb)"
+  },
+  {
+    "item_id": "item_055",
+    "in_stock": true,
+    "discount_percent": 20,
+    "replacement_suggestion": "Canned Sardines (3.75oz)"
+  },
+  {
+    "item_id": "item_067",
+    "in_stock": false,
+    "discount_percent": 25,
+    "replacement_suggestion": "Canned Pinto Beans (15oz)"
+  },
+  {
+    "item_id": "item_078",
+    "in_stock": true,
+    "discount_percent": 15,
+    "replacement_suggestion": "Organic Kohlrabi (1lb)"
+  },
+  {
+    "item_id": "item_089",
+    "in_stock": false,
+    "discount_percent": 30,
+    "replacement_suggestion": "Organic Hazelnuts (8oz)"
+  },
+  {
+    "item_id": "item_012",
+    "in_stock": true,
+    "discount_percent": 20,
+    "replacement_suggestion": "Lean Ground Turkey (1lb)"
+  },
+  {
+    "item_id": "item_034",
+    "in_stock": false,
+    "discount_percent": 15,
+    "replacement_suggestion": "Organic Bell Peppers (1lb)"
+  },
+  {
+    "item_id": "item_047",
+    "in_stock": true,
+    "discount_percent": 25,
+    "replacement_suggestion": "Organic Chia Seeds (8oz)"
+  },
+  {
+    "item_id": "item_059",
+    "in_stock": false,
+    "discount_percent": 10,
+    "replacement_suggestion": "Canned Sardines (3.75oz)"
+  },
+  {
+    "item_id": "item_071",
+    "in_stock": true,
+    "discount_percent": 30,
+    "replacement_suggestion": "Canned Navy Beans (15oz)"
+  },
+  {
+    "item_id": "item_083",
+    "in_stock": false,
+    "discount_percent": 20,
+    "replacement_suggestion": "Canned Great Northern Beans (15oz)"
+  },
+  {
+    "item_id": "item_095",
+    "in_stock": true,
+    "discount_percent": 15,
+    "replacement_suggestion": "Canned Lima Beans (15oz)"
+  },
+  {
+    "item_id": "item_008",
+    "in_stock": false,
+    "discount_percent": 25,
+    "replacement_suggestion": "Organic Cauliflower (1 head)"
+  },
+  {
+    "item_id": "item_020",
+    "in_stock": true,
+    "discount_percent": 10,
+    "replacement_suggestion": "Whole Grain Bread (20oz)"
+  },
+  {
+    "item_id": "item_033",
+    "in_stock": false,
+    "discount_percent": 30,
+    "replacement_suggestion": "Tuna in Water (5oz)"
+  },
+  {
+    "item_id": "item_045",
+    "in_stock": true,
+    "discount_percent": 20,
+    "replacement_suggestion": "Coconut Milk (13.5oz)"
+  },
+  {
+    "item_id": "item_057",
+    "in_stock": false,
+    "discount_percent": 15,
+    "replacement_suggestion": "Organic Pumpkin Seeds (8oz)"
+  },
+  {
+    "item_id": "item_069",
+    "in_stock": true,
+    "discount_percent": 25,
+    "replacement_suggestion": "Organic Hemp Seeds (8oz)"
+  },
+  {
+    "item_id": "item_081",
+    "in_stock": false,
+    "discount_percent": 10,
+    "replacement_suggestion": "Organic Macadamia Nuts (8oz)"
+  },
+  {
+    "item_id": "item_093",
+    "in_stock": true,
+    "discount_percent": 30,
+    "replacement_suggestion": "Organic Cashews (8oz)"
+  },
+  {
+    "item_id": "item_016",
+    "in_stock": false,
+    "discount_percent": 20,
+    "replacement_suggestion": "Organic Blueberries (6oz)"
+  },
+  {
+    "item_id": "item_028",
+    "in_stock": true,
+    "discount_percent": 15,
+    "replacement_suggestion": "Peanut Butter (16oz)"
+  },
+  {
+    "item_id": "item_040",
+    "in_stock": false,
+    "discount_percent": 25,
+    "replacement_suggestion": "Egg Whites (16oz)"
+  },
+  {
+    "item_id": "item_052",
+    "in_stock": true,
+    "discount_percent": 10,
+    "replacement_suggestion": "Organic Gray (1lb)"
+  },
+  {
+    "item_id": "item_064",
+    "in_stock": false,
+    "discount_percent": 30,
+    "replacement_suggestion": "Organic Radishes (1 bunch)"
+  },
+  {
+    "item_id": "item_076",
+    "in_stock": true,
+    "discount_percent": 20,
+    "replacement_suggestion": "Organic Parsnips (1lb)"
+  },
+  {
+    "item_id": "item_088",
+    "in_stock": false,
+    "discount_percent": 15,
+    "replacement_suggestion": "Organic Turnips (1lb)"
+  },
+  {
+    "item_id": "item_100",
+    "in_stock": true,
+    "discount_percent": 25,
+    "replacement_suggestion": "Organic Collard Greens (1 bunch)"
+  }
+] 
