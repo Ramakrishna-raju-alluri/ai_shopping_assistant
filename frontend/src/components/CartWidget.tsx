@@ -40,7 +40,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8000/api/v1/cart', { headers });
+      const response = await fetch('http://localhost:8100/api/v1/cart', { headers });
       const data = await response.json();
       
       if (data.success) {
@@ -66,7 +66,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       
       console.log(`Updating quantity for item ${itemId}: ${quantity} -> ${newQuantity}`);
       
-      const response = await fetch('http://localhost:8000/api/v1/cart/update', {
+      const response = await fetch('http://localhost:8100/api/v1/cart/update', {
         method: 'PUT',
         headers,
         body: JSON.stringify({
@@ -92,7 +92,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch(`http://localhost:8000/api/v1/cart/remove/${itemId}`, {
+      const response = await fetch(`http://localhost:8100/api/v1/cart/remove/${itemId}`, {
         method: 'DELETE',
         headers
       });
@@ -111,7 +111,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8000/api/v1/cart/clear', {
+      const response = await fetch('http://localhost:8100/api/v1/cart/clear', {
         method: 'DELETE',
         headers
       });

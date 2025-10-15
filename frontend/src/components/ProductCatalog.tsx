@@ -40,7 +40,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      let url = 'http://localhost:8000/api/v1/products?limit=100';
+      let url = 'http://localhost:8100/api/v1/products?limit=100';
       if (selectedCategory !== 'all') {
         url += `&category=${selectedCategory}`;
       }
@@ -66,7 +66,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8000/api/v1/products/categories', { headers });
+      const response = await fetch('http://localhost:8100/api/v1/products/categories', { headers });
       const data = await response.json();
 
       if (data.success) {

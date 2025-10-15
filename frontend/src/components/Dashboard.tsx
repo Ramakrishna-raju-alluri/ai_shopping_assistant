@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8000/api/v1/profile-setup/status', {
+      const response = await fetch('http://localhost:8100/api/v1/profile-setup/status', {
         headers
       });
       
@@ -457,7 +457,7 @@ const Dashboard: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8000/api/v1/cart/add', {
+      const response = await fetch('http://localhost:8100/api/v1/cart/add', {
         method: 'POST',
         headers: {
           ...headers,

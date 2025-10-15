@@ -49,7 +49,7 @@ interface CompleteProfileSetup {
   meal_goal?: string;
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://localhost:8100/api/v1';
 
 const ProfileSetup: React.FC = () => {
   const { user } = useAuth();
