@@ -1,35 +1,72 @@
+import sys
+from pathlib import Path
 from strands import Agent, tool
-import argparse
-import json
-from bedrock_agentcore.runtime import BedrockAgentCoreApp
-from strands.models import BedrockModel
+from dotenv import load_dotenv
+load_dotenv()
+# Add parent directory to path for imports when running directly
+current_dir = Path(__file__).resolve().parent
+parent_dir = current_dir.parent
+project_root = parent_dir.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-app = BedrockAgentCoreApp()
+# Import with flexible import system
+try:
+    from backend_bedrock.tools import meal_planner_tools
+except ImportError:
+    try:
+        # When running from backend_bedrock directory
+        sys.path.insert(0, str(parent_dir))
+        from tools import meal_planner_tools
+    except ImportError:
+        # Last resort - direct import
+        import meal_planner_tools
 
-model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-model = BedrockModel(
-    model_id=model_id,
-)
-agent = Agent(
-    model=model,
-    system_prompt="You're a recipe generator, you can help with their meal plannign queries"
-)
+MEAL_PLANNER_PROMPT = """
+You are a specialized meal planning assistant. Your goal is to generate a meal plan.
+To do this, you must follow these steps:
+1. Fetch the user's profile to understand their preferences and constraints using `fetch_user_profile`.
+2. Fetch available items from the store using `fetch_available_items`.
+3. Generate a list of three distinct meal recipes (breakfast, lunch, dinner) based on the user's preferences and available items.
+4. For each recipe, calculate the estimated cost and calories using the provided tools.
+5. Finally, present the three generated meals to the user, and identify which of the three is the most expensive.
+"""
 
-@app.entrypoint
-def strands_agent_bedrock(payload):
+@tool
+def meal_planner_agent(user_id: str, query: str) -> str:
     """
-    Invoke agent with payload
+    Use this agent to generate meal plans, recipes, or grocery lists.
+    Args:
+        user_id: The ID of the user requesting the meal plan.
+        query: The user's specific request, e.g., "plan my meals for tomorrow".
     """
-    user_input = payload.get("prompt")
-    print(f"User input: {user_input}")
-    response = agent(user_input)
-    return response.message['content'][0]['text']
+    planner = Agent(
+        system_prompt=MEAL_PLANNER_PROMPT,
+        tools=[
+            meal_planner_tools.fetch_user_profile,
+            meal_planner_tools.fetch_available_items,
+            meal_planner_tools.calculate_calories,
+            meal_planner_tools.calculate_cost,
+        ]
+    )
+    # The combined prompt provides context for the specialized agent
+    combined_prompt = f"User ID: {user_id}. Request: {query}"
+    response = planner(combined_prompt)
+    return str(response)
+
+def main():
+    """Test the meal planner agent"""
+    user_id = "test-user-123"
+    query = "I need a healthy meal plan for today"
+    result = meal_planner_agent(user_id, query)
+    print(result)
 
 if __name__ == "__main__":
+    import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("prompt", type=str)
+    parser.add_argument("--user-id", type=str, default="test-user-123", help="User ID")
+    parser.add_argument("--query", type=str, default="I need a healthy meal plan for today", help="Query")
     args = parser.parse_args()
-    payload = {"prompt": args.prompt}
-    response = strands_agent_bedrock(payload)
-    print(response)
-    #app.run()
+    
+    result = meal_planner_agent(args.user_id, args.query)
+    print(result)

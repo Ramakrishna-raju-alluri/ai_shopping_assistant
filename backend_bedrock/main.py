@@ -1,12 +1,19 @@
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+# Add parent directory to path for imports when running directly
+current_dir = Path(__file__).resolve().parent
+parent_dir = current_dir.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
+
 # Load .env from backend_bedrock directory explicitly (works when running from project root)
-ENV_PATH = Path(__file__).resolve().parent / ".env"
+ENV_PATH = current_dir / ".env"
 load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 def create_app() -> FastAPI:
@@ -27,42 +34,57 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Include routers
-    try:
-        from backend_bedrock.routes import auth as auth_routes
-        app.include_router(auth_routes.router, prefix="/api/v1/auth", tags=["authentication"])
+    # Include routers with flexible import system
+    def safe_import_route(module_name, route_name):
+        """Try both relative and absolute imports"""
+        try:
+            # Try absolute import first
+            module = __import__(f"backend_bedrock.routes.{module_name}", fromlist=["router"])
+            return getattr(module, "router")
+        except ImportError:
+            try:
+                # Try local import when running directly
+                module = __import__(f"routes.{module_name}", fromlist=["router"])
+                return getattr(module, "router")
+            except ImportError:
+                return None
+
+    # Load main routes
+    auth_router = safe_import_route("auth", "auth")
+    if auth_router:
+        app.include_router(auth_router, prefix="/api/v1/auth", tags=["authentication"])
         print("✅ Loaded auth routes")
-    except Exception as e:
-        print(f"⚠️ Failed to load auth routes: {e}")
+    else:
+        print("⚠️ Failed to load auth routes")
 
-    try:
-        from backend_bedrock.routes import profile_setup as profile_routes
-        app.include_router(profile_routes.router, prefix="/api/v1/profile-setup", tags=["profile-setup"])
+    profile_router = safe_import_route("profile_setup", "profile_setup")
+    if profile_router:
+        app.include_router(profile_router, prefix="/api/v1/profile-setup", tags=["profile-setup"])
         print("✅ Loaded profile_setup routes")
-    except Exception as e:
-        print(f"⚠️ Failed to load profile_setup routes: {e}")
+    else:
+        print("⚠️ Failed to load profile_setup routes")
 
-    try:
-        from backend_bedrock.routes import products as products_routes
-        app.include_router(products_routes.router, prefix="/api/v1", tags=["products"])
+    products_router = safe_import_route("products", "products")
+    if products_router:
+        app.include_router(products_router, prefix="/api/v1", tags=["products"])
         print("✅ Loaded products routes")
-    except Exception as e:
-        print(f"⚠️ Failed to load products routes: {e}")
+    else:
+        print("⚠️ Failed to load products routes")
 
     # Optional/placeholder routers for future parity
     for mod, tag in [
         ("chat", "chat"),
         ("chat_history", "chat-history"),
         ("cart", "cart"),
-        ("chat_flexible", "smart-chat"),
-        ("dynamic_chat", "dynamic-chat"),
+        # ("chat_flexible", "smart-chat"),
+        # ("dynamic_chat", "dynamic-chat"),
     ]:
-        try:
-            module = __import__(f"backend_bedrock.routes.{mod}", fromlist=["router"])
-            app.include_router(getattr(module, "router"), prefix="/api/v1", tags=[tag])
+        router = safe_import_route(mod, mod)
+        if router:
+            app.include_router(router, prefix="/api/v1", tags=[tag])
             print(f"✅ Loaded {mod} routes")
-        except Exception as e:
-            print(f"⚠️ Skipped {mod} routes: {e}")
+        else:
+            print(f"⚠️ Skipped {mod} routes: Module not found")
 
     @app.get("/")
     async def root():
@@ -101,5 +123,10 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+if __name__ == "__main__":
+    import uvicorn
+    print("🚀 Starting FastAPI server...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
