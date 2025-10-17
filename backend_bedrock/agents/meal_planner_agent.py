@@ -34,10 +34,14 @@ To do this, you must follow these steps:
 @tool
 def meal_planner_agent(user_id: str, query: str) -> str:
     """
-    Use this agent to generate meal plans, recipes, or grocery lists.
+    Agent for meal planning, recipe creation, grocery lists, and food cost/nutrition calculations.
+    
     Args:
-        user_id: The ID of the user requesting the meal plan.
-        query: The user's specific request, e.g., "plan my meals for tomorrow".
+        user_id (str): User identifier
+        query (str): Meal planning request
+    
+    Returns:
+        str: Meal plan with recipes, ingredients, costs, and nutrition info
     """
     planner = Agent(
         system_prompt=MEAL_PLANNER_PROMPT,
@@ -53,19 +57,19 @@ def meal_planner_agent(user_id: str, query: str) -> str:
     response = planner(combined_prompt)
     return str(response)
 
-def main():
-    """Test the meal planner agent"""
-    user_id = "user_99"
-    query = "I need a healthy meal plan for today"
-    result = meal_planner_agent(user_id, query)
-    print(result)
+# def main():
+#     """Test the meal planner agent"""
+#     user_id = "user_99"
+#     query = "I need a healthy meal plan for today"
+#     result = meal_planner_agent(user_id, query)
+#     print(result)
 
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--user-id", type=str, default="user_99", help="User ID")
-    parser.add_argument("--query", type=str, default="I need a healthy meal plan for today", help="Query")
-    args = parser.parse_args()
+# if __name__ == "__main__":
+#     import argparse
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("--user-id", type=str, default="user_99", help="User ID")
+#     parser.add_argument("--query", type=str, default="I need a healthy meal plan for today", help="Query")
+#     args = parser.parse_args()
     
-    result = meal_planner_agent(args.user_id, args.query)
-    print(result)
+#     result = meal_planner_agent(args.user_id, args.query)
+#     print(result)
