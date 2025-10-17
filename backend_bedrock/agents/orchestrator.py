@@ -42,16 +42,20 @@ You are an orchestrator agent. Your job is to route user requests to the correct
 - For anything related to food, recipes, or meal planning, use the `meal_planner_agent`.
 - For other requests, handle them directly.
 """
+orchestrator_agent = Agent(
+    system_prompt=ORCHESTRATOR_PROMPT,
+    tools=[meal_planner_agent]
+)
 
-def main():
-    orchestrator = Agent(
-        system_prompt=ORCHESTRATOR_PROMPT,
-        tools=[meal_planner_agent]
-    )
+# def main():
+#     orchestrator_agent = Agent(
+#         system_prompt=ORCHESTRATOR_PROMPT,
+#         tools=[meal_planner_agent]
+#     )
 
-    user_query = "I need a healthy meal plan for next week. My user ID is 'user-123'."
-    response = orchestrator(user_query)
-    print(response)
+#     user_query = "I need a healthy meal plan for next week. My user ID is 'user-123'."
+#     response = orchestrator(user_query)
+#     print(response)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

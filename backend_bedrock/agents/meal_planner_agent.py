@@ -29,7 +29,6 @@ To do this, you must follow these steps:
 2. Fetch available items from the store using `fetch_available_items`.
 3. Generate a list of three distinct meal recipes (breakfast, lunch, dinner) based on the user's preferences and available items.
 4. For each recipe, calculate the estimated cost and calories using the provided tools.
-5. Finally, present the three generated meals to the user, and identify which of the three is the most expensive.
 """
 
 @tool
@@ -56,7 +55,7 @@ def meal_planner_agent(user_id: str, query: str) -> str:
 
 def main():
     """Test the meal planner agent"""
-    user_id = "test-user-123"
+    user_id = "user_99"
     query = "I need a healthy meal plan for today"
     result = meal_planner_agent(user_id, query)
     print(result)
@@ -64,7 +63,7 @@ def main():
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--user-id", type=str, default="test-user-123", help="User ID")
+    parser.add_argument("--user-id", type=str, default="user_99", help="User ID")
     parser.add_argument("--query", type=str, default="I need a healthy meal plan for today", help="Query")
     args = parser.parse_args()
     

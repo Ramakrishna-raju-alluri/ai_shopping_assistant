@@ -81,20 +81,21 @@ def get_user_by_username_or_email(username_or_email: str):
 async def get_current_user(authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization header")
-    try:
-        scheme, token = authorization.split()
-        if scheme.lower() != "bearer":
-            raise ValueError("Invalid scheme")
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if not user_id:
-            raise ValueError("Missing subject")
-    except Exception:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
-    user = get_user_profile(user_id)
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
+    else:
+        try:
+            scheme, token = authorization.split()
+            if scheme.lower() != "bearer":
+                raise ValueError("Invalid scheme")
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id: str = payload.get("sub")
+            if not user_id:
+                raise ValueError("Missing subject")
+        except Exception:
+            raise HTTPException(status_code=401, detail="Could not validate credentials")
+        user = get_user_profile(user_id)
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
 
 
 @router.post("/signup", response_model=UserResponse, status_code=201)

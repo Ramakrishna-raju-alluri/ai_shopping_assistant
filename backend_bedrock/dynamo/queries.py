@@ -33,6 +33,12 @@ def get_recipes_by_diet_and_budget(diet, max_cost):
     return response.get("Items", [])
 
 # --- PRODUCT FUNCTIONS ---
+def get_all_products():
+    """Get all products from the product table"""
+    table = dynamodb.Table(PRODUCT_TABLE)
+    response = table.scan()
+    return response.get("Items", [])
+
 def get_products_by_names(product_names):
     table = dynamodb.Table(PRODUCT_TABLE)
     items = []
