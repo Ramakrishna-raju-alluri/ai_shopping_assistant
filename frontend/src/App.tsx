@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import Dashboard from './components/Dashboard';
+import HealthPlannerAgent from './components/HealthPlannerAgent';
 import LandingPage from './components/LandingPage';
 import ProfileSetupWrapper from './components/profile/ProfileSetupWrapper';
 import LoadingSpinner from './components/common/LoadingSpinner';
@@ -87,6 +88,14 @@ const AppContent: React.FC = () => {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/health-planner"
+          element={
+            <PrivateRoute>
+              <HealthPlannerAgent />
             </PrivateRoute>
           }
         />

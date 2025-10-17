@@ -178,6 +178,14 @@ const LandingPage: React.FC = () => {
           >
             🤖 Personal Shopping Assistant
           </Button>
+          <Button 
+            variant="secondary" 
+            size="lg" 
+            onClick={() => navigate('/health-planner')}
+            className="chatbot-btn"
+          >
+            🧑‍⚕️ Health Planner Agent
+          </Button>
           <Button variant="danger" size="sm" onClick={logout}>
             Logout
           </Button>
