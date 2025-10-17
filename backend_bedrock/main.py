@@ -13,7 +13,6 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="AI Shopping Assistant API (AWS Bedrock Edition)",
         description=(
-            "Backend focused on AWS services: Bedrock, Agents, and DynamoDB.\n"
             "Provides categorized endpoints for auth, profile setup, products, and chat."
         ),
         version="3.0.0",
