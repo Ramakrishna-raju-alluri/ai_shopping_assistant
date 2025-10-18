@@ -70,6 +70,79 @@ def get_products_by_category(category: str, limit: int = 50) -> Dict[str, Any]:
         )
         products = response.get("Items", [])
         
+        # If no products found in DynamoDB, use mock data
+        if not products:
+            mock_products = {
+                "vegetables": [
+                    {
+                        "item_id": "tomatoes_001",
+                        "name": "Organic Tomatoes",
+                        "description": "Fresh organic tomatoes, 1lb",
+                        "price": 2.99,
+                        "category": "vegetables",
+                        "tags": ["tomatoes", "vegetables", "organic"],
+                        "in_stock": True,
+                        "quantity_available": 15
+                    },
+                    {
+                        "item_id": "spinach_001",
+                        "name": "Organic Spinach",
+                        "description": "Fresh organic spinach, 8oz",
+                        "price": 3.99,
+                        "category": "vegetables",
+                        "tags": ["spinach", "vegetables", "organic", "leafy"],
+                        "in_stock": True,
+                        "quantity_available": 12
+                    },
+                    {
+                        "item_id": "onions_001",
+                        "name": "Organic Onions",
+                        "description": "Fresh organic onions, 1lb",
+                        "price": 1.99,
+                        "category": "vegetables",
+                        "tags": ["onions", "vegetables", "organic"],
+                        "in_stock": True,
+                        "quantity_available": 20
+                    },
+                    {
+                        "item_id": "carrots_001",
+                        "name": "Organic Carrots",
+                        "description": "Fresh organic carrots, 1lb",
+                        "price": 2.49,
+                        "category": "vegetables",
+                        "tags": ["carrots", "vegetables", "organic"],
+                        "in_stock": True,
+                        "quantity_available": 18
+                    }
+                ],
+                "dairy": [
+                    {
+                        "item_id": "milk_001",
+                        "name": "Whole Milk",
+                        "description": "Fresh whole milk, 1 gallon",
+                        "price": 4.29,
+                        "category": "dairy",
+                        "tags": ["milk", "dairy", "calcium"],
+                        "in_stock": True,
+                        "quantity_available": 30
+                    }
+                ],
+                "meat": [
+                    {
+                        "item_id": "chicken_001",
+                        "name": "Chicken Breast",
+                        "description": "Fresh chicken breast, per pound",
+                        "price": 6.99,
+                        "category": "meat",
+                        "tags": ["chicken", "protein", "meat"],
+                        "in_stock": True,
+                        "quantity_available": 20
+                    }
+                ]
+            }
+            
+            products = mock_products.get(category.lower(), [])[:limit]
+        
         # Convert Decimal to float
         for product in products:
             if "price" in product:

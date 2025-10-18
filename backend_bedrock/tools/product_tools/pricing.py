@@ -2,9 +2,9 @@ import json
 from typing import List, Dict, Any, Optional
 from boto3.dynamodb.conditions import Attr, Key
 try:
-    from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE, PROMO_TABLE
+    from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE#, PROMO_TABLE
 except ImportError:
-    from dynamo.client import dynamodb, PRODUCT_TABLE, PROMO_TABLE
+    from dynamo.client import dynamodb, PRODUCT_TABLE#, PROMO_TABLE
 
 from strands import tool
 
@@ -31,13 +31,13 @@ def get_product_price(item_id: str) -> Dict[str, Any]:
         
         product = response["Item"]
         price = float(product.get("price", 0))
-        promo = product.get("promo", False)
+        #promo = product.get("promo", False)
         
         return {
             "success": True,
             "item_id": item_id,
             "price": price,
-            "promo": promo,
+            #"promo": promo,
             "currency": "USD",
             "message": f"Price for {item_id}: ${price:.2f}"
         }

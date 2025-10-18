@@ -79,17 +79,22 @@ Return only the JSON response, no additional text.
 
         try:
             # Use the LLM to parse the request
-            # BedrockModel has 'structured_output' method based on debug output
             try:
-                response = self.model.structured_output(parsing_prompt)
-            except AttributeError:
-                try:
-                    # Try stream method and get the result
-                    response_stream = self.model.stream(parsing_prompt)
-                    response = "".join(chunk for chunk in response_stream)
-                except AttributeError:
-                    # Fallback to basic model usage
-                    response = str(self.model)
+                # Try different BedrockModel methods
+                if hasattr(self.model, 'invoke'):
+                    response = self.model.invoke(parsing_prompt)
+                elif hasattr(self.model, 'run'):
+                    response = self.model.run(parsing_prompt)
+                elif hasattr(self.model, '__call__'):
+                    response = self.model(parsing_prompt)
+                else:
+                    # Fallback - use fallback parsing instead of stream
+                    print("No suitable LLM method found, using fallback parsing")
+                    return self._fallback_parse(user_input)
+            except Exception as e:
+                print(f"LLM method error: {e}")
+                # Use fallback parsing
+                return self._fallback_parse(user_input)
             
             # Extract JSON from response
             response_text = str(response)

@@ -44,6 +44,9 @@ def process_natural_language_request(user_request: str, session_id: str = None, 
         Dict with processed results
     """
     try:
+        # Generate default session_id if none provided
+        if not session_id:
+            session_id = "default_session"
         # Use LLM to intelligently parse the request
         parsed_request = parse_grocery_request_with_llm(user_request)
         action = parsed_request.get("action", "add")
@@ -169,14 +172,20 @@ def check_item_availability(item_name: str) -> Dict[str, Any]:
         out_of_stock_products = []
         
         for product in products:
-            if product.get("in_stock", False):
+            # Check stock status:
+            # - If in_stock field is missing: assume available (default True)
+            # - If in_stock is explicitly False: mark as out of stock
+            # - If in_stock is True: mark as available
+            in_stock_status = product.get("in_stock", True)  # Default to True if field missing
+            
+            if in_stock_status is True:
                 available_products.append({
                     "name": product.get("name"),
                     "price": product.get("price", 0),
                     "item_id": product.get("item_id"),
                     "category": product.get("category", "")
                 })
-            else:
+            else:  # in_stock_status is False
                 out_of_stock_products.append({
                     "name": product.get("name"),
                     "price": product.get("price", 0),
@@ -223,7 +232,11 @@ def add_item_to_cart(item_name: str, quantity: int = 1, session_id: str = None) 
     Returns:
         Dict with success status and item details
     """
+    print(f"DEBUG - add_item_to_cart called with item_name='{item_name}', quantity={quantity}, session_id='{session_id}'")
     try:
+        # Generate default session_id if none provided
+        if not session_id:
+            session_id = "default_session"
         # First check availability
         availability_result = check_item_availability(item_name)
         
@@ -260,6 +273,7 @@ def add_item_to_cart(item_name: str, quantity: int = 1, session_id: str = None) 
         
         # Check budget impact before adding
         user_profile = get_user_profile("user_id") if "user_id" else {}  # TODO: get actual user_id
+        user_profile = user_profile or {}  # Handle None case
         budget_limit = float(user_profile.get("budget_limit", 100))
         
         # Get current cart total
@@ -320,7 +334,7 @@ def add_item_to_cart(item_name: str, quantity: int = 1, session_id: str = None) 
 
 
 @tool
-def get_cart_summary(session_id: str) -> Dict[str, Any]:
+def get_cart_summary(session_id: str = None) -> Dict[str, Any]:
     """
     Get current cart contents and total
     
@@ -331,6 +345,9 @@ def get_cart_summary(session_id: str) -> Dict[str, Any]:
         Dict with cart contents and total
     """
     try:
+        # Generate default session_id if none provided
+        if not session_id:
+            session_id = "default_session"
         # Get cart summary from session storage
         cart_summary = calc_cart_total(session_id)
         

@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from .fetch import fetch_all_products, get_products_by_category
 from .search import search_products
-from .pricing import get_product_price, calculate_cart_total, check_promo_offers
+from .pricing import get_product_price, calculate_cart_total#, check_promo_offers
 from .availability import check_product_availability
 from .substitutes import find_product_substitutes
  
@@ -76,17 +76,17 @@ PRODUCT_TOOLS = [
             "required": ["category"]
         }
     },
-    {
-        "name": "check_promo_offers",
-        "description": "Check for promotional offers on specific products",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "item_ids": {"type": "array", "items": {"type": "string"}, "description": "List of product IDs to check"}
-            },
-            "required": ["item_ids"]
-        }
-    },
+    # {
+    #     "name": "check_promo_offers",
+    #     "description": "Check for promotional offers on specific products",
+    #     "parameters": {
+    #         "type": "object",
+    #         "properties": {
+    #             "item_ids": {"type": "array", "items": {"type": "string"}, "description": "List of product IDs to check"}
+    #         },
+    #         "required": ["item_ids"]
+    #     }
+    # },
     {
         "name": "calculate_cart_total",
         "description": "Calculate total cost for a cart of items",
@@ -119,7 +119,7 @@ def execute_catalog_tool(tool_name: str, parameters: Dict[str, Any]) -> Dict[str
         "get_product_price": get_product_price,
         "find_product_substitutes": find_product_substitutes,
         "get_products_by_category": get_products_by_category,
-        "check_promo_offers": check_promo_offers,
+        #"check_promo_offers": check_promo_offers,
         "calculate_cart_total": calculate_cart_total
     }
     
