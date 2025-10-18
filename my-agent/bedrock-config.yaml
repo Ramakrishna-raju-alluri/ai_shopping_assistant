@@ -1,0 +1,208 @@
+# Bedrock Agent Configuration for Coles Shopping Assistant
+agent:
+  name: "coles-shopping-assistant"
+  description: "AI assistant for grocery shopping, nutrition tracking, and meal planning"
+  version: "1.0.0"
+  
+  # Model configuration
+  model:
+    id: "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+    temperature: 0.1
+    max_tokens: 4000
+    
+  # Agent capabilities
+  capabilities:
+    - "product_inquiry"
+    - "nutrition_tracking"
+    - "meal_planning"
+    - "user_profile_management"
+    
+  # System prompt (can be overridden in code)
+  system_prompt: |
+    You are the Coles Shopping Assistant, an AI agent that helps users with grocery shopping, 
+    nutrition tracking, and meal planning. You have access to various tools to help users with:
+    
+    1. Product Information: Check if products are in stock, get product details
+    2. Nutrition Tracking: Log meals, track calories, set daily targets, check remaining calories
+    3. Meal Planning: Generate meal suggestions based on preferences and budget
+    4. User Profile: Access user dietary preferences and constraints
+    
+    Be helpful, conversational, and provide clear, actionable responses.
+
+# Tool definitions
+tools:
+  # Database tools
+  - name: "find_product_stock"
+    description: "Check if a product by name is in stock"
+    parameters:
+      product_name:
+        type: "string"
+        description: "Name of the product to check"
+        required: true
+        
+  - name: "get_nutrition_plan"
+    description: "Fetch the day's nutrition plan for the user"
+    parameters:
+      user_id:
+        type: "string"
+        description: "User ID"
+        required: true
+      date:
+        type: "string"
+        description: "Date in YYYY-MM-DD format"
+        required: true
+        
+  - name: "set_nutrition_target"
+    description: "Set or update the daily calorie target for a given date"
+    parameters:
+      user_id:
+        type: "string"
+        description: "User ID"
+        required: true
+      date:
+        type: "string"
+        description: "Date in YYYY-MM-DD format"
+        required: true
+      target:
+        type: "integer"
+        description: "Daily calorie target"
+        required: true
+        
+  - name: "append_meal"
+    description: "Append a single meal to the day's plan"
+    parameters:
+      user_id:
+        type: "string"
+        description: "User ID"
+        required: true
+      date:
+        type: "string"
+        description: "Date in YYYY-MM-DD format"
+        required: true
+      meal:
+        type: "object"
+        description: "Meal object with name, calories, protein, carbs, fat"
+        required: true
+        
+  - name: "get_calories_remaining"
+    description: "Return remaining calories for the day using stored target when available"
+    parameters:
+      user_id:
+        type: "string"
+        description: "User ID"
+        required: true
+      date:
+        type: "string"
+        description: "Date in YYYY-MM-DD format"
+        required: true
+      daily_target:
+        type: "integer"
+        description: "Daily calorie target (optional, uses stored target if not provided)"
+        required: false
+        
+  - name: "get_user_profile"
+    description: "Fetch user profile from DynamoDB"
+    parameters:
+      user_id:
+        type: "string"
+        description: "User ID"
+        required: true
+        
+  # Model tools
+  - name: "calculate_calories"
+    description: "Calculate estimated total calories for a list of ingredients"
+    parameters:
+      ingredients:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of ingredient names"
+        required: true
+        
+  - name: "calculate_cost"
+    description: "Calculate total cost of a list of grocery items"
+    parameters:
+      items:
+        type: "array"
+        items:
+          type: "object"
+        description: "List of grocery items with price information"
+        required: true
+        
+  - name: "generate_meal_suggestions"
+    description: "Generate meal suggestions based on preferences, budget, and available ingredients"
+    parameters:
+      dietary_preferences:
+        type: "string"
+        description: "Dietary preferences or restrictions"
+        required: true
+      budget:
+        type: "number"
+        description: "Budget in dollars"
+        required: true
+      available_ingredients:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of available ingredients"
+        required: true
+        
+  # Utility tools
+  - name: "get_current_date"
+    description: "Get current date in YYYY-MM-DD format"
+    parameters: {}
+    
+  - name: "format_nutrition_summary"
+    description: "Format a nutrition summary for display"
+    parameters:
+      user_id:
+        type: "string"
+        description: "User ID"
+        required: true
+      date:
+        type: "string"
+        description: "Date in YYYY-MM-DD format"
+        required: true
+      plan:
+        type: "object"
+        description: "Nutrition plan object"
+        required: true
+        
+  - name: "validate_date_format"
+    description: "Validate if date string is in YYYY-MM-DD format"
+    parameters:
+      date_str:
+        type: "string"
+        description: "Date string to validate"
+        required: true
+        
+  - name: "parse_meal_input"
+    description: "Parse a meal description into structured data"
+    parameters:
+      meal_description:
+        type: "string"
+        description: "Natural language meal description"
+        required: true
+
+# Environment variables
+environment:
+  AWS_REGION: "us-east-1"
+  USER_TABLE: "mock-users2"
+  PRODUCT_TABLE: "mock-products2"
+  RECIPE_TABLE: "mock-recipes2"
+  PROMO_TABLE: "promo_stock_feed2"
+  NUTRITION_TABLE: "nutrition_calendar"
+
+# Deployment configuration
+deployment:
+  runtime: "python3.12"
+  timeout: 300
+  memory: 512
+  
+  # IAM permissions
+  permissions:
+    - "dynamodb:GetItem"
+    - "dynamodb:PutItem"
+    - "dynamodb:Query"
+    - "dynamodb:Scan"
+    - "bedrock:InvokeModel"
