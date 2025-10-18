@@ -1,13 +1,19 @@
 """
-Main entry point for the Coles Shopping Assistant Agent - Orchestrator
+AgentCore entry point for the Coles Shopping Assistant Agent - Orchestrator
 """
 import json
 import logging
+import sys
+import os
+
+# Add src directory to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
 from strands import Agent
 from bedrock_agentcore import BedrockAgentCoreApp
-from .agents.product_agent import product_agent
-from .agents.nutrition_agent import nutrition_agent
-from .agents.meal_planning_agent import meal_planning_agent
+from agents.product_agent import product_agent
+from agents.nutrition_agent import nutrition_agent
+from agents.meal_planning_agent import meal_planning_agent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -89,13 +95,6 @@ def invoke(payload):
     except Exception as e:
         logger.error(f"Error processing request: {str(e)}", exc_info=True)
         return f"Error: {str(e)}"
-
-
-def main():
-    """Local testing entry point"""
-    user_query = "Are bananas in stock? My user ID is 'test-user-123'."
-    response = agent(user_query)
-    print(response)
 
 
 if __name__ == "__main__":
