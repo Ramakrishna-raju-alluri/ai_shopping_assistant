@@ -46,6 +46,7 @@ def meal_planning_agent(user_id: str, query: str) -> str:
         query: The user's meal planning query, e.g., "Suggest healthy meals under $20"
     """
     agent = Agent(
+        model_id="amazon.nova-pro-v1:0",
         system_prompt=MEAL_PLANNING_AGENT_PROMPT,
         tools=[
             get_user_profile,

@@ -1,0 +1,158 @@
+default_agent: main
+agents:
+  shopping_assistant:
+    name: shopping_assistant
+    entrypoint: C:/Users/Administrator/Desktop/Coles_2/coles-shopping-assistant/my-agent/main.py
+    platform: linux/arm64
+    container_runtime: none
+    source_path: C:\Users\Administrator\Desktop\Coles_2\coles-shopping-assistant\my-agent
+    aws:
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-ec603a1624
+      execution_role_auto_create: false
+      account: 058264125602
+      region: us-east-1
+      ecr_repository: 058264125602.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-shopping_assistant
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: null
+      agent_arn: null
+      agent_session_id: null
+    codebuild:
+      project_name: null
+      execution_role: null
+      source_bucket: null
+    memory:
+      mode: STM_ONLY
+      memory_id: shopping_assistant_mem-C6xHri8z2a
+      memory_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:memory/shopping_assistant_mem-C6xHri8z2a
+      memory_name: shopping_assistant_mem
+      event_expiry_days: 30
+      first_invoke_memory_check_done: false
+      was_created_by_toolkit: true
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
+  shopping_assistant_ai:
+    name: shopping_assistant_ai
+    entrypoint: C:/Users/Administrator/Desktop/Coles_2/coles-shopping-assistant/my-agent/main.py
+    platform: linux/arm64
+    container_runtime: none
+    source_path: C:\Users\Administrator\Desktop\Coles_2\coles-shopping-assistant\my-agent
+    aws:
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-7cdfc231f0
+      execution_role_auto_create: false
+      account: '799440957487'
+      region: us-east-1
+      ecr_repository: 799440957487.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-shopping_assistant_ai
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: shopping_assistant_ai-VNQKQcB5de
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/shopping_assistant_ai-VNQKQcB5de
+      agent_session_id: ce88452b-c3ea-4652-94ce-6ca3b4bfc05a
+    codebuild:
+      project_name: bedrock-agentcore-shopping_assistant_ai-builder
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-7cdfc231f0
+      source_bucket: bedrock-agentcore-codebuild-sources-799440957487-us-east-1
+    memory:
+      mode: STM_AND_LTM
+      memory_id: shopping_assistant_mem-C6xHri8z2a
+      memory_arn: null
+      memory_name: shopping_assistant_ai_memory
+      event_expiry_days: 30
+      first_invoke_memory_check_done: true
+      was_created_by_toolkit: false
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
+  shop_assistant:
+    name: shop_assistant
+    entrypoint: C:/Users/Administrator/Desktop/Coles_2/coles-shopping-assistant/my-agent/main.py
+    platform: linux/arm64
+    container_runtime: none
+    source_path: C:\Users\Administrator\Desktop\Coles_2\coles-shopping-assistant\my-agent
+    aws:
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-a799531b2b
+      execution_role_auto_create: false
+      account: '799440957487'
+      region: us-east-1
+      ecr_repository: 799440957487.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-shop_assistant
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: shop_assistant-2zIGjd2bXz
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/shop_assistant-2zIGjd2bXz
+      agent_session_id: bda06e0b-a60c-46e2-b546-cf4f2d454586
+    codebuild:
+      project_name: bedrock-agentcore-shop_assistant-builder
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-a799531b2b
+      source_bucket: bedrock-agentcore-codebuild-sources-799440957487-us-east-1
+    memory:
+      mode: STM_AND_LTM
+      memory_id: shopping_assistant_mem-C6xHri8z2a
+      memory_arn: null
+      memory_name: shop_assistant_memory
+      event_expiry_days: 30
+      first_invoke_memory_check_done: true
+      was_created_by_toolkit: false
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
+  main:
+    name: main
+    entrypoint: C:/Users/Administrator/Desktop/Coles_2/coles-shopping-assistant/my-agent/main.py
+    platform: linux/arm64
+    container_runtime: none
+    source_path: C:\Users\Administrator\Desktop\Coles_2\coles-shopping-assistant\my-agent
+    aws:
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-0d6e4079e3
+      execution_role_auto_create: false
+      account: '799440957487'
+      region: us-east-1
+      ecr_repository: 799440957487.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-main
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: main-kePz2k4252
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/main-kePz2k4252
+      agent_session_id: 92937bd3-7189-4e70-8d86-3e999114591f
+    codebuild:
+      project_name: bedrock-agentcore-main-builder
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-0d6e4079e3
+      source_bucket: bedrock-agentcore-codebuild-sources-799440957487-us-east-1
+    memory:
+      mode: STM_ONLY
+      memory_id: main_mem-5R2lpNCrF9
+      memory_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:memory/main_mem-5R2lpNCrF9
+      memory_name: main_mem
+      event_expiry_days: 30
+      first_invoke_memory_check_done: true
+      was_created_by_toolkit: true
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null

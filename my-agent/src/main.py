@@ -46,6 +46,7 @@ Important:
 
 # Initialize the orchestrator agent with specialized agents as tools
 agent = Agent(
+    model_id="amazon.nova-pro-v1:0" ,
     system_prompt=ORCHESTRATOR_PROMPT,
     tools=[
         product_agent,

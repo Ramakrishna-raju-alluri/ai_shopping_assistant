@@ -40,6 +40,7 @@ def product_agent(user_id: str, query: str) -> str:
         query: The user's product-related query, e.g., "Are bananas in stock?"
     """
     agent = Agent(
+        model_id="amazon.nova-pro-v1:0",
         system_prompt=PRODUCT_AGENT_PROMPT,
         tools=[
             find_product_stock,

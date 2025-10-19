@@ -59,6 +59,7 @@ def nutrition_agent(user_id: str, query: str) -> str:
         query: The user's nutrition-related query, e.g., "Log breakfast with 400 calories"
     """
     agent = Agent(
+        model_id="amazon.nova-pro-v1:0",
         system_prompt=NUTRITION_AGENT_PROMPT,
         tools=[
             get_nutrition_plan,

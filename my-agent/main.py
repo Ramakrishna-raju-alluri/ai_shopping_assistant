@@ -1,5 +1,6 @@
 """
 AgentCore entry point for the Coles Shopping Assistant Agent - Orchestrator
+Using DeepSeek instead of Bedrock
 """
 import json
 import logging
@@ -10,6 +11,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from strands import Agent
+from strands.models import BedrockModel
 from bedrock_agentcore import BedrockAgentCoreApp
 from agents.product_agent import product_agent
 from agents.nutrition_agent import nutrition_agent
@@ -19,8 +21,8 @@ from agents.meal_planning_agent import meal_planning_agent
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize AgentCore app
-app = BedrockAgentCoreApp()
+# Initialize the AgentCore Runtime App
+app = BedrockAgentCoreApp()  #### AGENTCORE RUNTIME - LINE 2 ####
 
 ORCHESTRATOR_PROMPT = """
 You are the Coles Shopping Assistant orchestrator that coordinates between specialized agents to provide comprehensive grocery shopping, nutrition tracking, and meal planning assistance.
@@ -50,8 +52,14 @@ Important:
 - Be helpful and provide clear, actionable responses
 """
 
+# Initialize Nova Pro model from AWS Bedrock
+nova_pro_model = BedrockModel(
+    model_id="amazon.nova-pro-v1:0"  # Nova Pro model (simplified ARN)
+)
+
 # Initialize the orchestrator agent with specialized agents as tools
 agent = Agent(
+    model=nova_pro_model,
     system_prompt=ORCHESTRATOR_PROMPT,
     tools=[
         product_agent,
@@ -61,13 +69,14 @@ agent = Agent(
 )
 
 
-@app.entrypoint
-def invoke(payload):
+@app.entrypoint  #### AGENTCORE RUNTIME - LINE 3 ####
+async def invoke(payload, context=None):
     """
     AgentCore entry point for the agent
     
     Args:
         payload: The input payload containing user query and metadata
+        context: Optional context (not used in this implementation)
     
     Returns:
         String response from the agent
@@ -98,4 +107,5 @@ def invoke(payload):
 
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
+    agent("Do you have stock of bananas")

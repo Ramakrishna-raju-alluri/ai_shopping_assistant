@@ -1,6 +1,6 @@
 # Coles Shopping Assistant Agent
 
-An AI-powered agent built with AWS Bedrock Agent Core that helps users with grocery shopping, nutrition tracking, and meal planning.
+An AI-powered agent built with AWS Bedrock Agent Core and Nova Pro (via AWS Bedrock) that helps users with grocery shopping, nutrition tracking, and meal planning.
 
 ## Features
 
@@ -13,20 +13,15 @@ An AI-powered agent built with AWS Bedrock Agent Core that helps users with groc
 
 ```
 my-agent/
+├── main.py                 # Entry point with AgentCore runtime
 ├── src/
-│   ├── main.py              # Entry point (Lambda-style handler)
-│   ├── agent_logic.py       # Core orchestration logic
-│   ├── tools/               # Agent tools
-│   │   ├── __init__.py
-│   │   ├── db_tool.py       # DynamoDB operations
-│   │   ├── model_tool.py    # Bedrock model calls
-│   │   └── custom_tool.py   # Custom utility functions
-│   └── utils/
-│       ├── logger.py        # Logging utilities
-│       └── helper.py        # Helper functions
+│   └── agents/            # Specialized agents
+│       ├── product_agent.py
+│       ├── nutrition_agent.py
+│       └── meal_planning_agent.py
 ├── requirements.txt
 ├── Dockerfile
-├── bedrock-config.yaml      # Agent configuration
+├── nova-pro-config.yaml    # Nova Pro configuration
 └── README.md
 ```
 
@@ -57,7 +52,7 @@ my-agent/
 - Python 3.12+
 - AWS CLI configured
 - DynamoDB tables created
-- Bedrock access
+- AWS Bedrock access with Nova Pro model enabled
 
 ### Installation
 
@@ -91,12 +86,12 @@ export NUTRITION_TABLE=nutrition_calendar
 
 Run the agent locally:
 ```bash
-python -m src.main --prompt "Are bananas in stock?" --user-id test-user-123
+python main.py
 ```
 
-Run the comprehensive test suite:
+Test with Nova Pro integration:
 ```bash
-python test_agent.py
+python test_deepseek.py
 ```
 
 ### Docker
