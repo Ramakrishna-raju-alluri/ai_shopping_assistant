@@ -96,6 +96,9 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
         )
     
     # The combined prompt provides context for the specialized agent
+    # IMPORTANT: For cart operations, we need to use user_id as session_id to match frontend
+    # The cart operations will automatically use user_id as session_id when none is provided
     combined_prompt = f"User ID: {user_id}. Request: {query}"
+    
     response = agent(combined_prompt)
     return str(response)

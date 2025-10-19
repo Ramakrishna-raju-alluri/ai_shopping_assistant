@@ -208,57 +208,58 @@ async def remove_from_cart_legacy(item_id: str, current_user: dict = Depends(get
 
 
 @router.put("/cart/update")
-async def update_cart_item(item: UpdateCartItem, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
+async def update_cart_item_api(item: UpdateCartItem, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
     """Update item quantity in cart"""
     try:
         user_id = current_user.get("user_id", "default_user")
         session_id = user_id
         print(f"🔍 Frontend PUT /cart/update - user_id: {user_id}, item_id: {item.item_id}, quantity: {item.quantity}")
         
-        # Remove the old item first
-        remove_result = remove_from_cart(user_id, item.item_id, session_id)
+        # Import the new update function
+        from tools.grocery.cart_operations import update_cart_item
         
-        # Add the item back with new quantity
-        if item.quantity > 0:
-            add_result = add_to_cart(user_id, item.item_id, item.quantity, session_id)
-            if add_result['success']:
-                # Get updated cart
-                updated_cart = get_cart_summary(user_id, session_id)
-                if updated_cart['success']:
-                    frontend_items = []
-                    for cart_item in updated_cart['data']['items']:
-                        frontend_items.append({
-                            "item_id": cart_item.get('item_id'),
-                            "name": cart_item.get('product_name'),
-                            "price": cart_item.get('price'),
-                            "quantity": cart_item.get('quantity'),
-                            "added_at": cart_item.get('added_timestamp', '')
-                        })
-                    
-                    return {
-                        "success": True,
-                        "message": f"Updated quantity to {item.quantity}",
-                        "cart": {
-                            "user_id": user_id,
-                            "items": frontend_items,
-                            "total_items": updated_cart['data']['item_count'],
-                            "total_cost": updated_cart['data']['total_cost'],
-                            "last_updated": "now"
-                        }
+        # Use the new direct update function instead of remove-then-add
+        result = update_cart_item(user_id, item.item_id, item.quantity, session_id)
+        
+        if result['success']:
+            # Get updated cart
+            updated_cart = get_cart_summary(user_id, session_id)
+            if updated_cart['success']:
+                frontend_items = []
+                for cart_item in updated_cart['data']['items']:
+                    frontend_items.append({
+                        "item_id": cart_item.get('item_id'),
+                        "name": cart_item.get('product_name'),
+                        "price": cart_item.get('price'),
+                        "quantity": cart_item.get('quantity'),
+                        "added_at": cart_item.get('added_timestamp', '')
+                    })
+                
+                return {
+                    "success": True,
+                    "message": result['message'],
+                    "cart": {
+                        "user_id": user_id,
+                        "items": frontend_items,
+                        "total_items": updated_cart['data']['item_count'],
+                        "total_cost": updated_cart['data']['total_cost'],
+                        "last_updated": "now"
                     }
-        
-        # If quantity is 0 or add failed, just return empty cart
-        return {
-            "success": True,
-            "message": "Item removed from cart",
-            "cart": {
-                "user_id": user_id,
-                "items": [],
-                "total_items": 0,
-                "total_cost": 0,
-                "last_updated": "now"
-            }
-        }
+                }
+            else:
+                return {
+                    "success": True,
+                    "message": result['message'],
+                    "cart": {
+                        "user_id": user_id,
+                        "items": [],
+                        "total_items": 0,
+                        "total_cost": 0,
+                        "last_updated": "now"
+                    }
+                }
+        else:
+            raise HTTPException(status_code=400, detail=result['message'])
             
     except Exception as e:
         print(f"Error updating cart: {e}")

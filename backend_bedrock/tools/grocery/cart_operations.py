@@ -7,12 +7,17 @@ including adding/removing items, cart summaries, and budget management.
 
 import json
 import sys
+import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 from decimal import Decimal
 from strands import tool
 from boto3.dynamodb.conditions import Key
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Add parent directory to path for imports
 current_dir = Path(__file__).resolve().parent
@@ -22,23 +27,35 @@ if str(project_root) not in sys.path:
 
 # Import dependencies with flexible import system
 try:
-    from backend_bedrock.dynamo.client import dynamodb
+    from backend_bedrock.dynamo.client import dynamodb, CART_TABLE
     from backend_bedrock.tools.shared.user_profile import get_user_profile_raw
     from backend_bedrock.tools.shared.product_catalog import search_products, check_product_availability
     from backend_bedrock.tools.shared.calculations import calculate_cart_total_session
 except ImportError:
     try:
-        from dynamo.client import dynamodb
+        from dynamo.client import dynamodb, CART_TABLE
         from tools.shared.user_profile import get_user_profile_raw
         from tools.shared.product_catalog import search_products, check_product_availability
         from tools.shared.calculations import calculate_cart_total_session
     except ImportError:
-        # Fallback for testing
+        # Fallback - create DynamoDB resource with explicit credentials from environment
         import boto3
         try:
-            dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        except:
+            # Try to create DynamoDB resource with environment credentials
+            dynamodb = boto3.resource(
+                "dynamodb", 
+                region_name=os.getenv("AWS_DEFAULT_REGION", "us-east-1"),
+                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
+            )
+            print(f"✅ DynamoDB resource created with explicit credentials")
+        except Exception as e:
+            print(f"❌ Failed to create DynamoDB resource: {e}")
             dynamodb = None
+        
+        # Fallback cart table name
+        CART_TABLE = os.getenv("CART_TABLE", "user_carts")
+        
         def get_user_profile_raw(user_id):
             return {"budget_limit": 100}
         def search_products(query, limit=5):
@@ -48,9 +65,6 @@ except ImportError:
         def calculate_cart_total_session(session_id, items):
             return {"total_cost": 0, "item_count": 0}
 
-# Cart table name
-CART_TABLE = "user_carts"
-
 # In-memory cart storage as fallback
 _cart_storage = {}
 
@@ -58,6 +72,11 @@ _cart_storage = {}
 def create_cart_table_if_not_exists():
     """Create the cart table if it doesn't exist."""
     try:
+        if dynamodb is None:
+            print(f"❌ DynamoDB resource not available")
+            print(f"🔄 Using in-memory storage as fallback")
+            return False
+            
         table = dynamodb.Table(CART_TABLE)
         # Try to get table status instead of describe
         table.table_status
@@ -241,8 +260,8 @@ def add_to_cart(user_id: str, product_id: str, quantity: int = 1, session_id: st
         Dict[str, Any]: Standardized response with operation result
     """
     try:
-        # Generate default session_id if none provided
-        # Use user_id as fallback to ensure consistency with frontend
+        # Use provided session_id, but default to user_id if none provided
+        # This ensures consistency between frontend and agent cart operations
         if not session_id:
             session_id = user_id
         
@@ -349,10 +368,12 @@ def remove_from_cart(user_id: str, product_id: str, session_id: str = None) -> D
         Dict[str, Any]: Standardized response with operation result
     """
     try:
-        # Generate default session_id if none provided
-        # Use user_id as fallback to ensure consistency with frontend
+        # Use provided session_id, but default to user_id if none provided
+        # This ensures consistency between frontend and agent cart operations
         if not session_id:
             session_id = user_id
+        
+        print(f"🗑️ REMOVE_FROM_CART called: user_id={user_id}, product_id={product_id}, session_id={session_id}")
         
         # Remove item from cart
         success = remove_cart_item(session_id, product_id)
@@ -399,10 +420,12 @@ def get_cart_summary(user_id: str, session_id: str = None) -> Dict[str, Any]:
         Dict[str, Any]: Standardized response with cart summary
     """
     try:
-        # Generate default session_id if none provided
-        # Use user_id as fallback to ensure consistency with frontend
+        # Use provided session_id, but default to user_id if none provided
+        # This ensures consistency between frontend and agent cart operations
         if not session_id:
             session_id = user_id
+        
+        print(f"📋 GET_CART_SUMMARY called: user_id={user_id}, session_id={session_id}")
         
         # Get cart items
         items = get_cart_items(session_id)
@@ -442,6 +465,161 @@ def get_cart_summary(user_id: str, session_id: str = None) -> Dict[str, Any]:
 
 
 @tool
+def update_cart_item_quantity(session_id: str, item_id: str, new_quantity: int) -> bool:
+    """
+    Update the quantity of an item in the cart without removing and re-adding.
+    
+    Args:
+        session_id (str): Session identifier
+        item_id (str): Item identifier to update
+        new_quantity (int): New quantity for the item
+        
+    Returns:
+        bool: Success status
+    """
+    try:
+        if not create_cart_table_if_not_exists():
+            # Use in-memory storage as fallback
+            print(f"🔄 UPDATE_QUANTITY: Updating item {item_id} to quantity {new_quantity} in session {session_id}")
+            if session_id in _cart_storage:
+                for item in _cart_storage[session_id]:
+                    if item.get("item_id") == item_id:
+                        item["quantity"] = new_quantity
+                        print(f"✅ Updated item quantity: {item}")
+                        return True
+                print(f"❌ Item {item_id} not found in cart")
+                return False
+            return False
+            
+        table = dynamodb.Table(CART_TABLE)
+        
+        # Update the item quantity directly using DynamoDB update_item
+        response = table.update_item(
+            Key={
+                "session_id": session_id,
+                "item_id": item_id
+            },
+            UpdateExpression="SET quantity = :new_quantity",
+            ExpressionAttributeValues={
+                ":new_quantity": new_quantity
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+        
+        print(f"✅ Updated item {item_id} quantity to {new_quantity}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error updating cart item quantity: {e}")
+        return False
+
+
+@tool
+def update_cart_item(user_id: str, item_id: str, new_quantity: int, session_id: str = None) -> Dict[str, Any]:
+    """
+    Update the quantity of an item in the shopping cart.
+    
+    Args:
+        user_id (str): User identifier
+        item_id (str): Item identifier to update
+        new_quantity (int): New quantity for the item
+        session_id (str): Session ID for cart storage
+        
+    Returns:
+        Dict[str, Any]: Standardized response with operation result
+    """
+    try:
+        # Use provided session_id, but default to user_id if none provided
+        # This ensures consistency between frontend and agent cart operations
+        if not session_id:
+            session_id = user_id
+        
+        print(f"🔄 UPDATE_CART_ITEM: user_id={user_id}, item_id={item_id}, new_quantity={new_quantity}, session_id={session_id}")
+        
+        # If quantity is 0 or negative, remove the item
+        if new_quantity <= 0:
+            return remove_from_cart(user_id, item_id, session_id)
+        
+        # Check if item exists in cart first
+        current_items = get_cart_items(session_id)
+        item_exists = any(item.get("item_id") == item_id for item in current_items)
+        
+        if not item_exists:
+            return {
+                'success': False,
+                'data': None,
+                'message': f"Item {item_id} not found in cart"
+            }
+        
+        # Check budget impact with new quantity
+        user_profile = get_user_profile_raw(user_id) or {}
+        budget_limit = float(user_profile.get("budget_limit", 100))
+        
+        # Calculate new total cost
+        current_total = 0
+        item_price = 0
+        for item in current_items:
+            if item.get("item_id") == item_id:
+                item_price = float(item.get("price", 0))
+                # Calculate total without this item's current contribution
+                current_total += sum(float(other_item.get("price", 0)) * int(other_item.get("quantity", 0)) 
+                                   for other_item in current_items 
+                                   if other_item.get("item_id") != item_id)
+            else:
+                current_total += float(item.get("price", 0)) * int(item.get("quantity", 0))
+        
+        # Add the new quantity cost
+        new_item_cost = item_price * new_quantity
+        projected_total = current_total + new_item_cost
+        
+        # Check budget
+        if projected_total > budget_limit:
+            return {
+                'success': False,
+                'data': {
+                    'current_total': current_total,
+                    'item_cost': new_item_cost,
+                    'projected_total': projected_total,
+                    'budget_limit': budget_limit,
+                    'over_budget': projected_total - budget_limit
+                },
+                'message': f"Updating to {new_quantity} would exceed your budget by ${projected_total - budget_limit:.2f}"
+            }
+        
+        # Update the quantity directly
+        success = update_cart_item_quantity(session_id, item_id, new_quantity)
+        
+        if success:
+            # Get updated cart summary
+            updated_items = get_cart_items(session_id)
+            cart_total = calculate_cart_total_session(session_id, updated_items)
+            
+            return {
+                'success': True,
+                'data': {
+                    'updated_item_id': item_id,
+                    'new_quantity': new_quantity,
+                    'cart_total': cart_total.get("total_cost", 0),
+                    'budget_remaining': budget_limit - cart_total.get("total_cost", 0)
+                },
+                'message': f"Updated {item_id} quantity to {new_quantity}"
+            }
+        else:
+            return {
+                'success': False,
+                'data': None,
+                'message': f"Failed to update item {item_id} quantity"
+            }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'data': None,
+            'message': f'Error updating cart item: {str(e)}'
+        }
+
+
+@tool
 def clear_cart(user_id: str, session_id: str = None) -> Dict[str, Any]:
     """
     Clear all items from the shopping cart.
@@ -454,10 +632,12 @@ def clear_cart(user_id: str, session_id: str = None) -> Dict[str, Any]:
         Dict[str, Any]: Standardized response with operation result
     """
     try:
-        # Generate default session_id if none provided
-        # Use user_id as fallback to ensure consistency with frontend
+        # Use provided session_id, but default to user_id if none provided
+        # This ensures consistency between frontend and agent cart operations
         if not session_id:
             session_id = user_id
+        
+        print(f"🧹 CLEAR_CART called: user_id={user_id}, session_id={session_id}")
         
         # Get current items
         items = get_cart_items(session_id)
