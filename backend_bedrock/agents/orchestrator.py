@@ -25,32 +25,46 @@ from strands.hooks import AgentInitializedEvent, HookProvider, HookRegistry, Mes
 # Import AgentCore Memory for shared memory
 try:
     from bedrock_agentcore.memory import MemoryClient
-    # Temporarily disable shared memory for frontend testing
-    MEMORY_AVAILABLE = False  # Set to True when ready to use shared memory
-    print("🔧 Shared memory temporarily disabled for frontend testing")
+    MEMORY_AVAILABLE = True
+    print("🧠 AgentCore Memory available")
 except ImportError:
-    print("AgentCore Memory not available, using conversation manager only")
+    print("AgentCore Memory not available, agents will run without memory")
     MEMORY_AVAILABLE = False
 
 # Initialize shared memory if available
 if MEMORY_AVAILABLE:
     memory_client = MemoryClient(region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1'))
-    memory_name = f"GroceryAssistant_STM_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    memory_name = f"GroceryAssistant_STM_{datetime.now().strftime('%Y%m%d')}"
     memory_id = None
     try:
         memory = memory_client.create_memory_and_wait(
             name=memory_name,
             description="Grocery Assistant Shared Memory",
             strategies=[],
-            event_expiry_days=7,  # Minimum allowed value is 7 days
+            event_expiry_days=7,
             max_wait=300,
             poll_interval=10
         )
         memory_id = memory['id']
         print(f"✅ Shared memory created: {memory_id}")
     except Exception as e:
-        print(f"⚠️ Memory creation failed: {e}")
-        MEMORY_AVAILABLE = False
+        if "already exists" in str(e):
+            # Get existing memory
+            try:
+                memories = memory_client.list_memories()
+                existing_memory = next((m for m in memories if memory_name in m.get('name', '')), None)
+                if existing_memory:
+                    memory_id = existing_memory['id']
+                    print(f"✅ Using existing memory: {memory_id}")
+                else:
+                    print(f"⚠️ Memory creation failed: {e}")
+                    MEMORY_AVAILABLE = False
+            except:
+                print(f"⚠️ Memory creation failed: {e}")
+                MEMORY_AVAILABLE = False
+        else:
+            print(f"⚠️ Memory creation failed: {e}")
+            MEMORY_AVAILABLE = False
 
 # Create unique actor IDs for each specialized agent but share the session ID
 meal_planner_actor_id = f"meal-planner-user-{datetime.now().strftime('%Y%m%d%H%M%S')}"
@@ -58,11 +72,9 @@ grocery_list_actor_id = f"grocery-list-user-{datetime.now().strftime('%Y%m%d%H%M
 health_planner_actor_id = f"health-planner-user-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 simple_query_actor_id = f"simple-query-user-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 session_id = f"grocery-session-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-# Try different models in order of preference
-MODEL_ID = "us.anthropic.claude-3-5-sonnet-20241022-v2:0"  # Try this first
-# Fallback options:
-# MODEL_ID = "anthropic.claude-3-sonnet-20240229-v1:0"
-# MODEL_ID = "anthropic.claude-instant-v1"
+# Load model ID from environment with fallback
+MODEL_ID = os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
+print(f"🤖 Using model: {MODEL_ID}")
 
 print(f"🔧 Session ID: {session_id}")
 print(f"🔧 Meal Planner Actor ID: {meal_planner_actor_id}")
@@ -116,7 +128,7 @@ conversation_manager = SummarizingConversationManager(
     preserve_recent_messages=5,
 )
 
-# Create wrapper functions that pass memory parameters to each agent
+# Create wrapper functions following travel-planning pattern
 @tool
 def meal_planner_wrapper(user_id: str, query: str) -> str:
     """Wrapper for meal planner agent with memory parameters"""
@@ -182,35 +194,18 @@ def simple_query_wrapper(user_id: str, query: str) -> str:
     else:
         return simple_query_agent.simple_query_agent(user_id=user_id, query=query, model_id=MODEL_ID)
 
-# Create orchestrator with shared memory if available
-if MEMORY_AVAILABLE:
-    shared_memory_hooks = ShortTermMemoryHook(memory_client, memory_id)
-    orchestrator_agent = Agent(
-        system_prompt=ORCHESTRATOR_PROMPT,
-        model=MODEL_ID,
-        tools=[
-            meal_planner_wrapper,
-            health_planner_wrapper,
-            simple_query_wrapper,
-            grocery_list_wrapper
-        ],
-        conversation_manager=conversation_manager,
-        hooks=[shared_memory_hooks],
-        state={"actor_id": "orchestrator", "session_id": session_id}
-    )
-else:
-    # Fallback without shared memory
-    orchestrator_agent = Agent(
-        system_prompt=ORCHESTRATOR_PROMPT,
-        model=MODEL_ID,
-        tools=[
-            meal_planner_wrapper,
-            health_planner_wrapper,
-            simple_query_wrapper,
-            grocery_list_wrapper
-        ],
-        conversation_manager=conversation_manager,
-    )
+# Create orchestrator without memory (agents handle their own memory)
+orchestrator_agent = Agent(
+    system_prompt=ORCHESTRATOR_PROMPT,
+    model=MODEL_ID,
+    tools=[
+        meal_planner_wrapper,
+        health_planner_wrapper,
+        simple_query_wrapper,
+        grocery_list_wrapper
+    ],
+    conversation_manager=conversation_manager,
+)
 
 print("🚀 Multi-Agent System with Shared Memory is ready!")
 print(f"📝 Memory Available: {MEMORY_AVAILABLE}")

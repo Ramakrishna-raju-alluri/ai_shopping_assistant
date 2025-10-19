@@ -1,17 +1,13 @@
 from strands import Agent, tool
 import argparse
 import json
-# from bedrock_agentcore.runtime import BedrockAgentCoreApp
-from strands.models import BedrockModel
-
-# app = BedrockAgentCoreApp()
-
-model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-model = BedrockModel(
-    model_id=model_id,
-)
-from pathlib import Path
+import os
 import sys
+from pathlib import Path
+from strands.models import BedrockModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Flexible import for tools
 current_dir = Path(__file__).resolve().parent
@@ -67,8 +63,8 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
     Returns:
         str: Product availability, store info, or catalog results
     """
-    # Use provided model_id or default
-    model_to_use = model_id or "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+    # Use provided model_id or default from environment
+    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:
@@ -92,7 +88,11 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
         )
     else:
         agent = Agent(
-            model=model,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+            ),
             system_prompt=SIMPLE_QUERY_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS
         )

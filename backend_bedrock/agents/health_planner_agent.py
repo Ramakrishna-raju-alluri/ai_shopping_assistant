@@ -1,6 +1,8 @@
 import sys
+import os
 from pathlib import Path
 from strands import Agent, tool
+from strands.models import BedrockModel
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -57,8 +59,8 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
     Returns:
         str: Nutrition tracking results or calorie calculations
     """
-    # Use provided model_id or default
-    model_to_use = model_id or "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+    # Use provided model_id or default from environment
+    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:
@@ -82,7 +84,11 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
         )
     else:
         planner = Agent(
-            model=model_to_use,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+            ),
             system_prompt=HEALTH_PLANNER_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS
         )

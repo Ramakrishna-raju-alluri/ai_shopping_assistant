@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 from strands import Agent, tool
 from dotenv import load_dotenv
@@ -51,8 +52,8 @@ def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id:
     Returns:
         str: Meal plan with recipes, ingredients, costs, and nutrition info
     """
-    # Use provided model_id or default
-    model_to_use = model_id or "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+    # Use provided model_id or default from environment
+    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:

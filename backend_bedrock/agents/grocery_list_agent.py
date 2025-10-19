@@ -52,8 +52,6 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
         model_id (str): Model ID for the agent (optional)
         actor_id (str): Actor ID for memory (optional)
         session_id (str): Session ID for memory (optional)
-        memory_client: Memory client instance (optional)
-        memory_id (str): Memory ID for shared memory (optional)
     
     Returns:
         str: Grocery assistance with cart operations and product info
@@ -61,10 +59,10 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
     # Combine all available tools
     all_tools = SHARED_TOOL_FUNCTIONS + GROCERY_TOOL_FUNCTIONS
     
-    # Use provided model_id or default
-    model_to_use = model_id or "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+    # Use provided model_id or default from environment
+    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
     
-    # Create agent with or without memory
+    # Create agent with or without memory (following travel-planning pattern)
     if memory_client and memory_id and actor_id and session_id:
         # Import shared memory hook
         try:
@@ -75,6 +73,7 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
             except ImportError:
                 from shared_memory_hook import ShortTermMemoryHook
         
+        # Create memory hook following travel-planning pattern
         memory_hooks = ShortTermMemoryHook(memory_client, memory_id)
         
         agent = Agent(
@@ -84,7 +83,9 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
             tools=all_tools,
             state={"actor_id": actor_id, "session_id": session_id}
         )
+        print(f"🧠 Grocery agent created with memory: actor_id={actor_id}, session_id={session_id}")
     else:
+        # Fallback without memory
         agent = Agent(
             model=BedrockModel(
                 model_id=model_to_use,
@@ -94,6 +95,7 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
             system_prompt=GROCERY_SYSTEM_PROMPT,
             tools=all_tools,
         )
+        print(f"🤖 Grocery agent created without memory")
     
     # The combined prompt provides context for the specialized agent
     # IMPORTANT: For cart operations, we need to use user_id as session_id to match frontend
