@@ -7,8 +7,8 @@ import jwt
 from boto3.dynamodb.conditions import Attr
 
 # Reuse bedrock backend dynamo helpers
-from backend_bedrock.dynamo.client import dynamodb, USER_TABLE
-from backend_bedrock.dynamo.queries import get_user_profile, create_user_profile, update_user_profile
+from dynamo.client import dynamodb, USER_TABLE
+from dynamo.queries import get_user_profile, create_user_profile, update_user_profile
 
 
 router = APIRouter()

@@ -3,8 +3,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
-from backend_bedrock.routes.auth import get_current_user
-from backend_bedrock.dynamo.client import dynamodb, USER_TABLE
+from routes.auth import get_current_user
+from dynamo.client import dynamodb, USER_TABLE
 
 
 router = APIRouter()
