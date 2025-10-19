@@ -28,10 +28,7 @@
   margin-bottom: 16px;
 }
 
-.auth-logo .coles-logo {
-  height: 48px;
-  width: auto;
-}
+/* Logo styles removed - using text-only branding */
 
 .auth-title {
   color: #e10000;

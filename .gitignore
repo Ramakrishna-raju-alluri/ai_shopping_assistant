@@ -14,3 +14,4 @@ pycache/
 *.pyc
 
 del_later/
+tests/

@@ -536,8 +536,7 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <div className="dashboard-header">
         <div className="header-left">
-          <img src="/coles-logo.png" alt="Coles Logo" className="coles-logo" />
-          <h1>Coles Shopping Assistant</h1>
+          <h1>MealCart Shopping Assistant</h1>
         </div>
         <div className="dashboard-buttons">
 
@@ -719,7 +718,7 @@ const Dashboard: React.FC = () => {
             {messages.length === 0 ? (
               <div className="empty-message">
                 <div className="text-6xl mb-4">Start a conversation!</div>
-                <p className="text-lg font-medium mb-2">Welcome to Coles Shopping Assistant</p>
+                <p className="text-lg font-medium mb-2">Welcome to MealCart Shopping Assistant</p>
                 <p className="text-sm">Try: "Plan 3 meals under $50" or "Suggest gluten-free products"</p>
               </div>
             ) : (

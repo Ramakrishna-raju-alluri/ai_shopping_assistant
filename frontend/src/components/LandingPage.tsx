@@ -167,8 +167,7 @@ const LandingPage: React.FC = () => {
       {/* Header */}
       <div className="landing-header">
         <div className="header-left">
-          <img src="/coles-logo.png" alt="Coles Logo" className="coles-logo" />
-          <h1>Coles Shopping</h1>
+          <h1>MealCart Shopping</h1>
         </div>
         <div className="header-right">
           <Button 

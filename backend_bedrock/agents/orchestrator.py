@@ -8,6 +8,10 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger("agentcore-memory")
 
+# Create a separate logger for structured output routing decisions
+routing_logger = logging.getLogger("structured-output-routing")
+routing_logger.setLevel(logging.INFO)
+
 # Add parent directory to path for imports when running directly
 current_dir = Path(__file__).resolve().parent
 parent_dir = current_dir.parent
@@ -94,6 +98,15 @@ except ImportError:
         import health_planner_agent
         import grocery_list_agent
 
+# Import output detection utilities for structured output routing
+try:
+    from backend_bedrock.utils.output_detector import should_use_structured_output, get_output_type
+except ImportError:
+    try:
+        from utils.output_detector import should_use_structured_output, get_output_type
+    except ImportError:
+        from output_detector import should_use_structured_output, get_output_type
+
 # Import shared memory hook
 try:
     from backend_bedrock.agents.shared_memory_hook import ShortTermMemoryHook
@@ -131,7 +144,14 @@ conversation_manager = SummarizingConversationManager(
 # Create wrapper functions following travel-planning pattern
 @tool
 def meal_planner_wrapper(user_id: str, query: str) -> str:
-    """Wrapper for meal planner agent with memory parameters"""
+    """Wrapper for meal planner agent with memory parameters and structured output support"""
+    # Detect if structured output is needed and log routing decision
+    use_structured = should_use_structured_output(query)
+    output_type = get_output_type(query, 'meal')
+    
+    routing_logger.info(f"Meal Planner - User: {user_id}, Query: '{query[:50]}...', "
+                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    
     if MEMORY_AVAILABLE:
         return meal_planner_agent.meal_planner_agent(
             user_id=user_id, 
@@ -147,8 +167,16 @@ def meal_planner_wrapper(user_id: str, query: str) -> str:
 
 @tool
 def grocery_list_wrapper(user_id: str, query: str) -> str:
-    """Wrapper for grocery list agent with memory parameters"""
+    """Wrapper for grocery list agent with memory parameters and structured output support"""
     print(f"🔍 GROCERY_LIST_WRAPPER called with user_id: {user_id}, query: {query[:50]}...")
+    
+    # Detect if structured output is needed and log routing decision
+    use_structured = should_use_structured_output(query)
+    output_type = get_output_type(query, 'grocery')
+    
+    routing_logger.info(f"Grocery List - User: {user_id}, Query: '{query[:50]}...', "
+                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    
     if MEMORY_AVAILABLE:
         return grocery_list_agent.grocery_list_agent(
             user_id=user_id, 
@@ -164,7 +192,14 @@ def grocery_list_wrapper(user_id: str, query: str) -> str:
 
 @tool
 def health_planner_wrapper(user_id: str, query: str) -> str:
-    """Wrapper for health planner agent with memory parameters"""
+    """Wrapper for health planner agent with memory parameters and structured output support"""
+    # Detect if structured output is needed and log routing decision
+    use_structured = should_use_structured_output(query)
+    output_type = get_output_type(query, 'health')
+    
+    routing_logger.info(f"Health Planner - User: {user_id}, Query: '{query[:50]}...', "
+                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    
     if MEMORY_AVAILABLE:
         return health_planner_agent.health_planner_agent(
             user_id=user_id, 
@@ -180,7 +215,14 @@ def health_planner_wrapper(user_id: str, query: str) -> str:
 
 @tool
 def simple_query_wrapper(user_id: str, query: str) -> str:
-    """Wrapper for simple query agent with memory parameters"""
+    """Wrapper for simple query agent with memory parameters and structured output support"""
+    # Simple query agent typically doesn't use structured output, but log for consistency
+    use_structured = should_use_structured_output(query)
+    output_type = get_output_type(query, 'simple')
+    
+    routing_logger.info(f"Simple Query - User: {user_id}, Query: '{query[:50]}...', "
+                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    
     if MEMORY_AVAILABLE:
         return simple_query_agent.simple_query_agent(
             user_id=user_id, 
@@ -212,3 +254,4 @@ print(f"📝 Memory Available: {MEMORY_AVAILABLE}")
 if MEMORY_AVAILABLE:
     print(f"🧠 Memory ID: {memory_id}")
 print("🔧 All agents configured with unique actor IDs and shared session ID")
+print("📊 Structured output routing enabled with keyword detection and logging")

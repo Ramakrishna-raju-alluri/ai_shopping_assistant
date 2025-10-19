@@ -17,6 +17,10 @@ from strands import Agent, tool
 from strands.models import BedrockModel
 from dotenv import load_dotenv
 
+# Import structured output models and detection utilities
+from backend_bedrock.models.structured_outputs import GrocerySummary, CartItem
+from backend_bedrock.utils.output_detector import should_use_structured_output
+
 load_dotenv()
 
 GROCERY_SYSTEM_PROMPT = """You are an intelligent grocery shopping assistant with advanced natural language understanding. 
@@ -27,17 +31,27 @@ Key capabilities:
 1. Add items to cart with proper quantities (2 pounds, 3 items, dozen, etc.)
 2. Handle batch requests like "add milk, eggs, and bread to my cart"
 3. Check product availability and suggest alternatives when items are unavailable
-4. Monitor budget and provide cost-conscious recommendations
-5. Show cart contents and totals
+4. Monitor budget and provide cost-conscious recommendations with detailed analysis
+5. Show cart contents and totals with comprehensive summaries
 6. Find substitute products when needed
+7. Provide structured cart summaries with budget analysis when requested
+
+For structured outputs (when users request summaries, reports, totals, or cart analysis):
+- Include detailed budget analysis with status and savings opportunities
+- Provide comprehensive availability summary for all cart items
+- Suggest specific product substitutions for better value or availability
+- Include actionable shopping recommendations
+- Calculate precise budget remaining and status
 
 Guidelines:
 - Parse quantities naturally from user requests
 - Handle multiple items in a single request efficiently
 - Always check budget impact when adding expensive items
-- Suggest alternatives for out-of-stock items
+- Suggest alternatives for out-of-stock items with specific reasons
+- Provide detailed cost analysis and savings opportunities
 - Be conversational and helpful
 - Maintain context across multiple turns
+- For summaries, focus on actionable insights and clear data presentation
 
 Use the available tools to search products, manage cart, check availability, and handle budget constraints."""
 
@@ -102,5 +116,22 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
     # The cart operations will automatically use user_id as session_id when none is provided
     combined_prompt = f"User ID: {user_id}. Request: {query}"
     
-    response = agent(combined_prompt)
-    return str(response)
+    # Check if structured output is needed based on keywords
+    if should_use_structured_output(query):
+        try:
+            # Use structured output for summaries/reports
+            structured_response = agent.structured_output(
+                output_model=GrocerySummary,
+                prompt=combined_prompt
+            )
+            # Convert to JSON string for consistent return type
+            return structured_response.model_dump_json()
+        except Exception as e:
+            # Fallback to text response on error
+            print(f"Structured output failed for grocery agent: {e}")
+            response = agent(combined_prompt)
+            return str(response)
+    else:
+        # Use regular text response for simple queries
+        response = agent(combined_prompt)
+        return str(response)

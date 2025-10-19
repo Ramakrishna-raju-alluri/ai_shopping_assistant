@@ -17,16 +17,22 @@ if str(project_root) not in sys.path:
 try:
     from backend_bedrock.tools.shared.registry import SHARED_TOOL_FUNCTIONS
     from backend_bedrock.tools.health.registry import HEALTH_TOOL_FUNCTIONS
+    from backend_bedrock.models.structured_outputs import HealthSummary
+    from backend_bedrock.utils.output_detector import should_use_structured_output
 except ImportError:
     try:
         # When running from backend_bedrock directory
         sys.path.insert(0, str(parent_dir))
         from tools.shared.registry import SHARED_TOOL_FUNCTIONS
         from tools.health.registry import HEALTH_TOOL_FUNCTIONS
+        from models.structured_outputs import HealthSummary
+        from utils.output_detector import should_use_structured_output
     except ImportError:
         # Fallback
         SHARED_TOOL_FUNCTIONS = []
         HEALTH_TOOL_FUNCTIONS = []
+        HealthSummary = None
+        should_use_structured_output = None
 
 HEALTH_PLANNER_PROMPT = """
 You are a health and nutrition planner agent. You maintain a per-day calendar of meals
@@ -93,8 +99,25 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
             tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS
         )
     
-    response = planner(f"User ID: {user_id}. Request: {query}")
-    return str(response)
+    # Check if structured output is needed based on keywords
+    if should_use_structured_output and HealthSummary and should_use_structured_output(query):
+        try:
+            # Use structured output for summaries/reports
+            structured_response = planner.structured_output(
+                output_model=HealthSummary,
+                prompt=f"User ID: {user_id}. Request: {query}"
+            )
+            # Convert to JSON string for consistent return type
+            return structured_response.model_dump_json()
+        except Exception as e:
+            # Fallback to text response on error
+            print(f"Structured output failed: {e}")
+            response = planner(f"User ID: {user_id}. Request: {query}")
+            return str(response)
+    else:
+        # Use regular text response for simple queries
+        response = planner(f"User ID: {user_id}. Request: {query}")
+        return str(response)
 
 
 # def main():

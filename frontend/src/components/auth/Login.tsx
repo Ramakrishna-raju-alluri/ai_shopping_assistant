@@ -34,10 +34,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo">
-            <img src="/coles-logo.png" alt="Coles Logo" className="coles-logo" />
-          </div>
-          <h2 className="ai-shopping-assistant-heading">AI Shopping Assistant</h2>
+          <h2 className="ai-shopping-assistant-heading">MealCart AI Shopping Assistant</h2>
           <div className="auth-divider"></div>
           <h1 className="auth-title">Login</h1>
         </div>

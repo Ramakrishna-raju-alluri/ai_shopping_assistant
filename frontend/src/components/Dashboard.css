@@ -35,10 +35,7 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.coles-logo {
-  height: 32px;
-  width: auto;
-}
+/* Logo styles removed - using text-only branding */
 
 .dashboard-buttons {
   display: flex;
@@ -245,6 +242,11 @@
   word-wrap: break-word;
 }
 
+/* Wider bubbles for structured responses */
+.chat-bubble:has(.structured-card) {
+  max-width: 85%;
+}
+
 .chat-bubble.user {
   background: #e10000;
   color: white;
@@ -255,6 +257,20 @@
   background: #f7f7f8;
   color: #333;
   border-bottom-left-radius: 4px;
+}
+
+/* Special handling for structured responses */
+.chat-bubble.assistant .structured-card {
+  margin: 0;
+  max-width: none;
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.chat-bubble.assistant .text-response {
+  margin: 0;
 }
 
 /* Remove any additional wrapping for user messages */

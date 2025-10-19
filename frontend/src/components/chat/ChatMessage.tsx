@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../common/Button';
+import StructuredResponseRenderer from './StructuredResponseRenderer';
 
 interface ChatMessageType {
   id: string;
@@ -151,7 +152,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, onConfirm, onInputSu
   return (
     <div className={`chat-message ${isUser ? 'user-message' : 'ai-message'}`}>
       <div className={`chat-bubble ${isUser ? 'user' : 'assistant'}`}>
-        <div className="text-sm leading-relaxed">{message.content}</div>
+        {isUser ? (
+          <div className="text-sm leading-relaxed">{message.content}</div>
+        ) : (
+          <StructuredResponseRenderer content={message.content} />
+        )}
         
         {!isUser && formatData(message.data)}
         

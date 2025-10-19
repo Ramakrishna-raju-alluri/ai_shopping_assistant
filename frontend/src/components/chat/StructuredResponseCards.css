@@ -1,0 +1,767 @@
+/* Structured Response Cards Styles */
+
+.structured-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e0;
+  border-radius: 12px;
+  margin: 16px 0;
+  padding: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-badge, .item-count-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+/* Health Summary Card Specific Styles */
+.health-summary-card .card-header {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.calorie-section {
+  margin-bottom: 24px;
+}
+
+.calorie-progress {
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+  transition: width 0.3s ease;
+}
+
+.calorie-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.consumed {
+  color: #2d3748;
+}
+
+.separator {
+  color: #a0aec0;
+}
+
+.target {
+  color: #718096;
+}
+
+.remaining-calories {
+  text-align: center;
+}
+
+.remaining-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.remaining-badge.under-budget {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.remaining-badge.over-budget {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.macros-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.macro-item {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 4px solid;
+}
+
+.macro-item.protein {
+  border-left-color: #e53e3e;
+}
+
+.macro-item.carbs {
+  border-left-color: #3182ce;
+}
+
+.macro-item.fat {
+  border-left-color: #d69e2e;
+}
+
+.macro-label {
+  display: block;
+  font-size: 12px;
+  color: #718096;
+  margin-bottom: 4px;
+}
+
+.macro-value {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.meals-section, .recommendations-section {
+  margin-bottom: 24px;
+}
+
+.meals-section h4, .recommendations-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.meals-list, .recommendations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.meal-item, .recommendation-item {
+  background: white;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #48bb78;
+}
+
+.health-score-section {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.score-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.score-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score-value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.score-value.excellent {
+  color: #38a169;
+}
+
+.score-value.good {
+  color: #d69e2e;
+}
+
+.score-value.needs-improvement {
+  color: #e53e3e;
+}
+
+.score-max {
+  font-size: 16px;
+  color: #a0aec0;
+}
+
+.score-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e53e3e 0%, #d69e2e 50%, #38a169 100%);
+  transition: width 0.3s ease;
+}
+
+/* Grocery Summary Card Specific Styles */
+.grocery-summary-card .card-header {
+  background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+}
+
+.cart-items-section {
+  margin-bottom: 24px;
+}
+
+.cart-items-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.cart-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-item {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #3182ce;
+}
+
+.item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.item-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.item-availability {
+  font-size: 12px;
+  color: #718096;
+}
+
+.item-pricing {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.total-price {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.total-section {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.total-cost {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.total-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #3182ce;
+}
+
+.budget-section {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.budget-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.budget-info {
+  margin-bottom: 12px;
+}
+
+.budget-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.budget-remaining.success {
+  color: #38a169;
+}
+
+.budget-remaining.warning {
+  color: #d69e2e;
+}
+
+.budget-remaining.danger {
+  color: #e53e3e;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.success {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.status-badge.warning {
+  background-color: #faf089;
+  color: #744210;
+}
+
+.status-badge.danger {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.budget-progress {
+  margin-top: 12px;
+}
+
+.budget-progress .progress-fill.success {
+  background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+}
+
+.budget-progress .progress-fill.warning {
+  background: linear-gradient(90deg, #ed8936 0%, #d69e2e 100%);
+}
+
+.budget-progress .progress-fill.danger {
+  background: linear-gradient(90deg, #f56565 0%, #e53e3e 100%);
+}
+
+.savings-section, .recommendations-section, .substitutions-section, .availability-section {
+  margin-bottom: 20px;
+}
+
+.savings-section h4, .recommendations-section h4, .substitutions-section h4, .availability-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.savings-list, .recommendations-list, .substitutions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.saving-item, .recommendation-item, .substitution-item {
+  background: white;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #3182ce;
+  font-size: 14px;
+}
+
+.availability-text {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 0;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+/* Meal Plan Card Specific Styles */
+.meal-plan-card .card-header {
+  background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.meal-overview {
+  margin-bottom: 24px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.overview-item {
+  text-align: center;
+}
+
+.overview-label {
+  display: block;
+  font-size: 12px;
+  color: #718096;
+  margin-bottom: 4px;
+}
+
+.overview-value {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.balance-score-section {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.recipes-section {
+  margin-bottom: 24px;
+}
+
+.recipes-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.recipes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recipe-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.recipe-header {
+  padding: 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.recipe-header:hover {
+  background-color: #f7fafc;
+}
+
+.recipe-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.meal-icon {
+  font-size: 20px;
+}
+
+.recipe-name {
+  font-weight: 600;
+  color: #2d3748;
+  flex: 1;
+}
+
+.meal-type-badge {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.recipe-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #718096;
+}
+
+.difficulty {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.difficulty.success {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.difficulty.warning {
+  background-color: #faf089;
+  color: #744210;
+}
+
+.difficulty.danger {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.expand-icon {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.recipe-details {
+  padding: 16px;
+  background-color: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.recipe-times {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.dietary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.dietary-tag {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.ingredients-section, .instructions-section {
+  margin-bottom: 16px;
+}
+
+.ingredients-section h5, .instructions-section h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.ingredients-list, .instructions-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ingredients-list li, .instructions-list li {
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.shopping-list-section, .nutrition-section, .dietary-notes-section, .substitutions-section {
+  margin-bottom: 20px;
+}
+
+.shopping-list-section h4, .nutrition-section h4, .dietary-notes-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.shopping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.shopping-item {
+  background-color: #f7fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+  border-left: 3px solid #ed8936;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.nutrition-item {
+  text-align: center;
+}
+
+.nutrient-name {
+  display: block;
+  font-size: 12px;
+  color: #718096;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.nutrient-value {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.dietary-notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dietary-note {
+  background: white;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #ed8936;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .macro-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .shopping-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recipe-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .item-pricing {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}/*
+ Unknown Response Card Styles */
+.unknown-response-card .card-header {
+  background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+}
+
+.json-display {
+  background-color: #1a202c;
+  color: #e2e8f0;
+  padding: 16px;
+  border-radius: 8px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Text Response Styles */
+.text-response {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2d3748;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Ensure structured cards work well in chat bubbles */
+.chat-bubble .structured-card {
+  margin: 0;
+  border-radius: 8px;
+}
+
+.chat-bubble .text-response {
+  margin: 0;
+}
