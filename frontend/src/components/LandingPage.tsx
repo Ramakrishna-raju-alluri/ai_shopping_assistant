@@ -17,6 +17,7 @@ interface Product {
   image_url?: string;
 }
 
+
 const LandingPage: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
