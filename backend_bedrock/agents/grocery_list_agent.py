@@ -3,7 +3,6 @@ Grocery List Agent using AWS Bedrock.
 Handles grocery list creation, product availability checking, substitutions, and budget management.
 """
 
-import argparse
 import sys
 import os
 from typing import Dict, List, Any, Optional
@@ -11,15 +10,14 @@ from typing import Dict, List, Any, Optional
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tools.product_tools.registry import PRODUCT_TOOL_FUNCTIONS
-from tools.cart_tools.registry import CART_TOOL_FUNCTIONS
+from tools.shared.registry import SHARED_TOOL_FUNCTIONS
+from tools.grocery.registry import GROCERY_TOOL_FUNCTIONS
 
-from strands import Agent
+from strands import Agent, tool
 from strands.models import BedrockModel
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 GROCERY_SYSTEM_PROMPT = """You are an intelligent grocery shopping assistant with advanced natural language understanding. 
 
@@ -43,42 +41,61 @@ Guidelines:
 
 Use the available tools to search products, manage cart, check availability, and handle budget constraints."""
 
-
-# Create BedrockModel instance
-bedrock_model = BedrockModel(
-    model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    region_name="us-east-1",
-    temperature=0.1,  # Slightly deterministic for consistent responses
-)
-
-# Combine all available tools
-all_tools = PRODUCT_TOOL_FUNCTIONS + CART_TOOL_FUNCTIONS
-
-# Create the grocery agent (conversation manager handled by orchestrator)
-grocery_agent = Agent(
-    model=bedrock_model,
-    system_prompt=GROCERY_SYSTEM_PROMPT,
-    tools=all_tools,
-)
-
-
-# Entry point function (following temp.py pattern)
-def strands_agent_bedrock(payload):
+@tool
+def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id: str = None, session_id: str = None, memory_client=None, memory_id: str = None) -> str:
     """
-    Invoke agent with payload
-    """
-    user_input = payload.get("prompt")
-    print(f"User input: {user_input}")
+    Agent for grocery list management, cart operations, product availability, and substitutions.
     
-    # Use the grocery agent directly
-    response = grocery_agent(user_input)
+    Args:
+        user_id (str): User identifier
+        query (str): Grocery-related request
+        model_id (str): Model ID for the agent (optional)
+        actor_id (str): Actor ID for memory (optional)
+        session_id (str): Session ID for memory (optional)
+        memory_client: Memory client instance (optional)
+        memory_id (str): Memory ID for shared memory (optional)
+    
+    Returns:
+        str: Grocery assistance with cart operations and product info
+    """
+    # Combine all available tools
+    all_tools = SHARED_TOOL_FUNCTIONS + GROCERY_TOOL_FUNCTIONS
+    
+    # Use provided model_id or default
+    model_to_use = model_id or "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+    
+    # Create agent with or without memory
+    if memory_client and memory_id and actor_id and session_id:
+        # Import shared memory hook
+        try:
+            from backend_bedrock.agents.shared_memory_hook import ShortTermMemoryHook
+        except ImportError:
+            try:
+                from agents.shared_memory_hook import ShortTermMemoryHook
+            except ImportError:
+                from shared_memory_hook import ShortTermMemoryHook
+        
+        memory_hooks = ShortTermMemoryHook(memory_client, memory_id)
+        
+        agent = Agent(
+            hooks=[memory_hooks],
+            model=model_to_use,
+            system_prompt=GROCERY_SYSTEM_PROMPT,
+            tools=all_tools,
+            state={"actor_id": actor_id, "session_id": session_id}
+        )
+    else:
+        agent = Agent(
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+            ),
+            system_prompt=GROCERY_SYSTEM_PROMPT,
+            tools=all_tools,
+        )
+    
+    # The combined prompt provides context for the specialized agent
+    combined_prompt = f"User ID: {user_id}. Request: {query}"
+    response = agent(combined_prompt)
     return str(response)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("prompt", type=str)
-    args = parser.parse_args()
-    payload = {"prompt": args.prompt}
-    response = strands_agent_bedrock(payload)
-    print(response)
