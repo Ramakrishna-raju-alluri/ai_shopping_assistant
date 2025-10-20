@@ -43,12 +43,15 @@ class CompleteProfileSetup(BaseModel):
 
 @router.get("/status")
 async def get_profile_setup_status(current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         response = table.get_item(Key={"user_id": user_id})
         if "Item" not in response:
-            raise HTTPException(status_code=404, detail="User not found")
+            from backend_bedrock.utils.error_responses import handle_not_found_error
+            raise handle_not_found_error("User", user_id)
         user_data = response["Item"]
         missing_sections = []
         if not user_data.get("diet") and not user_data.get("allergies"):
@@ -61,7 +64,11 @@ async def get_profile_setup_status(current_user: dict = Depends(get_current_user
             missing_sections.append("budget")
         return {"is_setup_complete": len(missing_sections) == 0, "missing_sections": missing_sections}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error checking profile status: {str(e)}")
+        # Re-raise our custom errors
+        if hasattr(e, 'status_code'):
+            raise e
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error checking profile status: {str(e)}")
 
 
 @router.get("/options")
@@ -97,7 +104,9 @@ async def get_profile_setup_options():
 
 @router.post("/complete")
 async def complete_profile_setup(profile_data: CompleteProfileSetup, current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         update_data = {
@@ -135,12 +144,15 @@ async def complete_profile_setup(profile_data: CompleteProfileSetup, current_use
         )
         return {"message": "Profile setup completed successfully", "user_id": user_id}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error completing profile setup: {str(e)}")
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error completing profile setup: {str(e)}")
 
 
 @router.post("/dietary")
 async def update_dietary_preferences(dietary: DietaryPreferences, current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         table.update_item(
@@ -156,12 +168,15 @@ async def update_dietary_preferences(dietary: DietaryPreferences, current_user: 
         )
         return {"message": "Dietary preferences updated successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating dietary preferences: {str(e)}")
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error updating dietary preferences: {str(e)}")
 
 
 @router.post("/cuisine")
 async def update_cuisine_preferences(cuisine: CuisinePreferences, current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         table.update_item(
@@ -176,12 +191,15 @@ async def update_cuisine_preferences(cuisine: CuisinePreferences, current_user: 
         )
         return {"message": "Cuisine preferences updated successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating cuisine preferences: {str(e)}")
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error updating cuisine preferences: {str(e)}")
 
 
 @router.post("/cooking")
 async def update_cooking_preferences(cooking: CookingPreferences, current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         table.update_item(
@@ -197,12 +215,15 @@ async def update_cooking_preferences(cooking: CookingPreferences, current_user: 
         )
         return {"message": "Cooking preferences updated successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating cooking preferences: {str(e)}")
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error updating cooking preferences: {str(e)}")
 
 
 @router.post("/budget")
 async def update_budget_preferences(budget: BudgetPreferences, current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         budget_limit = Decimal(str(budget.budget_limit))
@@ -215,17 +236,21 @@ async def update_budget_preferences(budget: BudgetPreferences, current_user: dic
         table.update_item(Key={"user_id": user_id}, UpdateExpression=update_expression, ExpressionAttributeValues=expr_values, ReturnValues="ALL_NEW")
         return {"message": "Budget preferences updated successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating budget preferences: {str(e)}")
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error updating budget preferences: {str(e)}")
 
 
 @router.get("/user-preferences")
 async def get_user_preferences(current_user: dict = Depends(get_current_user)):
-    user_id = current_user.get("user_id")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     try:
         table = dynamodb.Table(USER_TABLE)
         response = table.get_item(Key={"user_id": user_id})
         if "Item" not in response:
-            raise HTTPException(status_code=404, detail="User not found")
+            from backend_bedrock.utils.error_responses import handle_not_found_error
+            raise handle_not_found_error("User", user_id)
         user_data = response["Item"]
         return {
             "user_id": user_id,
@@ -244,6 +269,10 @@ async def get_user_preferences(current_user: dict = Depends(get_current_user)):
             "profile_setup_complete": user_data.get("profile_setup_complete", False),
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting user preferences: {str(e)}")
+        # Re-raise our custom errors
+        if hasattr(e, 'status_code'):
+            raise e
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Error getting user preferences: {str(e)}")
 
 

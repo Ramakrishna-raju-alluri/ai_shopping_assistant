@@ -79,79 +79,150 @@ def get_user_by_username_or_email(username_or_email: str):
 
 
 async def get_current_user(authorization: str = Header(None)):
+    """Extract and validate user from Bearer token with standardized error handling"""
+    from backend_bedrock.utils.error_responses import handle_authentication_error
+    
+    # Check for authorization header
     if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-    else:
+        raise handle_authentication_error("Missing authorization header")
+    
+    # Validate authorization header format
+    if not authorization.strip():
+        raise handle_authentication_error("Empty authorization header")
+    
+    try:
+        # Parse authorization header
+        parts = authorization.strip().split()
+        if len(parts) != 2:
+            raise handle_authentication_error("Invalid authorization header format. Expected 'Bearer <token>'")
+        
+        scheme, token = parts
+        if scheme.lower() != "bearer":
+            raise handle_authentication_error("Invalid authentication scheme. Expected 'Bearer'")
+        
+        # Validate token is not empty
+        if not token.strip():
+            raise handle_authentication_error("Empty authentication token")
+        
+        # Decode and validate JWT token
         try:
-            scheme, token = authorization.split()
-            if scheme.lower() != "bearer":
-                raise ValueError("Invalid scheme")
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            user_id: str = payload.get("sub")
-            if not user_id:
-                raise ValueError("Missing subject")
-        except Exception:
-            raise HTTPException(status_code=401, detail="Could not validate credentials")
+        except jwt.ExpiredSignatureError:
+            raise handle_authentication_error("Authentication token has expired")
+        except jwt.InvalidTokenError:
+            raise handle_authentication_error("Invalid authentication token")
+        except Exception as e:
+            raise handle_authentication_error(f"Token validation failed: {str(e)}")
+        
+        # Extract user ID from token payload
+        user_id: str = payload.get("sub")
+        if not user_id:
+            raise handle_authentication_error("Missing user ID in authentication token")
+        
+        # Validate user ID format
+        if not isinstance(user_id, str) or not user_id.strip():
+            raise handle_authentication_error("Invalid user ID in authentication token")
+            
+    except Exception as e:
+        # If it's already an AuthenticationError, re-raise it
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
+        # Otherwise, wrap in authentication error
+        raise handle_authentication_error(f"Authentication failed: {str(e)}")
+    
+    # Get user profile from database
+    try:
         user = get_user_profile(user_id)
         if not user:
-            raise HTTPException(status_code=401, detail="User not found")
+            raise handle_authentication_error("User account not found")
+        
+        # Ensure user account is active (if we have such a field)
+        if user.get("is_active") is False:
+            raise handle_authentication_error("User account is deactivated")
+            
         return user
+        
+    except Exception as e:
+        # If it's already an AuthenticationError, re-raise it
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
+        # Otherwise, wrap in authentication error
+        raise handle_authentication_error("Failed to retrieve user information")
 
 
 @router.post("/signup", response_model=UserResponse, status_code=201)
 async def signup(user_data: UserSignup):
-    existing_user = get_user_by_username_or_email(user_data.username) or get_user_by_username_or_email(user_data.email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username or email already registered")
+    from backend_bedrock.utils.error_responses import handle_conflict_error, handle_server_error
+    
+    try:
+        existing_user = get_user_by_username_or_email(user_data.username) or get_user_by_username_or_email(user_data.email)
+        if existing_user:
+            raise handle_conflict_error("Username or email already registered")
 
-    # Simple sequential ID like backend
-    table = dynamodb.Table(USER_TABLE)
-    response = table.scan(ProjectionExpression="user_id")
-    existing = [i["user_id"] for i in response.get("Items", []) if i.get("user_id", "").startswith("user_")]
-    if existing:
-        nums = []
-        for uid in existing:
-            try:
-                nums.append(int(uid.split("_")[1]))
-            except Exception:
-                continue
-        next_id = f"user_{(max(nums) + 1) if nums else 1}"
-    else:
-        next_id = "user_1"
+        # Simple sequential ID like backend
+        table = dynamodb.Table(USER_TABLE)
+        response = table.scan(ProjectionExpression="user_id")
+        existing = [i["user_id"] for i in response.get("Items", []) if i.get("user_id", "").startswith("user_")]
+        if existing:
+            nums = []
+            for uid in existing:
+                try:
+                    nums.append(int(uid.split("_")[1]))
+                except Exception:
+                    continue
+            next_id = f"user_{(max(nums) + 1) if nums else 1}"
+        else:
+            next_id = "user_1"
 
-    hashed = hash_password(user_data.password)
-    now = datetime.utcnow().isoformat()
-    profile = {
-        "user_id": next_id,
-        "username": user_data.username,
-        "email": user_data.email,
-        "name": user_data.name,
-        "password_hash": hashed,
-        "created_at": now,
-        "last_login": now,
-        "diet": "vegetarian",
-        "allergies": [],
-        "past_purchases": [],
-        "budget_limit": 60,
-        "meal_goal": "3 meals",
-        "shopping_frequency": "weekly",
-    }
-    create_user_profile(next_id, profile)
-    token = create_access_token({"sub": next_id}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    return UserResponse(user_id=next_id, username=user_data.username, email=user_data.email, name=user_data.name, access_token=token)
+        hashed = hash_password(user_data.password)
+        now = datetime.utcnow().isoformat()
+        profile = {
+            "user_id": next_id,
+            "username": user_data.username,
+            "email": user_data.email,
+            "name": user_data.name,
+            "password_hash": hashed,
+            "created_at": now,
+            "last_login": now,
+            "diet": "vegetarian",
+            "allergies": [],
+            "past_purchases": [],
+            "budget_limit": 60,
+            "meal_goal": "3 meals",
+            "shopping_frequency": "weekly",
+        }
+        create_user_profile(next_id, profile)
+        token = create_access_token({"sub": next_id}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+        return UserResponse(user_id=next_id, username=user_data.username, email=user_data.email, name=user_data.name, access_token=token)
+    
+    except Exception as e:
+        # Re-raise our custom errors
+        if hasattr(e, 'status_code'):
+            raise e
+        raise handle_server_error(f"Failed to create user account: {str(e)}")
 
 
 @router.post("/login", response_model=UserResponse)
 async def login(user_credentials: UserLogin):
-    user = get_user_by_username_or_email(user_credentials.username)
-    if not user:
-        raise HTTPException(status_code=401, detail="Incorrect username/email or password")
-    if hash_password(user_credentials.password) != user.get("password_hash", ""):
-        raise HTTPException(status_code=401, detail="Incorrect username/email or password")
-    user["last_login"] = datetime.utcnow().isoformat()
-    update_user_profile(user["user_id"], user)
-    token = create_access_token({"sub": user["user_id"]}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    return UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"], name=user["name"], access_token=token)
+    from backend_bedrock.utils.error_responses import handle_authentication_error, handle_server_error
+    
+    try:
+        user = get_user_by_username_or_email(user_credentials.username)
+        if not user:
+            raise handle_authentication_error("Incorrect username/email or password")
+        if hash_password(user_credentials.password) != user.get("password_hash", ""):
+            raise handle_authentication_error("Incorrect username/email or password")
+        
+        user["last_login"] = datetime.utcnow().isoformat()
+        update_user_profile(user["user_id"], user)
+        token = create_access_token({"sub": user["user_id"]}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+        return UserResponse(user_id=user["user_id"], username=user["username"], email=user["email"], name=user["name"], access_token=token)
+    
+    except Exception as e:
+        # Re-raise our custom errors
+        if hasattr(e, 'status_code'):
+            raise e
+        raise handle_server_error(f"Login failed: {str(e)}")
 
 
 @router.get("/profile", response_model=UserProfile)

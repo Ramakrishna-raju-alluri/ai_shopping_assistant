@@ -112,11 +112,31 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request, exc):
-        return JSONResponse(status_code=exc.status_code, content={"error": exc.detail, "status_code": exc.status_code})
+        """Handle HTTPException with standardized error format"""
+        # If the detail is already a dict (from our custom exceptions), use it directly
+        if isinstance(exc.detail, dict):
+            return JSONResponse(status_code=exc.status_code, content=exc.detail)
+        
+        # Otherwise, create standardized error response
+        error_response = {
+            "success": False,
+            "error": "http_error",
+            "message": str(exc.detail),
+            "status_code": exc.status_code
+        }
+        return JSONResponse(status_code=exc.status_code, content=error_response)
 
     @app.exception_handler(Exception)
     async def general_exception_handler(request, exc):
-        return JSONResponse(status_code=500, content={"error": "Internal server error", "detail": str(exc)})
+        """Handle general exceptions with standardized error format"""
+        error_response = {
+            "success": False,
+            "error": "internal_server_error",
+            "message": "An unexpected error occurred",
+            "status_code": 500,
+            "details": {"error_type": type(exc).__name__} if app.debug else None
+        }
+        return JSONResponse(status_code=500, content=error_response)
 
     return app
 

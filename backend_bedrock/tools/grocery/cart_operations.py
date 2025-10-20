@@ -267,17 +267,31 @@ def add_to_cart(user_id: str, product_id: str, quantity: int = 1, session_id: st
         
         print(f"🛒 ADD_TO_CART called: user_id={user_id}, product_id={product_id}, quantity={quantity}, session_id={session_id}")
         
-        # Search for the product
-        search_result = search_products(product_id, limit=1)
+        # Try to get product by ID first (if it looks like an item_id)
+        product = None
+        if product_id.startswith('item_'):
+            # Import the new function
+            try:
+                from backend_bedrock.tools.shared.product_catalog import get_product_by_id
+            except ImportError:
+                from tools.shared.product_catalog import get_product_by_id
+            
+            id_result = get_product_by_id(product_id)
+            if id_result['success']:
+                product = id_result['data']
         
-        if not search_result['success'] or not search_result['data']:
-            return {
-                'success': False,
-                'data': None,
-                'message': f"Product '{product_id}' not found in catalog"
-            }
-        
-        product = search_result['data'][0]
+        # If not found by ID, search by name/description
+        if not product:
+            search_result = search_products(product_id, limit=1)
+            
+            if not search_result['success'] or not search_result['data']:
+                return {
+                    'success': False,
+                    'data': None,
+                    'message': f"Product '{product_id}' not found in catalog"
+                }
+            
+            product = search_result['data'][0]
         
         # Check availability
         availability_result = check_product_availability(product.get('name', product_id))

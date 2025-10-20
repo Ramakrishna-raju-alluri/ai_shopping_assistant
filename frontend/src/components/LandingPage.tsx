@@ -99,12 +99,8 @@ const LandingPage: React.FC = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          items: [{
-            item_id: product.item_id,
-            name: product.name,
-            price: product.price,
-            quantity: 1
-          }]
+          item_id: product.item_id,
+          quantity: 1
         })
       });
 

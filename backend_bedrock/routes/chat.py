@@ -26,7 +26,9 @@ async def chat_endpoint(
     payload: ChatRequest, 
     current_user: dict = Depends(get_current_user),
 ):
-    user_id = current_user.get("user_id", "default_user")
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
+    user_id = validate_user_access(current_user)
     print(f"🔍 CHAT ENDPOINT - user_id: {user_id}, message: {payload.message}")
     
     combined_prompt = f"User ID: {user_id}. Request: {payload.message}"

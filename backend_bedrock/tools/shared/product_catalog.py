@@ -238,10 +238,10 @@ def get_products_by_category(category: str, limit: int = 50) -> Dict[str, Any]:
 @tool
 def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
     """
-    Search products by name, description, or tags.
+    Search products by name, description, tags, or item_id.
     
     Args:
-        query (str): Search term
+        query (str): Search term (can be item_id, name, description, or tag)
         limit (int): Maximum results to return
         
     Returns:
@@ -264,15 +264,22 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             products = []
             
             for product in all_products:
+                item_id = product.get("item_id", "").lower()
                 name = product.get("name", "").lower()
                 description = product.get("description", "").lower()
                 tags = [str(tag).lower() for tag in product.get("tags", [])]
                 
-                # Check if query matches name, description, or any tag
-                if (query_lower in name or 
+                # Check if query matches item_id, name, description, or any tag
+                if (query_lower == item_id or  # Exact item_id match (prioritized)
+                    query_lower in name or 
                     query_lower in description or 
                     any(query_lower in tag for tag in tags)):
                     products.append(product)
+                    
+                    # If exact item_id match, return immediately
+                    if query_lower == item_id:
+                        products = [product]
+                        break
                     
                     if len(products) >= limit:
                         break
@@ -280,24 +287,51 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             # Fallback to database query function
             try:
                 all_products = db_get_all_products()
-                products = [
-                    p for p in all_products 
-                    if query.lower() in p.get("name", "").lower() or 
-                       query.lower() in p.get("description", "").lower() or
-                       any(query.lower() in str(tag).lower() for tag in p.get("tags", []))
-                ][:limit]
+                products = []
+                for p in all_products:
+                    item_id = p.get("item_id", "").lower()
+                    name = p.get("name", "").lower()
+                    description = p.get("description", "").lower()
+                    tags = [str(tag).lower() for tag in p.get("tags", [])]
+                    
+                    if (query.lower() == item_id or
+                        query.lower() in name or 
+                        query.lower() in description or
+                        any(query.lower() in tag for tag in tags)):
+                        products.append(p)
+                        
+                        # If exact item_id match, return immediately
+                        if query.lower() == item_id:
+                            products = [p]
+                            break
+                        
+                        if len(products) >= limit:
+                            break
             except Exception:
                 products = []
         
         # If no products found, search mock data
         if not products:
             mock_products = get_mock_products()
-            products = [
-                p for p in mock_products 
-                if query.lower() in p["name"].lower() or 
-                   query.lower() in p["description"].lower() or
-                   any(query.lower() in tag.lower() for tag in p["tags"])
-            ][:limit]
+            for p in mock_products:
+                item_id = p.get("item_id", "").lower()
+                name = p["name"].lower()
+                description = p["description"].lower()
+                tags = [tag.lower() for tag in p["tags"]]
+                
+                if (query.lower() == item_id or
+                    query.lower() in name or 
+                    query.lower() in description or
+                    any(query.lower() in tag for tag in tags)):
+                    products.append(p)
+                    
+                    # If exact item_id match, return immediately
+                    if query.lower() == item_id:
+                        products = [p]
+                        break
+                    
+                    if len(products) >= limit:
+                        break
         
         # Convert Decimal to float for JSON serialization
         products = convert_decimal_to_float(products)
@@ -399,6 +433,88 @@ def find_products_by_names(product_names: List[str]) -> Dict[str, Any]:
             'count': 0,
             'searched_names': product_names,
             'message': f'Error finding products by names: {str(e)}'
+        }
+
+
+@tool
+def get_product_by_id(item_id: str) -> Dict[str, Any]:
+    """
+    Get a specific product by its item_id.
+    
+    Args:
+        item_id (str): Product item ID
+        
+    Returns:
+        Dict[str, Any]: Standardized response with product data
+    """
+    try:
+        # Try DynamoDB first
+        try:
+            table = dynamodb.Table(PRODUCT_TABLE)
+            response = table.get_item(Key={"item_id": item_id})
+            product = response.get("Item")
+            
+            if product:
+                product = convert_decimal_to_float(product)
+                return {
+                    'success': True,
+                    'data': product,
+                    'message': f"Found product {item_id}"
+                }
+        except Exception:
+            pass
+        
+        # Fallback to scan all products
+        try:
+            table = dynamodb.Table(PRODUCT_TABLE)
+            response = table.scan()
+            all_products = response.get("Items", [])
+            
+            for product in all_products:
+                if product.get("item_id") == item_id:
+                    product = convert_decimal_to_float(product)
+                    return {
+                        'success': True,
+                        'data': product,
+                        'message': f"Found product {item_id}"
+                    }
+        except Exception:
+            pass
+        
+        # Fallback to database query function
+        try:
+            all_products = db_get_all_products()
+            for product in all_products:
+                if product.get("item_id") == item_id:
+                    return {
+                        'success': True,
+                        'data': product,
+                        'message': f"Found product {item_id}"
+                    }
+        except Exception:
+            pass
+        
+        # Fallback to mock data
+        mock_products = get_mock_products()
+        for product in mock_products:
+            if product.get("item_id") == item_id:
+                return {
+                    'success': True,
+                    'data': product,
+                    'message': f"Found product {item_id}"
+                }
+        
+        return {
+            'success': False,
+            'data': None,
+            'message': f"Product {item_id} not found"
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'data': None,
+            'message': f'Error getting product by ID: {str(e)}'
         }
 
 

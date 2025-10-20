@@ -25,8 +25,10 @@ class UpdateCartItem(BaseModel):
 @router.get("/cart")
 async def get_cart(current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
     """Get current user's cart contents"""
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
     try:
-        user_id = current_user.get("user_id", "default_user")
+        user_id = validate_user_access(current_user)
         session_id = user_id  # Use user_id as session_id for consistency
         print(f"🔍 Frontend GET /cart - user_id: {user_id}, session_id: {session_id}")
         
@@ -78,15 +80,21 @@ async def get_cart(current_user: dict = Depends(get_current_user)) -> Dict[str, 
             }
             
     except Exception as e:
+        # Re-raise authentication errors
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
         print(f"Error getting cart: {e}")
-        return {"items": [], "total_cost": 0, "item_count": 0, "budget_remaining": 100}
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Failed to retrieve cart: {str(e)}")
 
 
 @router.post("/cart/add")
 async def add_to_cart_api(item: CartItem, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
     """Add item to cart"""
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
     try:
-        user_id = current_user.get("user_id", "default_user")
+        user_id = validate_user_access(current_user)
         session_id = user_id  # Use user_id as session_id for consistency
         print(f"🔍 Frontend POST /cart/add - user_id: {user_id}, session_id: {session_id}, item: {item.item_id}")
         
@@ -131,18 +139,25 @@ async def add_to_cart_api(item: CartItem, current_user: dict = Depends(get_curre
                     }
                 }
         else:
-            raise HTTPException(status_code=400, detail=result['message'])
+            from backend_bedrock.utils.error_responses import handle_bad_request_error
+            raise handle_bad_request_error(result['message'])
             
     except Exception as e:
+        # Re-raise authentication errors
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
         print(f"Error adding to cart: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Failed to add item to cart: {str(e)}")
 
 
 @router.delete("/cart/remove/{item_id}")
 async def remove_from_cart_api(item_id: str, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
     """Remove item from cart"""
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
     try:
-        user_id = current_user.get("user_id", "default_user")
+        user_id = validate_user_access(current_user)
         session_id = user_id  # Use user_id as session_id for consistency
         print(f"🔍 Frontend DELETE /cart/remove - user_id: {user_id}, session_id: {session_id}, item_id: {item_id}")
         
@@ -187,11 +202,16 @@ async def remove_from_cart_api(item_id: str, current_user: dict = Depends(get_cu
                     }
                 }
         else:
-            raise HTTPException(status_code=400, detail=result['message'])
+            from backend_bedrock.utils.error_responses import handle_bad_request_error
+            raise handle_bad_request_error(result['message'])
             
     except Exception as e:
+        # Re-raise authentication errors
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
         print(f"Error removing from cart: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Failed to remove item from cart: {str(e)}")
 
 
 # Keep legacy endpoints for backward compatibility
@@ -210,8 +230,10 @@ async def remove_from_cart_legacy(item_id: str, current_user: dict = Depends(get
 @router.put("/cart/update")
 async def update_cart_item_api(item: UpdateCartItem, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
     """Update item quantity in cart"""
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
     try:
-        user_id = current_user.get("user_id", "default_user")
+        user_id = validate_user_access(current_user)
         session_id = user_id
         print(f"🔍 Frontend PUT /cart/update - user_id: {user_id}, item_id: {item.item_id}, quantity: {item.quantity}")
         
@@ -259,18 +281,25 @@ async def update_cart_item_api(item: UpdateCartItem, current_user: dict = Depend
                     }
                 }
         else:
-            raise HTTPException(status_code=400, detail=result['message'])
+            from backend_bedrock.utils.error_responses import handle_bad_request_error
+            raise handle_bad_request_error(result['message'])
             
     except Exception as e:
+        # Re-raise authentication errors
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
         print(f"Error updating cart: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Failed to update cart item: {str(e)}")
 
 
 @router.delete("/cart/clear")
 async def clear_cart_api(current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
     """Clear all items from cart"""
+    from backend_bedrock.utils.error_responses import validate_user_access
+    
     try:
-        user_id = current_user.get("user_id", "default_user")
+        user_id = validate_user_access(current_user)
         session_id = user_id
         print(f"🔍 Frontend DELETE /cart/clear - user_id: {user_id}")
         
@@ -292,10 +321,15 @@ async def clear_cart_api(current_user: dict = Depends(get_current_user)) -> Dict
                 }
             }
         else:
-            raise HTTPException(status_code=400, detail=result['message'])
+            from backend_bedrock.utils.error_responses import handle_bad_request_error
+            raise handle_bad_request_error(result['message'])
             
     except Exception as e:
+        # Re-raise authentication errors
+        if hasattr(e, 'status_code') and e.status_code == 401:
+            raise e
         print(f"Error clearing cart: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from backend_bedrock.utils.error_responses import handle_server_error
+        raise handle_server_error(f"Failed to clear cart: {str(e)}")
 
 
