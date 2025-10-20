@@ -15,6 +15,7 @@ class Product(BaseModel):
     tags: List[str]
     in_stock: bool
     promo: bool
+    calories: Optional[int] = None
     category: Optional[str] = None
     description: Optional[str] = None
     image_url: Optional[str] = None
@@ -88,6 +89,7 @@ async def get_products(
                     tags=product.get("tags", []),
                     in_stock=product.get("in_stock", True),
                     promo=product.get("promo", False),
+                    calories=int(product.get("calories", 0)),
                     category=product.get("category"),
                     description=product.get("description"),
                     image_url=product.get("image_url"),
@@ -153,6 +155,7 @@ async def get_product(item_id: str):
             tags=product.get("tags", []),
             in_stock=product.get("in_stock", True),
             promo=product.get("promo", False),
+            calories=int(product.get("calories", 0)),
             category=product.get("category"),
             description=product.get("description"),
             image_url=product.get("image_url"),
@@ -174,6 +177,7 @@ async def get_search_suggestions(query: str = Query(...)):
                 "name": product.get("name"),
                 "category": product.get("category"),
                 "price": float(product.get("price", 0)),
+                "calories": int(product.get("calories", 0)),
             })
         return {"success": True, "query": query, "suggestions": suggestions, "count": len(suggestions)}
     except Exception as e:
@@ -195,6 +199,7 @@ async def get_featured_products(limit: int = Query(10)):
                 "tags": product.get("tags", []),
                 "in_stock": product.get("in_stock", True),
                 "promo": product.get("promo", False),
+                "calories": int(product.get("calories", 0)),
                 "category": product.get("category"),
                 "description": product.get("description"),
                 "image_url": product.get("image_url"),
@@ -219,6 +224,7 @@ async def get_products_by_diet(diet: str, limit: int = Query(20)):
                 "tags": product.get("tags", []),
                 "in_stock": product.get("in_stock", True),
                 "promo": product.get("promo", False),
+                "calories": int(product.get("calories", 0)),
                 "category": product.get("category"),
                 "description": product.get("description"),
                 "image_url": product.get("image_url"),

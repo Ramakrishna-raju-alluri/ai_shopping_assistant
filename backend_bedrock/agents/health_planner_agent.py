@@ -3,6 +3,7 @@ from pathlib import Path
 from strands import Agent, tool
 from dotenv import load_dotenv
 load_dotenv()
+
 # Add parent directory to path for imports when running directly
 current_dir = Path(__file__).resolve().parent
 parent_dir = current_dir.parent
@@ -13,35 +14,40 @@ if str(project_root) not in sys.path:
 # Import with flexible import system
 try:
     from backend_bedrock.tools.shared.registry import SHARED_TOOL_FUNCTIONS
-    from backend_bedrock.tools.meal_planning.registry import MEAL_PLANNING_TOOL_FUNCTIONS
+    from backend_bedrock.tools.health.registry import HEALTH_TOOL_FUNCTIONS
 except ImportError:
     try:
         # When running from backend_bedrock directory
         sys.path.insert(0, str(parent_dir))
         from tools.shared.registry import SHARED_TOOL_FUNCTIONS
-        from tools.meal_planning.registry import MEAL_PLANNING_TOOL_FUNCTIONS
+        from tools.health.registry import HEALTH_TOOL_FUNCTIONS
     except ImportError:
         # Fallback
         SHARED_TOOL_FUNCTIONS = []
-        MEAL_PLANNING_TOOL_FUNCTIONS = []
+        HEALTH_TOOL_FUNCTIONS = []
 
-MEAL_PLANNER_PROMPT = """
-You are a specialized meal planning assistant. Your goal is to generate a meal plan.
-To do this, you must follow these steps:
-1. Fetch the user's profile to understand their preferences and constraints using `fetch_user_profile`.
-2. Fetch available items from the store using `fetch_available_items`.
-3. Generate a list of three distinct meal recipes (breakfast, lunch, dinner) based on the user's preferences and available items.
-4. For each recipe, calculate the estimated cost and calories using the provided tools.
+HEALTH_PLANNER_PROMPT = """
+You are a health and nutrition planner agent. You maintain a per-day calendar of meals
+and nutrition totals (calories, protein, carbs, fat). You can:
+- Create/update a day plan when the user provides meals for a day
+- Append a meal to a day
+- Report remaining calories given a daily target
+- Fetch the current plan for a day
+
+Always ask for and use an explicit date (YYYY-MM-DD) and user id. If a date is
+missing, request clarification. Keep updates idempotent by re-writing the full day
+plan after changes.
 """
 
 @tool
-def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id: str = None, session_id: str = None, memory_client=None, memory_id: str = None) -> str:
+def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_id: str = None, session_id: str = None, memory_client=None, memory_id: str = None) -> str:
     """
-    Agent for meal planning, recipe creation, grocery lists, and food cost/nutrition calculations.
+    Agent for nutrition tracking, calorie management, daily meal logging, and health goal monitoring.
+    Requires explicit dates (YYYY-MM-DD format) in queries.
     
     Args:
         user_id (str): User identifier
-        query (str): Meal planning request
+        query (str): Health/nutrition request with date
         model_id (str): Model ID for the agent (optional)
         actor_id (str): Actor ID for memory (optional)
         session_id (str): Session ID for memory (optional)
@@ -49,7 +55,7 @@ def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id:
         memory_id (str): Memory ID for shared memory (optional)
     
     Returns:
-        str: Meal plan with recipes, ingredients, costs, and nutrition info
+        str: Nutrition tracking results or calorie calculations
     """
     # Use provided model_id or default
     model_to_use = model_id or "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
@@ -70,35 +76,34 @@ def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id:
         planner = Agent(
             hooks=[memory_hooks],
             model=model_to_use,
-            system_prompt=MEAL_PLANNER_PROMPT,
-            tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS,
+            system_prompt=HEALTH_PLANNER_PROMPT,
+            tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS,
             state={"actor_id": actor_id, "session_id": session_id}
         )
     else:
         planner = Agent(
             model=model_to_use,
-            system_prompt=MEAL_PLANNER_PROMPT,
-            tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS
+            system_prompt=HEALTH_PLANNER_PROMPT,
+            tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS
         )
     
-    # The combined prompt provides context for the specialized agent
-    combined_prompt = f"User ID: {user_id}. Request: {query}"
-    response = planner(combined_prompt)
+    response = planner(f"User ID: {user_id}. Request: {query}")
     return str(response)
 
+
 # def main():
-#     """Test the meal planner agent"""
-#     user_id = "user_99"
-#     query = "I need a healthy meal plan for today"
-#     result = meal_planner_agent(user_id, query)
+#     """Quick manual test for the health planner agent"""
+#     user_id = "test-user-123"
+#     query = "Add lunch 600 calories for 2025-10-17 and show remaining with target 2000"
+#     result = health_planner_agent(user_id, query)
 #     print(result)
+
 
 # if __name__ == "__main__":
 #     import argparse
 #     parser = argparse.ArgumentParser()
-#     parser.add_argument("--user-id", type=str, default="user_99", help="User ID")
-#     parser.add_argument("--query", type=str, default="I need a healthy meal plan for today", help="Query")
+#     parser.add_argument("--user-id", type=str, default="test-user-123", help="User ID")
+#     parser.add_argument("--query", type=str, default="How many calories left for 2025-10-17 if target 1800?", help="Query")
 #     args = parser.parse_args()
-    
-#     result = meal_planner_agent(args.user_id, args.query)
-#     print(result)
+#     print(health_planner_agent(args.user_id, args.query))
+

@@ -60,10 +60,10 @@ const Dashboard: React.FC = () => {
       console.log('Loading initial chat history...');
       const response = await chatHistoryAPI.getChatSessions();
       console.log(`Found ${response.sessions.length} existing sessions`);
-      
+
       // Don't auto-load any session - let user choose or start new chat
       console.log('Chat history loaded but not auto-selecting any session - user will start fresh or choose from sidebar');
-      
+
     } catch (error) {
       console.error('Failed to load chat history:', error);
       // Log more details for debugging
@@ -91,15 +91,15 @@ const Dashboard: React.FC = () => {
     try {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const response = await fetch('http://localhost:8100/api/v1/profile-setup/status', {
         headers
       });
-      
+
       if (response.ok) {
         const status = await response.json();
         setProfileStatus(status);
-        
+
         // If profile is not complete, show setup notification
         if (!status.is_setup_complete) {
           setShowProfileSetup(true);
@@ -132,10 +132,10 @@ const Dashboard: React.FC = () => {
     setMessages([]);
     setInputMessage('');
     setCurrentSessionTitle('New Chat');
-    
+
     // Clear any loading states
     setLoading(false);
-    
+
     // Note: The new DynamoDB session will be created when the user sends the first message
     // This ensures consistency between the chat system and chat history
     console.log('New chat initialized - ready for user input');
@@ -269,12 +269,12 @@ const Dashboard: React.FC = () => {
       // Get the current step from the last message
       const lastMessage = messages[messages.length - 1];
       const currentStep = lastMessage?.step;
-      
+
       console.log('Debug - Current step:', currentStep);
       console.log('Debug - Last message:', lastMessage);
-      
+
       let response;
-      
+
       // Use confirmStep for all confirmation operations
       if (currentStep === 'casual_response') {
         // For general query search confirmation from casual response
@@ -289,7 +289,7 @@ const Dashboard: React.FC = () => {
         // For all other confirmations (intent, goal, recipes_ready, cart_ready, etc.)
         response = await chatAPI.confirmStep(currentSessionId, confirmed);
       }
-      
+
       const assistantMessage: ChatMessageType = {
         id: Date.now().toString(),
         type: 'assistant',
@@ -303,7 +303,7 @@ const Dashboard: React.FC = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      
+
       // If the session is complete, show a completion message
       if (response.is_complete) {
         console.log("Session completed successfully!");
@@ -330,9 +330,9 @@ const Dashboard: React.FC = () => {
       // Get the current step from the last message
       const lastMessage = messages[messages.length - 1];
       const currentStep = lastMessage?.step;
-      
+
       let response;
-      
+
       // Call different endpoints based on the current step
       if (currentStep === 'feedback_rating') {
         // Handle rating submission
@@ -352,7 +352,7 @@ const Dashboard: React.FC = () => {
         // Default to general input handling
         response = await chatAPI.confirmStep(currentSessionId, true);
       }
-      
+
       const assistantMessage: ChatMessageType = {
         id: Date.now().toString(),
         type: 'assistant',
@@ -370,7 +370,7 @@ const Dashboard: React.FC = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      
+
       // If the session is complete, show a completion message
       if (response.is_complete) {
         console.log("Session completed successfully!");
@@ -395,7 +395,7 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     try {
       console.log(`🛒 Cart action triggered: ${action}`);
-      
+
       if (action === "View Product Catalog") {
         // Handle product catalog view - navigate to landing page
         console.log('🛍️ Opening product catalog...');
@@ -403,14 +403,14 @@ const Dashboard: React.FC = () => {
         setLoading(false);
         return;
       }
-      
+
       // Create a confirmation request with the cart action
       const confirmationData = {
         choice: action
       };
-      
+
       const response = await chatAPI.confirmStep(currentSessionId, true, confirmationData);
-      
+
       // Only add message if it's not empty and not a loop
       if (response.assistant_message && response.assistant_message.trim() !== '') {
         const assistantMessage: ChatMessageType = {
@@ -431,7 +431,7 @@ const Dashboard: React.FC = () => {
 
         setMessages(prev => [...prev, assistantMessage]);
       }
-      
+
       // If the session is complete, show a completion message
       if (response.is_complete) {
         console.log("Cart action completed successfully!");
@@ -453,10 +453,10 @@ const Dashboard: React.FC = () => {
   const handleAddToCart = async (product: any) => {
     try {
       console.log(`🛒 Adding product to cart: ${product.name}`);
-      
+
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const response = await fetch('http://localhost:8100/api/v1/cart/add', {
         method: 'POST',
         headers: {
@@ -474,7 +474,7 @@ const Dashboard: React.FC = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         console.log('✅ Product added to cart successfully');
         // Show success message
@@ -542,7 +542,7 @@ const Dashboard: React.FC = () => {
         <div className="dashboard-buttons">
 
           <Button variant="secondary" size="sm" onClick={() => navigate('/')}>
-             View Catalog
+            View Catalog
 
           </Button>
           <Button variant="secondary" size="sm" onClick={() => setShowProfile(!showProfile)}>
@@ -602,16 +602,16 @@ const Dashboard: React.FC = () => {
         <div className={`left-sidebar ${leftSidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
             <h3>Chat History</h3>
-            <Button 
-              variant="primary" 
-              size="sm" 
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
               className="hide-history-btn"
             >
               {leftSidebarOpen ? 'Hide' : 'Show'} History
             </Button>
           </div>
-          
+
           <div className="chat-history-container">
             <ChatHistorySidebar
               currentSessionId={currentSessionId}
@@ -626,9 +626,9 @@ const Dashboard: React.FC = () => {
           {/* Floating Show History Button - Only visible when sidebar is closed */}
           {!leftSidebarOpen && (
             <div className="floating-show-history-btn">
-              <Button 
-                variant="primary" 
-                size="sm" 
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={() => setLeftSidebarOpen(true)}
                 className="show-history-btn"
               >
@@ -642,14 +642,14 @@ const Dashboard: React.FC = () => {
             <div className="quick-actions-dropdown">
               <div className="quick-actions-header">
                 <h3>Quick Actions</h3>
-                <button 
-                  className="close-quick-actions-btn" 
+                <button
+                  className="close-quick-actions-btn"
                   onClick={toggleRightSidebar}
                 >
                   ×
                 </button>
               </div>
-              
+
               <div className="quick-actions-content">
                 <div className="quick-action-group">
                   <h4>Meal Planning</h4>
