@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from './common/Button';
+import { API_CONFIG } from '../config/api';
 import './ProductCatalog.css';
 
 interface Product {
@@ -40,7 +41,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      let url = 'http://localhost:8100/api/v1/products?limit=100';
+      let url = `${API_CONFIG.BASE_URL}/products?limit=100`;
       if (selectedCategory !== 'all') {
         url += `&category=${selectedCategory}`;
       }
@@ -66,7 +67,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8100/api/v1/products/categories', { headers });
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/categories`, { headers });
       const data = await response.json();
 
       if (data.success) {

@@ -8,6 +8,7 @@ import ChatMessage from './chat/ChatMessage';
 import ChatHistorySidebar from './chat/ChatHistorySidebar';
 import UserProfile from './profile/UserProfile';
 import CartWidget from './CartWidget';
+import { API_CONFIG } from '../config/api';
 import './Dashboard.css';
 
 interface ChatMessageType {
@@ -92,7 +93,7 @@ const Dashboard: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
 
-      const response = await fetch('http://localhost:8100/api/v1/profile-setup/status', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/profile-setup/status`, {
         headers
       });
 
@@ -457,7 +458,7 @@ const Dashboard: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
 
-      const response = await fetch('http://localhost:8100/api/v1/cart/add', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/cart/add`, {
         method: 'POST',
         headers: {
           ...headers,

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Button from './common/Button';
 import CartWidget from './CartWidget';
+import { API_CONFIG } from '../config/api';
 import './LandingPage.css';
 
 interface Product {
@@ -39,7 +40,7 @@ const LandingPage: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      let url = 'http://localhost:8100/api/v1/products?limit=100';
+      let url = `${API_CONFIG.BASE_URL}/products?limit=100`;
       if (selectedCategory !== 'all') {
         url += `&category=${selectedCategory}`;
       }
@@ -65,7 +66,7 @@ const LandingPage: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8100/api/v1/products/categories', { headers });
+      const response = await fetch(`${API_CONFIG.BASE_URL}/products/categories`, { headers });
       const data = await response.json();
 
       if (data.success) {
@@ -92,7 +93,7 @@ const LandingPage: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8100/api/v1/cart/add', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/cart/add`, {
         method: 'POST',
         headers: {
           ...headers,

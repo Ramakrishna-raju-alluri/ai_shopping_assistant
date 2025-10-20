@@ -1,8 +1,13 @@
 const axios = require('axios');
 
+// Get API URL from environment or use localhost as fallback
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8100/api/v1';
+
 async function testSignup() {
+  console.log('Testing signup with API:', API_BASE_URL);
+  
   try {
-    const response = await axios.post('http://localhost:8100/api/v1/auth/signup', {
+    const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
       username: 'testuser',
       password: '123',
       name: 'Test User',

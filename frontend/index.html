@@ -333,7 +333,17 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8100/api/v1';
+        // Get API base URL - check if we're in development or production
+        const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_BASE = isDevelopment 
+            ? 'http://localhost:8100/api/v1'
+            : 'http://ai-shopping-assistant-backend.eba-kdhudhcc.us-west-2.elasticbeanstalk.com/api/v1';
+        
+        console.log('🔧 API Configuration:', { 
+            hostname: window.location.hostname, 
+            isDevelopment, 
+            apiBase: API_BASE 
+        });
         let currentUser = null;
 
         // Initialize the app
