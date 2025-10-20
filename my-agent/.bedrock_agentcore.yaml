@@ -140,7 +140,7 @@ agents:
     bedrock_agentcore:
       agent_id: main-kePz2k4252
       agent_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/main-kePz2k4252
-      agent_session_id: c2d1f901-969c-4da6-9d7b-39cf70fa3d0f
+      agent_session_id: 5a92d2d0-2d69-4403-bc07-668521853d1d
     codebuild:
       project_name: bedrock-agentcore-main-builder
       execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-0d6e4079e3
@@ -153,6 +153,45 @@ agents:
       event_expiry_days: 30
       first_invoke_memory_check_done: true
       was_created_by_toolkit: false
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
+  shopp:
+    name: shopp
+    entrypoint: C:/Users/Administrator/Desktop/Coles_2/coles-shopping-assistant/my-agent/main.py
+    platform: linux/arm64
+    container_runtime: none
+    source_path: C:\Users\Administrator\Desktop\Coles_2\coles-shopping-assistant\my-agent
+    aws:
+      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-2747ae3206
+      execution_role_auto_create: false
+      account: '799440957487'
+      region: us-east-1
+      ecr_repository: 799440957487.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-shopp
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: null
+      agent_arn: null
+      agent_session_id: null
+    codebuild:
+      project_name: null
+      execution_role: null
+      source_bucket: null
+    memory:
+      mode: STM_ONLY
+      memory_id: shopp_mem-3y43z08FJZ
+      memory_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:memory/shopp_mem-3y43z08FJZ
+      memory_name: shopp_mem
+      event_expiry_days: 30
+      first_invoke_memory_check_done: false
+      was_created_by_toolkit: true
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null

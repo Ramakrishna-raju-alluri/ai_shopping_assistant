@@ -1,6 +1,6 @@
 """
 AgentCore entry point for the Coles Shopping Assistant Agent - Orchestrator
-Using DeepSeek instead of Bedrock
+Using the new backend_bedrock agents with DynamoDB integration
 """
 import json
 import logging
@@ -13,9 +13,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from strands import Agent
 from strands.models import BedrockModel
 from bedrock_agentcore import BedrockAgentCoreApp
-from agents.product_agent import product_agent
-from agents.nutrition_agent import nutrition_agent
-from agents.meal_planning_agent import meal_planning_agent
+
+# Import the new orchestrator from backend_bedrock agents
+from agents.orchestrator import orchestrator_agent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,49 +24,8 @@ logger = logging.getLogger(__name__)
 # Initialize the AgentCore Runtime App
 app = BedrockAgentCoreApp()  #### AGENTCORE RUNTIME - LINE 2 ####
 
-ORCHESTRATOR_PROMPT = """
-You are the Coles Shopping Assistant orchestrator that coordinates between specialized agents to provide comprehensive grocery shopping, nutrition tracking, and meal planning assistance.
-
-Your specialized agents are:
-1. **product_agent**: Handles product stock checks, availability, and product information queries
-2. **nutrition_agent**: Handles calorie tracking, meal logging, nutrition goals, and daily targets
-3. **meal_planning_agent**: Handles meal suggestions, recipe generation, and cost calculations
-
-Guidelines for using your agents:
-- Use **product_agent** for questions about: product availability, stock status, product information
-- Use **nutrition_agent** for questions about: calories, meal logging, nutrition targets, daily tracking
-- Use **meal_planning_agent** for questions about: meal suggestions, recipes, meal planning, cost calculations
-- You can use multiple agents together for comprehensive assistance
-- Always provide a cohesive summary that combines insights from multiple agents when applicable
-- Maintain a helpful, conversational tone
-
-When a user asks a question:
-1. Determine which agent(s) are most appropriate for the query
-2. Call the relevant agent(s) with focused queries including user_id
-3. Synthesize the responses into a coherent, comprehensive answer
-4. Provide actionable next steps when possible
-
-Important:
-- Always extract and pass the user_id to agents when making calls
-- If user_id is not provided, ask the user for it or use "default-user"
-- Be helpful and provide clear, actionable responses
-"""
-
-# Initialize Nova Pro model from AWS Bedrock
-nova_pro_model = BedrockModel(
-    model_id="amazon.nova-pro-v1:0"  # Nova Pro model (simplified ARN)
-)
-
-# Initialize the orchestrator agent with specialized agents as tools
-agent = Agent(
-    model=nova_pro_model,
-    system_prompt=ORCHESTRATOR_PROMPT,
-    tools=[
-        product_agent,
-        nutrition_agent,
-        meal_planning_agent
-    ]
-)
+# Use the orchestrator agent directly
+agent = orchestrator_agent
 
 
 @app.entrypoint  #### AGENTCORE RUNTIME - LINE 3 ####
@@ -108,4 +67,6 @@ async def invoke(payload, context=None):
 
 if __name__ == "__main__":
     # app.run()
-    agent("how many calories are there in bananas")
+    # Test with proper user_id
+    response = agent("User ID: test-user-123. Query: how many calories are there in bananas")
+    print(response)
