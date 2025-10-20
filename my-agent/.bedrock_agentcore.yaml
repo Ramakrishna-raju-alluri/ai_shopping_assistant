@@ -140,19 +140,19 @@ agents:
     bedrock_agentcore:
       agent_id: main-kePz2k4252
       agent_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/main-kePz2k4252
-      agent_session_id: 92937bd3-7189-4e70-8d86-3e999114591f
+      agent_session_id: c2d1f901-969c-4da6-9d7b-39cf70fa3d0f
     codebuild:
       project_name: bedrock-agentcore-main-builder
       execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-0d6e4079e3
       source_bucket: bedrock-agentcore-codebuild-sources-799440957487-us-east-1
     memory:
-      mode: STM_ONLY
-      memory_id: main_mem-5R2lpNCrF9
-      memory_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:memory/main_mem-5R2lpNCrF9
-      memory_name: main_mem
+      mode: STM_AND_LTM
+      memory_id: shopping_assistant_mem-C6xHri8z2a
+      memory_arn: null
+      memory_name: main_memory
       event_expiry_days: 30
       first_invoke_memory_check_done: true
-      was_created_by_toolkit: true
+      was_created_by_toolkit: false
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null

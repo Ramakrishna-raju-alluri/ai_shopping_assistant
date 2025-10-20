@@ -12,7 +12,7 @@ if str(parent_dir) not in sys.path:
     sys.path.insert(0, str(parent_dir))
 
 from tools.model_tool import calculate_calories, calculate_cost, generate_meal_suggestions
-from tools.db_tool import get_user_profile
+from tools.db_tool import get_user_profile, get_products_by_names
 
 MEAL_PLANNING_AGENT_PROMPT = """
 You are a specialized meal planning assistant. Your role is to help users with:
@@ -32,6 +32,7 @@ Guidelines:
 
 Available Tools:
 - get_user_profile: Fetch user dietary preferences and constraints
+- get_products_by_names: Get products by name with fuzzy matching
 - calculate_calories: Estimate calories for ingredients
 - calculate_cost: Calculate meal and ingredient costs
 - generate_meal_suggestions: AI-powered meal recommendations
@@ -50,6 +51,7 @@ def meal_planning_agent(user_id: str, query: str) -> str:
         system_prompt=MEAL_PLANNING_AGENT_PROMPT,
         tools=[
             get_user_profile,
+            get_products_by_names,
             calculate_calories,
             calculate_cost,
             generate_meal_suggestions

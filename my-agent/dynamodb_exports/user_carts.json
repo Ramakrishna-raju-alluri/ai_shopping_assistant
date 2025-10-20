@@ -1,0 +1,644 @@
+[
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_101"
+    },
+    "product_name": {
+      "S": "Organic Eggs (12 count)"
+    },
+    "item_id": {
+      "S": "item_005"
+    },
+    "session_id": {
+      "S": "cart_user_101"
+    },
+    "category": {
+      "S": "protein"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:14:52.389795"
+    },
+    "price": {
+      "N": "4.99"
+    },
+    "cart_key": {
+      "S": "cart_user_101#item_005"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:14:52.389807"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_101"
+    },
+    "product_name": {
+      "S": "Coconut Milk (13.5oz)"
+    },
+    "item_id": {
+      "S": "item_045"
+    },
+    "session_id": {
+      "S": "cart_user_101"
+    },
+    "category": {
+      "S": "dairy"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:36:58.813556"
+    },
+    "price": {
+      "N": "2.99"
+    },
+    "cart_key": {
+      "S": "cart_user_101#item_045"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:36:58.813566"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_101"
+    },
+    "product_name": {
+      "S": "Organic Tomatoes (1lb)"
+    },
+    "item_id": {
+      "S": "item_027"
+    },
+    "session_id": {
+      "S": "user_101"
+    },
+    "category": {
+      "S": "vegetables"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:42:24.418760"
+    },
+    "price": {
+      "N": "2.99"
+    },
+    "cart_key": {
+      "S": "user_101#item_027"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:42:24.418771"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_102"
+    },
+    "product_name": {
+      "S": "Coconut Milk (13.5oz)"
+    },
+    "item_id": {
+      "S": "item_045"
+    },
+    "session_id": {
+      "S": "user_102"
+    },
+    "category": {
+      "S": "dairy"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:46:42.005048"
+    },
+    "price": {
+      "N": "2.99"
+    },
+    "cart_key": {
+      "S": "user_102#item_045"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:46:42.005058"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "test-user-fixed"
+    },
+    "product_name": {
+      "S": "Chicken Breast"
+    },
+    "item_id": {
+      "S": "chicken_001"
+    },
+    "session_id": {
+      "S": "cart_test-user-fixed"
+    },
+    "category": {
+      "S": "meat"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:11:13.479173"
+    },
+    "price": {
+      "N": "6.99"
+    },
+    "cart_key": {
+      "S": "cart_test-user-fixed#chicken_001"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:11:13.479181"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "test-user-fixed"
+    },
+    "product_name": {
+      "S": "Chicken Breast (1lb)"
+    },
+    "item_id": {
+      "S": "item_002"
+    },
+    "session_id": {
+      "S": "cart_test-user-fixed"
+    },
+    "category": {
+      "S": "protein"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:12:31.063912"
+    },
+    "price": {
+      "N": "6.49"
+    },
+    "cart_key": {
+      "S": "cart_test-user-fixed#item_002"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:12:31.063922"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "test-user-fixed"
+    },
+    "product_name": {
+      "S": "Protein Powder (2lb)"
+    },
+    "item_id": {
+      "S": "item_031"
+    },
+    "session_id": {
+      "S": "cart_test-user-fixed"
+    },
+    "category": {
+      "S": "protein"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:12:32.938259"
+    },
+    "price": {
+      "N": "24.99"
+    },
+    "cart_key": {
+      "S": "cart_test-user-fixed#item_031"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:12:32.938269"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "frontend-test-user"
+    },
+    "product_name": {
+      "S": "Chicken Breast"
+    },
+    "item_id": {
+      "S": "chicken_001"
+    },
+    "session_id": {
+      "S": "cart_frontend-test-user"
+    },
+    "category": {
+      "S": "meat"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:11:19.097486"
+    },
+    "price": {
+      "N": "6.99"
+    },
+    "cart_key": {
+      "S": "cart_frontend-test-user#chicken_001"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:11:19.097495"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "frontend-test-user"
+    },
+    "product_name": {
+      "S": "Chicken Breast (1lb)"
+    },
+    "item_id": {
+      "S": "item_002"
+    },
+    "session_id": {
+      "S": "cart_frontend-test-user"
+    },
+    "category": {
+      "S": "protein"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:12:36.903571"
+    },
+    "price": {
+      "N": "6.49"
+    },
+    "cart_key": {
+      "S": "cart_frontend-test-user#item_002"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:12:36.903580"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "test_user_123"
+    },
+    "product_name": {
+      "S": "Almond Milk (32oz)"
+    },
+    "item_id": {
+      "S": "item_009"
+    },
+    "session_id": {
+      "S": "test_user_123"
+    },
+    "category": {
+      "S": "dairy"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:51:48.285287"
+    },
+    "price": {
+      "N": "4.49"
+    },
+    "cart_key": {
+      "S": "test_user_123#item_009"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:51:48.285299"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "default"
+    },
+    "product_name": {
+      "S": "Organic Spinach (8oz)"
+    },
+    "item_id": {
+      "S": "item_003"
+    },
+    "session_id": {
+      "S": "default"
+    },
+    "category": {
+      "S": "vegetables"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T10:04:44.109224"
+    },
+    "price": {
+      "N": "3.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T10:04:44.109249"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "default"
+    },
+    "product_name": {
+      "S": "Extra Virgin Olive Oil (16oz)"
+    },
+    "item_id": {
+      "S": "item_010"
+    },
+    "session_id": {
+      "S": "default"
+    },
+    "category": {
+      "S": "oils-condiments"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T10:05:09.912939"
+    },
+    "price": {
+      "N": "8.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T10:05:09.912948"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "default"
+    },
+    "product_name": {
+      "S": "Organic Tofu (14oz)"
+    },
+    "item_id": {
+      "S": "item_015"
+    },
+    "session_id": {
+      "S": "default"
+    },
+    "category": {
+      "S": "protein"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T10:04:35.805487"
+    },
+    "price": {
+      "N": "3.49"
+    },
+    "expires_at": {
+      "S": "2025-10-26T10:04:35.805499"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "default"
+    },
+    "product_name": {
+      "S": "Organic Bell Peppers (1lb)"
+    },
+    "item_id": {
+      "S": "item_034"
+    },
+    "session_id": {
+      "S": "default"
+    },
+    "category": {
+      "S": "vegetables"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T10:04:52.444206"
+    },
+    "price": {
+      "N": "3.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T10:04:52.444216"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "default"
+    },
+    "product_name": {
+      "S": "Organic Garlic (3 heads)"
+    },
+    "item_id": {
+      "S": "item_048"
+    },
+    "session_id": {
+      "S": "default"
+    },
+    "category": {
+      "S": "vegetables"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T10:05:01.055380"
+    },
+    "price": {
+      "N": "2.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T10:05:01.055390"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "test_user"
+    },
+    "product_name": {
+      "S": "Organic Eggs (12 count)"
+    },
+    "item_id": {
+      "S": "item_005"
+    },
+    "session_id": {
+      "S": "cart_test_user"
+    },
+    "category": {
+      "S": "protein"
+    },
+    "added_timestamp": {
+      "S": "2025-10-18T18:33:25.641834"
+    },
+    "price": {
+      "N": "4.99"
+    },
+    "cart_key": {
+      "S": "cart_test_user#item_005"
+    },
+    "expires_at": {
+      "S": "2025-10-25T18:33:25.641844"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "test_user"
+    },
+    "product_name": {
+      "S": "Almond Milk (32oz)"
+    },
+    "item_id": {
+      "S": "item_009"
+    },
+    "session_id": {
+      "S": "test_user"
+    },
+    "category": {
+      "S": "dairy"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T08:33:13.834973"
+    },
+    "price": {
+      "N": "4.49"
+    },
+    "expires_at": {
+      "S": "2025-10-26T08:33:13.834990"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_103"
+    },
+    "product_name": {
+      "S": "Organic Quinoa"
+    },
+    "item_id": {
+      "S": "item_001"
+    },
+    "session_id": {
+      "S": "user_103"
+    },
+    "category": {
+      "S": "grains"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T11:40:55.458215"
+    },
+    "price": {
+      "N": "8.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T11:40:55.458225"
+    }
+  },
+  {
+    "quantity": {
+      "N": "2"
+    },
+    "user_id": {
+      "S": "user_103"
+    },
+    "product_name": {
+      "S": "Avocado (each)"
+    },
+    "item_id": {
+      "S": "item_004"
+    },
+    "session_id": {
+      "S": "user_103"
+    },
+    "category": {
+      "S": "fruits"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T11:41:09.285853"
+    },
+    "price": {
+      "N": "1.49"
+    },
+    "expires_at": {
+      "S": "2025-10-26T11:41:09.285865"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_103"
+    },
+    "product_name": {
+      "S": "Extra Virgin Olive Oil (16oz)"
+    },
+    "item_id": {
+      "S": "item_010"
+    },
+    "session_id": {
+      "S": "user_103"
+    },
+    "category": {
+      "S": "oils-condiments"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T11:41:16.709775"
+    },
+    "price": {
+      "N": "8.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T11:41:16.709803"
+    }
+  },
+  {
+    "quantity": {
+      "N": "1"
+    },
+    "user_id": {
+      "S": "user_103"
+    },
+    "product_name": {
+      "S": "Organic Chickpeas (15oz)"
+    },
+    "item_id": {
+      "S": "item_022"
+    },
+    "session_id": {
+      "S": "user_103"
+    },
+    "category": {
+      "S": "organic"
+    },
+    "added_timestamp": {
+      "S": "2025-10-19T11:41:02.386919"
+    },
+    "price": {
+      "N": "1.99"
+    },
+    "expires_at": {
+      "S": "2025-10-26T11:41:02.386931"
+    }
+  }
+]

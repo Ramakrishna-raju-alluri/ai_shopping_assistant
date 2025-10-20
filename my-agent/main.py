@@ -108,4 +108,4 @@ async def invoke(payload, context=None):
 
 if __name__ == "__main__":
     # app.run()
-    agent("Do you have stock of bananas")
+    agent("how many calories are there in bananas")

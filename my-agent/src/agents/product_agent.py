@@ -11,7 +11,7 @@ parent_dir = current_dir.parent
 if str(parent_dir) not in sys.path:
     sys.path.insert(0, str(parent_dir))
 
-from tools.db_tool import find_product_stock
+from tools.db_tool import find_product_stock, get_products_by_names
 
 PRODUCT_AGENT_PROMPT = """
 You are a specialized product information assistant for Coles supermarket. 
@@ -29,6 +29,7 @@ Guidelines:
 
 Available Tools:
 - find_product_stock: Check if a specific product is in stock
+- get_products_by_names: Get multiple products by name with fuzzy matching
 """
 
 @tool
@@ -44,6 +45,7 @@ def product_agent(user_id: str, query: str) -> str:
         system_prompt=PRODUCT_AGENT_PROMPT,
         tools=[
             find_product_stock,
+            get_products_by_names
         ]
     )
     

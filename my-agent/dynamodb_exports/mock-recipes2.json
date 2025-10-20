@@ -1,0 +1,2461 @@
+[
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_029"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Oatmeal"
+        },
+        {
+          "S": "Almond Milk"
+        },
+        {
+          "S": "Almonds"
+        },
+        {
+          "S": "Organic Blueberries"
+        },
+        {
+          "S": "Chia Seeds"
+        },
+        {
+          "S": "Organic Banana"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "15"
+    },
+    "title": {
+      "S": "Vegan Oatmeal with Nuts"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "mediterranean"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_034"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Canned Sardines (3.75oz)"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Onions"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "10"
+    },
+    "title": {
+      "S": "Mediterranean Sardine Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "25.44"
+    },
+    "recipe_id": {
+      "S": "recipe_009"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Tofu"
+        },
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Chickpeas"
+        },
+        {
+          "S": "Organic Sweet Potato"
+        },
+        {
+          "S": "Almonds"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "35"
+    },
+    "title": {
+      "S": "Vegan Protein Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_013"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Greek Yogurt"
+        },
+        {
+          "S": "Organic Blueberries"
+        },
+        {
+          "S": "Almonds"
+        },
+        {
+          "S": "Chia Seeds"
+        },
+        {
+          "S": "Organic Strawberries"
+        },
+        {
+          "S": "Honey"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "5"
+    },
+    "title": {
+      "S": "High-Protein Greek Yogurt Parfait"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-fat"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "16.44"
+    },
+    "recipe_id": {
+      "S": "recipe_037"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Egg Whites"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "15"
+    },
+    "title": {
+      "S": "Low-Fat Egg White Omelette"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "22.44"
+    },
+    "recipe_id": {
+      "S": "recipe_006"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Sweet Potato"
+        },
+        {
+          "S": "Organic Kale"
+        },
+        {
+          "S": "Organic Chickpeas"
+        },
+        {
+          "S": "Organic Carrots"
+        },
+        {
+          "S": "Tahini Sauce"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "40"
+    },
+    "title": {
+      "S": "Vegan Buddha Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "mediterranean"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "38.44"
+    },
+    "recipe_id": {
+      "S": "recipe_016"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Salmon Fillet (1lb)"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Mediterranean Grilled Fish"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-fat"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_017"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Turkey Breast (1lb)"
+        },
+        {
+          "S": "Avocado"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Lettuce Wraps"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "10"
+    },
+    "title": {
+      "S": "Low-Carb Turkey and Avocado Wrap"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "16.44"
+    },
+    "recipe_id": {
+      "S": "recipe_018"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Chickpeas"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Coconut Milk"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Spinach"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Vegan Chickpea Curry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "low-fat"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "22.44"
+    },
+    "recipe_id": {
+      "S": "recipe_045"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Cottage Cheese"
+        },
+        {
+          "S": "Organic Blueberries"
+        },
+        {
+          "S": "Organic Strawberries"
+        },
+        {
+          "S": "Almonds"
+        },
+        {
+          "S": "Chia Seeds"
+        },
+        {
+          "S": "Honey"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "5"
+    },
+    "title": {
+      "S": "High-Protein Cottage Cheese and Fruit"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "mediterranean"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "26.44"
+    },
+    "recipe_id": {
+      "S": "recipe_047"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Canned Tuna in Olive Oil (5oz)"
+        },
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Mediterranean Tuna and Quinoa"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_044"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Lentils"
+        },
+        {
+          "S": "Organic Sweet Potato"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "40"
+    },
+    "title": {
+      "S": "Vegan Lentil and Sweet Potato Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "28.44"
+    },
+    "recipe_id": {
+      "S": "recipe_035"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Bacon (12oz)"
+        },
+        {
+          "S": "Organic Asparagus"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Butter"
+        },
+        {
+          "S": "Organic Herbs"
+        },
+        {
+          "S": "Lemon"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Keto Bacon-Wrapped Asparagus"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        },
+        {
+          "S": "mediterranean"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "26.44"
+    },
+    "recipe_id": {
+      "S": "recipe_022"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Mediterranean Quinoa Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-fat"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "35.94"
+    },
+    "recipe_id": {
+      "S": "recipe_004"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Turkey Breast (1lb)"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "15"
+    },
+    "title": {
+      "S": "High-Protein Turkey Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "24.44"
+    },
+    "recipe_id": {
+      "S": "recipe_011"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Eggs"
+        },
+        {
+          "S": "Avocado"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Cheddar Cheese"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Tomatoes"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "15"
+    },
+    "title": {
+      "S": "Keto Avocado and Egg Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "gluten-free"
+        },
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "42.94"
+    },
+    "recipe_id": {
+      "S": "recipe_005"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Salmon Fillet (1lb)"
+        },
+        {
+          "S": "Organic Asparagus"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Lemon"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Gluten-Free Salmon with Vegetables"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_043"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Ground Beef 85% Lean (1lb)"
+        },
+        {
+          "S": "Organic Mushrooms"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Keto Beef and Mushroom Stir-Fry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "mediterranean"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "22.44"
+    },
+    "recipe_id": {
+      "S": "recipe_028"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Hummus"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Whole Grain Bread"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "10"
+    },
+    "title": {
+      "S": "Mediterranean Hummus Plate"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-fat"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "28.94"
+    },
+    "recipe_id": {
+      "S": "recipe_010"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Chicken Breast (1lb)"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Organic Carrots"
+        },
+        {
+          "S": "Organic Zucchini"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Low-Fat Chicken and Vegetables"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "28.44"
+    },
+    "recipe_id": {
+      "S": "recipe_019"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Bacon (12oz)"
+        },
+        {
+          "S": "Organic Eggs"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Cheddar Cheese"
+        },
+        {
+          "S": "Butter"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Keto Bacon and Eggs"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_023"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Cauliflower"
+        },
+        {
+          "S": "Ground Beef 85% Lean (1lb)"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Keto Cauliflower Rice Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_002"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Chicken Breast (1lb)"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Zucchini"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Keto Chicken Stir-Fry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_003"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Lentils"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Coconut Milk"
+        },
+        {
+          "S": "Organic Spinach"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "35"
+    },
+    "title": {
+      "S": "Vegan Lentil Curry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-fat"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_024"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Tuna in Water (5oz)"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Organic Carrots"
+        },
+        {
+          "S": "Organic Zucchini"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Low-Fat Fish and Vegetables"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "low-fat"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "22.44"
+    },
+    "recipe_id": {
+      "S": "recipe_020"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Cottage Cheese"
+        },
+        {
+          "S": "Organic Blueberries"
+        },
+        {
+          "S": "Walnuts"
+        },
+        {
+          "S": "Chia Seeds"
+        },
+        {
+          "S": "Organic Strawberries"
+        },
+        {
+          "S": "Honey"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "5"
+    },
+    "title": {
+      "S": "High-Protein Cottage Cheese Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_046"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Chicken Breast (1lb)"
+        },
+        {
+          "S": "Avocado"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Keto Chicken and Avocado Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "gluten-free"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "42.94"
+    },
+    "recipe_id": {
+      "S": "recipe_038"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Salmon Fillet (1lb)"
+        },
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "High-Protein Salmon and Quinoa"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_031"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Canned Tuna in Olive Oil (5oz)"
+        },
+        {
+          "S": "Avocado"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "10"
+    },
+    "title": {
+      "S": "Keto Avocado and Tuna Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_036"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Chickpeas"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Coconut Milk"
+        },
+        {
+          "S": "Organic Garlic"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Vegan Chickpea and Spinach Curry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "28.94"
+    },
+    "recipe_id": {
+      "S": "recipe_027"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Zucchini"
+        },
+        {
+          "S": "Ground Beef 85% Lean (1lb)"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Keto Zucchini Noodles with Meat"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-fat"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_030"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Chicken Breast (1lb)"
+        },
+        {
+          "S": "Organic Romaine Lettuce"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Parmesan Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Low-Carb Chicken Caesar Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_039"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Pork Chops (1lb)"
+        },
+        {
+          "S": "Organic Cauliflower"
+        },
+        {
+          "S": "Organic Brussels Sprouts"
+        },
+        {
+          "S": "Butter"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "35"
+    },
+    "title": {
+      "S": "Keto Pork and Cauliflower"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "16.44"
+    },
+    "recipe_id": {
+      "S": "recipe_025"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Canned Black Beans"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        },
+        {
+          "S": "Avocado"
+        },
+        {
+          "S": "Corn Tortillas"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "20"
+    },
+    "title": {
+      "S": "Vegan Black Bean Tacos"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "32.94"
+    },
+    "recipe_id": {
+      "S": "recipe_014"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Pork Chops (1lb)"
+        },
+        {
+          "S": "Organic Brussels Sprouts"
+        },
+        {
+          "S": "Organic Cauliflower"
+        },
+        {
+          "S": "Butter"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "35"
+    },
+    "title": {
+      "S": "Keto Pork Chops with Vegetables"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "28.44"
+    },
+    "recipe_id": {
+      "S": "recipe_001"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Cucumber"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Mediterranean Quinoa Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "16.44"
+    },
+    "recipe_id": {
+      "S": "recipe_015"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Lentils"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Carrots"
+        },
+        {
+          "S": "Organic Celery"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "45"
+    },
+    "title": {
+      "S": "Vegan Lentil Soup"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-fat"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "16.44"
+    },
+    "recipe_id": {
+      "S": "recipe_049"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Tuna in Water (5oz)"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Carrots"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Low-Fat Fish and Vegetable Stew"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "42.44"
+    },
+    "recipe_id": {
+      "S": "recipe_026"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Protein Powder (2lb)"
+        },
+        {
+          "S": "Almond Milk"
+        },
+        {
+          "S": "Organic Blueberries"
+        },
+        {
+          "S": "Almonds"
+        },
+        {
+          "S": "Chia Seeds"
+        },
+        {
+          "S": "Organic Banana"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "5"
+    },
+    "title": {
+      "S": "High-Protein Protein Shake Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-fat"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "38.94"
+    },
+    "recipe_id": {
+      "S": "recipe_033"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Turkey Breast (1lb)"
+        },
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "High-Protein Turkey and Quinoa"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "22.44"
+    },
+    "recipe_id": {
+      "S": "recipe_012"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Gluten-Free Pasta"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Basil"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Vegan Mediterranean Pasta"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "24.44"
+    },
+    "recipe_id": {
+      "S": "recipe_048"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Tempeh"
+        },
+        {
+          "S": "Organic Quinoa"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Chickpeas"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "30"
+    },
+    "title": {
+      "S": "Vegan Tempeh and Vegetable Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "24.44"
+    },
+    "recipe_id": {
+      "S": "recipe_021"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Tempeh"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Zucchini"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Vegan Tempeh Stir-Fry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "28.44"
+    },
+    "recipe_id": {
+      "S": "recipe_050"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Bacon (12oz)"
+        },
+        {
+          "S": "Organic Brussels Sprouts"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Butter"
+        },
+        {
+          "S": "Organic Herbs"
+        },
+        {
+          "S": "Lemon"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Keto Bacon and Brussels Sprouts"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "mediterranean"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-carb"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "18.44"
+    },
+    "recipe_id": {
+      "S": "recipe_008"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Canned Tuna in Olive Oil (5oz)"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Organic Cucumber"
+        },
+        {
+          "S": "Feta Cheese"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Onions"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "10"
+    },
+    "title": {
+      "S": "Mediterranean Tuna Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "16.44"
+    },
+    "recipe_id": {
+      "S": "recipe_032"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Lentils"
+        },
+        {
+          "S": "Brown Rice"
+        },
+        {
+          "S": "Organic Onions"
+        },
+        {
+          "S": "Organic Carrots"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "40"
+    },
+    "title": {
+      "S": "Vegan Lentil and Rice Bowl"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "keto"
+        },
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "35.94"
+    },
+    "recipe_id": {
+      "S": "recipe_007"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Ground Beef 85% Lean (1lb)"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Organic Mushrooms"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Keto Beef Stir-Fry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegan"
+        },
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "gluten-free"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "24.44"
+    },
+    "recipe_id": {
+      "S": "recipe_040"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Organic Tofu"
+        },
+        {
+          "S": "Organic Broccoli"
+        },
+        {
+          "S": "Organic Bell Peppers"
+        },
+        {
+          "S": "Coconut Oil"
+        },
+        {
+          "S": "Organic Garlic"
+        },
+        {
+          "S": "Organic Zucchini"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "25"
+    },
+    "title": {
+      "S": "Vegan Tofu and Vegetable Stir-Fry"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "low-carb"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "low-fat"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "35.94"
+    },
+    "recipe_id": {
+      "S": "recipe_042"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Turkey Breast (1lb)"
+        },
+        {
+          "S": "Avocado"
+        },
+        {
+          "S": "Organic Spinach"
+        },
+        {
+          "S": "Organic Tomatoes"
+        },
+        {
+          "S": "Extra Virgin Olive Oil"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "15"
+    },
+    "title": {
+      "S": "Low-Carb Turkey and Avocado Salad"
+    }
+  },
+  {
+    "diet": {
+      "L": [
+        {
+          "S": "vegetarian"
+        },
+        {
+          "S": "high-protein"
+        },
+        {
+          "S": "mediterranean"
+        }
+      ]
+    },
+    "total_cost": {
+      "N": "22.44"
+    },
+    "recipe_id": {
+      "S": "recipe_041"
+    },
+    "ingredients": {
+      "L": [
+        {
+          "S": "Greek Yogurt"
+        },
+        {
+          "S": "Organic Blueberries"
+        },
+        {
+          "S": "Walnuts"
+        },
+        {
+          "S": "Honey"
+        },
+        {
+          "S": "Organic Strawberries"
+        },
+        {
+          "S": "Organic Herbs"
+        }
+      ]
+    },
+    "cook_time_mins": {
+      "N": "5"
+    },
+    "title": {
+      "S": "Mediterranean Greek Yogurt Bowl"
+    }
+  }
+]
