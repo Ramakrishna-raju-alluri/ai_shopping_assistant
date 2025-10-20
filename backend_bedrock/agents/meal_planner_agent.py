@@ -43,8 +43,8 @@ For structured meal plan outputs, provide:
 4. Nutritional balance analysis and cost estimates
 
 To do this, you must follow these steps:
-1. Fetch the user's profile to understand their preferences and constraints using `fetch_user_profile`.
-2. Fetch available items from the store using `fetch_available_items`.
+1. Fetch the user's profile to understand their preferences and constraints.
+2. Fetch available items from the store.
 3. Generate a list of three distinct meal recipes (breakfast, lunch, dinner) based on the user's preferences and available items.
 4. For each recipe, calculate the estimated cost and calories using the provided tools.
 5. Create a comprehensive shopping list from all recipe ingredients.
