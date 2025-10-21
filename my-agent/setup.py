@@ -8,7 +8,7 @@ import sys
 def setup_environment():
     """Setup environment variables for the agent"""
     
-    print("🔧 Setting up Coles Shopping Assistant Agent with Nova Pro")
+    print("🔧 Setting up Coles Shopping Assistant Agent with Nova Lite")
     print("=" * 60)
     
     # Required environment variables
@@ -19,7 +19,7 @@ def setup_environment():
         "RECIPE_TABLE": "mock-recipes2",
         "PROMO_TABLE": "promo_stock_feed2",
         "NUTRITION_TABLE": "nutrition_calendar"
-        # No API key needed - using AWS Bedrock Nova Pro model
+        # No API key needed - using AWS Bedrock Nova Lite model
     }
     
     print("\n📋 Required Environment Variables:")
@@ -44,10 +44,10 @@ def setup_environment():
         print(f'export {key}="{value}"')
     
     print("\n⚠️  Important:")
-    print("- Using Nova Pro model via AWS Bedrock (no external API key needed)")
+    print("- Using Nova Lite model via AWS Bedrock (no external API key needed)")
     print("- Ensure DynamoDB tables exist and are accessible")
     print("- Verify AWS credentials are configured")
-    print("- Ensure Bedrock access is enabled for Nova Pro model")
+    print("- Ensure Bedrock access is enabled for Nova Lite model")
     
     print("\n" + "=" * 60)
     print("🎉 Setup information displayed!")

@@ -1,6 +1,6 @@
 # Coles Shopping Assistant Agent
 
-An AI-powered agent built with AWS Bedrock Agent Core and Nova Pro (via AWS Bedrock) that helps users with grocery shopping, nutrition tracking, and meal planning.
+An AI-powered agent built with AWS Bedrock Agent Core and Nova Lite (via AWS Bedrock) that helps users with grocery shopping, nutrition tracking, and meal planning.
 
 ## Features
 
@@ -21,7 +21,7 @@ my-agent/
 │       └── meal_planning_agent.py
 ├── requirements.txt
 ├── Dockerfile
-├── nova-pro-config.yaml    # Nova Pro configuration
+├── nova-lite-config.yaml    # Nova Lite configuration
 └── README.md
 ```
 
@@ -52,7 +52,7 @@ my-agent/
 - Python 3.12+
 - AWS CLI configured
 - DynamoDB tables created
-- AWS Bedrock access with Nova Pro model enabled
+- AWS Bedrock access with Nova Lite model enabled
 
 ### Installation
 
@@ -89,7 +89,7 @@ Run the agent locally:
 python main.py
 ```
 
-Test with Nova Pro integration:
+Test with Nova Lite integration:
 ```bash
 python test_deepseek.py
 ```
@@ -130,7 +130,7 @@ docker run -e AWS_REGION=us-east-1 coles-agent
 
 The agent behavior is configured in `bedrock-config.yaml`:
 
-- **Model settings**: Claude 3.7 Sonnet with temperature 0.1
+- **Model settings**: Nova Lite with temperature 0.1
 - **Tool definitions**: All available tools and their parameters
 - **Environment variables**: DynamoDB table names and AWS region
 - **Deployment settings**: Runtime, timeout, memory, and IAM permissions

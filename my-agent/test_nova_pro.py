@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for the Coles Shopping Assistant Agent with Nova Pro
+Test script for the Coles Shopping Assistant Agent with Nova Lite
 """
 import json
 import sys
@@ -13,8 +13,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from main import invoke
 
 
-async def test_nova_pro_agent():
-    """Test the agent with Nova Pro integration"""
+async def test_nova_lite_agent():
+    """Test the agent with Nova Lite integration"""
     
     # Set environment variables
     os.environ["AWS_REGION"] = "us-east-1"
@@ -53,7 +53,7 @@ async def test_nova_pro_agent():
         }
     ]
     
-    print("🧪 Testing Coles Shopping Assistant Agent with Nova Pro\n")
+    print("🧪 Testing Coles Shopping Assistant Agent with Nova Lite\n")
     print("=" * 60)
     
     for i, test_case in enumerate(test_cases, 1):
@@ -69,7 +69,7 @@ async def test_nova_pro_agent():
             print(f"❌ Exception: {str(e)}")
     
     print("\n" + "=" * 60)
-    print("🎉 Nova Pro testing completed!")
+    print("🎉 Nova Lite testing completed!")
 
 
 if __name__ == "__main__":

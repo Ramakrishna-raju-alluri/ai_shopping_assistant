@@ -26,7 +26,7 @@ app = BedrockAgentCoreApp()  #### AGENTCORE RUNTIME - LINE 2 ####
 
 # Use the orchestrator agent directly
 agent = orchestrator_agent
-
+print("hello")
 
 @app.entrypoint  #### AGENTCORE RUNTIME - LINE 3 ####
 async def invoke(payload, context=None):

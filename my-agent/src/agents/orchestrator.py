@@ -58,8 +58,8 @@ grocery_list_actor_id = f"grocery-list-user-{datetime.now().strftime('%Y%m%d%H%M
 health_planner_actor_id = f"health-planner-user-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 simple_query_actor_id = f"simple-query-user-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 session_id = f"grocery-session-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-# Use Nova Pro model
-MODEL_ID = "amazon.nova-pro-v1:0"
+# Use Nova Lite model
+MODEL_ID = "amazon.nova-lite-v1:0"
 
 print(f"🔧 Session ID: {session_id}")
 print(f"🔧 Meal Planner Actor ID: {meal_planner_actor_id}")

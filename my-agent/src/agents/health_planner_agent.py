@@ -58,7 +58,7 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
         str: Nutrition tracking results or calorie calculations
     """
     # Use provided model_id or default
-    model_to_use = model_id or "amazon.nova-pro-v1:0"
+    model_to_use = model_id or "amazon.nova-lite-v1:0"
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:

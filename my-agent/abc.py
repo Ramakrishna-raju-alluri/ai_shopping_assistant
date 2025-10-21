@@ -3,7 +3,7 @@ import json
 bedrock_runtime = boto3.client("bedrock-runtime", region_name="us-east-1")
 
     # Use the inference profile ARN
-inference_profile_arn = "amazon.nova-pro-v1:0"
+inference_profile_arn = "amazon.nova-lite-v1:0"
 messages = [
         {
             "role": "user",

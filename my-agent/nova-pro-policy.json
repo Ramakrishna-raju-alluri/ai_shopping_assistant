@@ -8,7 +8,7 @@
                 "bedrock:InvokeModelWithResponseStream"
             ],
             "Resource": [
-                "arn:aws:bedrock:us-east-1:427893119211:inference-profile/us.amazon.nova-pro-v1:0"
+                "arn:aws:bedrock:us-east-1:427893119211:inference-profile/us.amazon.nova-lite-v1:0"
             ]
         }
     ]

@@ -6,7 +6,7 @@ from strands.models import BedrockModel
 
 # app = BedrockAgentCoreApp()
 
-model_id = "amazon.nova-pro-v1:0"
+model_id = "amazon.nova-lite-v1:0"
 model = BedrockModel(
     model_id=model_id,
 )
@@ -68,7 +68,7 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
         str: Product availability, store info, or catalog results
     """
     # Use provided model_id or default
-    model_to_use = model_id or "amazon.nova-pro-v1:0"
+    model_to_use = model_id or "amazon.nova-lite-v1:0"
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:

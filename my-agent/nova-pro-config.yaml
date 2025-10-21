@@ -1,14 +1,14 @@
-# Nova Pro Agent Configuration for Coles Shopping Assistant
-# Using Nova Pro model available in AWS Bedrock
+# Nova Lite Agent Configuration for Coles Shopping Assistant
+# Using Nova Lite model available in AWS Bedrock
 agent:
   name: "coles-shopping-assistant"
-  description: "AI assistant for grocery shopping, nutrition tracking, and meal planning using Nova Pro via AWS Bedrock"
+  description: "AI assistant for grocery shopping, nutrition tracking, and meal planning using Nova Lite via AWS Bedrock"
   version: "1.0.0"
   
-  # Nova Pro model configuration via AWS Bedrock
+  # Nova Lite model configuration via AWS Bedrock
   model:
     provider: "bedrock"
-    model_id: "arn:aws:bedrock:us-east-1:427893119211:inference-profile/us.amazon.nova-pro-v1:0"
+    model_id: "arn:aws:bedrock:us-east-1:427893119211:inference-profile/us.amazon.nova-lite-v1:0"
     temperature: 0.1
     max_tokens: 4000
     
@@ -194,7 +194,7 @@ environment:
   RECIPE_TABLE: "mock-recipes2"
   PROMO_TABLE: "promo_stock_feed2"
   NUTRITION_TABLE: "nutrition_calendar"
-  # No API key needed - using AWS Bedrock Nova Pro model
+  # No API key needed - using AWS Bedrock Nova Lite model
 
 # Deployment configuration
 deployment:
