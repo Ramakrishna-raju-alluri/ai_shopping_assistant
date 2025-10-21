@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from boto3.dynamodb.conditions import Attr
-from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE
+from dynamo.client import dynamodb, PRODUCT_TABLE
 
 
 router = APIRouter()

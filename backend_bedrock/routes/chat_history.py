@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List
-from backend_bedrock.routes.auth import get_current_user
+from routes.auth import get_current_user
 
 
 router = APIRouter()

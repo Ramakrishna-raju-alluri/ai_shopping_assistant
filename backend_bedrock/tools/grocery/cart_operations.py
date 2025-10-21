@@ -192,10 +192,27 @@ def get_cart_items(session_id: str) -> List[Dict[str, Any]]:
             
         table = dynamodb.Table(CART_TABLE)
         
-        # Query by session_id (partition key)
-        response = table.query(
-            KeyConditionExpression=Key('session_id').eq(session_id)
-        )
+        # Try different key structures based on table schema
+        try:
+            # First try with session_id as partition key
+            response = table.query(
+                KeyConditionExpression=Key('session_id').eq(session_id)
+            )
+        except Exception as e:
+            if "cart_key" in str(e):
+                # If cart_key is required, try using session_id as cart_key
+                try:
+                    response = table.query(
+                        KeyConditionExpression=Key('cart_key').eq(session_id)
+                    )
+                except Exception as e2:
+                    # If that fails, try scanning with filter (less efficient but works)
+                    print(f"⚠️ Query failed, falling back to scan: {e2}")
+                    response = table.scan(
+                        FilterExpression=Key('session_id').eq(session_id) | Key('cart_key').eq(session_id)
+                    )
+            else:
+                raise e
         
         items = response.get("Items", [])
         
