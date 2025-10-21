@@ -263,14 +263,15 @@ def remove_cart_item(session_id: str, item_id: str) -> bool:
 
 
 @tool
-def add_to_cart(user_id: str, product_id: str, quantity: int = 1, session_id: str = None) -> Dict[str, Any]:
+def add_to_cart(user_id: str, products, session_id: str = None) -> Dict[str, Any]:
     """
-    Add an item to the shopping cart.
+    Add one or more items to the shopping cart.
     
     Args:
         user_id (str): User identifier
-        product_id (str): Product ID or name to add
-        quantity (int): Quantity to add
+        products: Either a single product_id (str) or list of dicts with product info
+                 Single: "product_123"
+                 Multiple: [{"item_id": "product_123", "quantity": 2}, {"item_id": "product_456", "quantity": 1}]
         session_id (str): Session ID for cart storage
         
     Returns:
@@ -278,96 +279,118 @@ def add_to_cart(user_id: str, product_id: str, quantity: int = 1, session_id: st
     """
     try:
         # Use provided session_id, but default to user_id if none provided
-        # This ensures consistency between frontend and agent cart operations
         if not session_id:
             session_id = user_id
         
-        print(f"🛒 ADD_TO_CART called: user_id={user_id}, product_id={product_id}, quantity={quantity}, session_id={session_id}")
+        # Normalize products to list format
+        if isinstance(products, str):
+            # Single product ID
+            products_list = [{"item_id": products, "quantity": 1}]
+        elif isinstance(products, list):
+            # List of products
+            products_list = products
+        else:
+            # Single dict
+            products_list = [products]
         
-        # Search for the product
-        search_result = search_products(product_id, limit=1)
+        print(f"🛒 ADD_TO_CART called: user_id={user_id}, products={len(products_list)} items, session_id={session_id}")
         
-        if not search_result['success'] or not search_result['data']:
-            return {
-                'success': False,
-                'data': None,
-                'message': f"Product '{product_id}' not found in catalog"
-            }
+        added_items = []
+        failed_items = []
         
-        product = search_result['data'][0]
+        for product_info in products_list:
+            try:
+                # Extract product info
+                if isinstance(product_info, dict):
+                    product_id = product_info.get("item_id") or product_info.get("product_id")
+                    quantity = product_info.get("quantity", 1)
+                else:
+                    product_id = str(product_info)
+                    quantity = 1
+                
+                print(f"  Processing: {product_id} (qty: {quantity})")
+                
+                # Search for the product
+                search_result = search_products(product_id, limit=1)
+                
+                if not search_result['success'] or not search_result['data']:
+                    failed_items.append(f"Product '{product_id}' not found")
+                    continue
+                
+                product = search_result['data'][0]
+                
+                # Check availability directly from product data
+                if not product.get('in_stock', False):
+                    failed_items.append(f"Product '{product.get('name', product_id)}' is out of stock")
+                    continue
+                
+                # Calculate item cost
+                item_price = float(product.get("price", 0))
+                
+                # Save item to cart
+                cart_item = {
+                    "item_id": product.get("item_id", product_id),
+                    "name": product.get("name", product_id),
+                    "price": item_price,
+                    "quantity": quantity,
+                    "category": product.get("category", ""),
+                    "description": product.get("description", "")
+                }
+                
+                success = save_cart_item(session_id, user_id, cart_item)
+                
+                if success:
+                    added_items.append({
+                        'item': cart_item,
+                        'item_cost': item_price * quantity
+                    })
+                else:
+                    failed_items.append(f"Failed to save {product.get('name', product_id)} to cart")
+                    
+            except Exception as e:
+                failed_items.append(f"Error processing {product_info}: {str(e)}")
         
-        # Check availability
-        availability_result = check_product_availability(product.get('name', product_id))
-        
-        if not availability_result['success'] or not availability_result['data']['in_stock']:
-            return {
-                'success': False,
-                'data': None,
-                'message': f"Product '{product.get('name', product_id)}' is out of stock"
-            }
-        
-        # Check budget impact
-        user_profile = get_user_profile_raw(user_id) or {}
-        budget_limit = float(user_profile.get("budget_limit", 100))
-        
-        # Get current cart total
-        current_items = get_cart_items(session_id)
-        current_total = calculate_cart_total_session(session_id, current_items)
-        current_cost = current_total.get("total_cost", 0)
-        
-        # Calculate new item cost
-        item_price = float(product.get("price", 0))
-        new_item_cost = item_price * quantity
-        projected_total = current_cost + new_item_cost
-        
-        # Check budget
-        if projected_total > budget_limit:
-            return {
-                'success': False,
-                'data': {
-                    'current_total': current_cost,
-                    'item_cost': new_item_cost,
-                    'projected_total': projected_total,
-                    'budget_limit': budget_limit,
-                    'over_budget': projected_total - budget_limit
-                },
-                'message': f"Adding this item would exceed your budget by ${projected_total - budget_limit:.2f}"
-            }
-        
-        # Save item to cart
-        cart_item = {
-            "item_id": product.get("item_id", product_id),
-            "name": product.get("name", product_id),
-            "price": item_price,
-            "quantity": quantity,
-            "category": product.get("category", ""),
-            "description": product.get("description", "")
-        }
-        
-        success = save_cart_item(session_id, user_id, cart_item)
-        
-        if success:
+        # Prepare response
+        if added_items and not failed_items:
+            # All items added successfully
+            total_cost = sum(item['item_cost'] for item in added_items)
             return {
                 'success': True,
                 'data': {
-                    'item': cart_item,
-                    'cart_total': projected_total,
-                    'budget_remaining': budget_limit - projected_total
+                    'items': added_items,
+                    'total_cost': total_cost,
+                    'count': len(added_items)
                 },
-                'message': f"Added {quantity} x {cart_item['name']} to cart"
+                'message': f"Added {len(added_items)} item(s) to cart"
+            }
+        elif added_items and failed_items:
+            # Some items added, some failed
+            total_cost = sum(item['item_cost'] for item in added_items)
+            return {
+                'success': True,
+                'data': {
+                    'items': added_items,
+                    'total_cost': total_cost,
+                    'count': len(added_items),
+                    'failures': failed_items
+                },
+                'message': f"Added {len(added_items)} item(s) to cart, {len(failed_items)} failed"
             }
         else:
+            # All items failed
             return {
                 'success': False,
-                'data': None,
-                'message': "Failed to save item to cart"
+                'data': {
+                    'failures': failed_items
+                },
+                'message': f"Failed to add items to cart: {'; '.join(failed_items)}"
             }
         
     except Exception as e:
         return {
             'success': False,
             'data': None,
-            'message': f'Error adding item to cart: {str(e)}'
+            'message': f'Error adding items to cart: {str(e)}'
         }
 
 

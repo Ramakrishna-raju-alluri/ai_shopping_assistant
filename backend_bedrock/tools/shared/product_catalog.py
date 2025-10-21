@@ -238,10 +238,10 @@ def get_products_by_category(category: str, limit: int = 50) -> Dict[str, Any]:
 @tool
 def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
     """
-    Search products by name, description, or tags.
+    Search products by item_id.
     
     Args:
-        query (str): Search term
+        query (str): Product item_id to search for
         limit (int): Maximum results to return
         
     Returns:
@@ -250,54 +250,51 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
     try:
         products = []
         
-        # Try DynamoDB search first
+        # Try DynamoDB search first - search by item_id
         try:
             table = dynamodb.Table(PRODUCT_TABLE)
             
-            # Get all products and do case-insensitive search in Python
-            # This is more reliable than DynamoDB's case-sensitive contains()
-            response = table.scan()
-            all_products = response.get("Items", [])
-            
-            # Filter products with case-insensitive search
-            query_lower = query.lower()
-            products = []
-            
-            for product in all_products:
-                name = product.get("name", "").lower()
-                description = product.get("description", "").lower()
-                tags = [str(tag).lower() for tag in product.get("tags", [])]
+            # First try exact match by item_id
+            try:
+                response = table.get_item(Key={'item_id': query})
+                if 'Item' in response:
+                    products = [response['Item']]
+                else:
+                    # If no exact match, scan for partial matches
+                    response = table.scan(
+                        FilterExpression=Attr('item_id').contains(query)
+                    )
+                    products = response.get("Items", [])[:limit]
+            except Exception:
+                # Fallback to scan all and filter by item_id
+                response = table.scan()
+                all_products = response.get("Items", [])
                 
-                # Check if query matches name, description, or any tag
-                if (query_lower in name or 
-                    query_lower in description or 
-                    any(query_lower in tag for tag in tags)):
-                    products.append(product)
+                # Filter products by item_id (exact and partial matches)
+                products = []
+                for product in all_products:
+                    item_id = product.get("item_id", "")
                     
-                    if len(products) >= limit:
-                        break
+                    # Check if query matches item_id (exact or partial)
+                    if query == item_id or query in item_id:
+                        products.append(product)
+                        if len(products) >= limit:
+                            break
+                        
         except Exception:
             # Fallback to database query function
             try:
                 all_products = db_get_all_products()
-                products = [
-                    p for p in all_products 
-                    if query.lower() in p.get("name", "").lower() or 
-                       query.lower() in p.get("description", "").lower() or
-                       any(query.lower() in str(tag).lower() for tag in p.get("tags", []))
-                ][:limit]
+                products = [p for p in all_products 
+                           if query == p.get("item_id", "") or query in p.get("item_id", "")][:limit]
             except Exception:
                 products = []
         
-        # If no products found, search mock data
+        # If no products found, search mock data by item_id
         if not products:
             mock_products = get_mock_products()
-            products = [
-                p for p in mock_products 
-                if query.lower() in p["name"].lower() or 
-                   query.lower() in p["description"].lower() or
-                   any(query.lower() in tag.lower() for tag in p["tags"])
-            ][:limit]
+            products = [p for p in mock_products 
+                       if query == p.get("item_id", "") or query in p.get("item_id", "")][:limit]
         
         # Convert Decimal to float for JSON serialization
         products = convert_decimal_to_float(products)
@@ -307,7 +304,7 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             'data': products,
             'count': len(products),
             'query': query,
-            'message': f"Found {len(products)} products matching '{query}'"
+            'message': f"Found {len(products)} products with item_id matching '{query}'"
         }
         
     except Exception as e:
@@ -316,7 +313,7 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             'data': [],
             'count': 0,
             'query': query,
-            'message': f'Error searching products: {str(e)}'
+            'message': f'Error searching products by item_id: {str(e)}'
         }
 
 
