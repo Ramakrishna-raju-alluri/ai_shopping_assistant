@@ -34,25 +34,39 @@ const LandingPage: React.FC = () => {
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    console.log('🔄 Search term or category changed, reloading products');
+    loadProducts();
+  }, [searchTerm, selectedCategory]);
+
   const loadProducts = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
-      let url = `${API_CONFIG.BASE_URL}/products?limit=100`;
-      if (selectedCategory !== 'all') {
-        url += `&category=${selectedCategory}`;
-      }
-      if (searchTerm) {
-        url += `&search=${searchTerm}`;
+
+      let url;
+
+      // If there's a search term, use the fuzzy search endpoint
+      if (searchTerm && searchTerm.trim()) {
+        url = `${API_CONFIG.BASE_URL}/products/search/fuzzy?query=${encodeURIComponent(searchTerm.trim())}`;
+        console.log('🔍 Using fuzzy search:', url);
+      } else {
+        // Otherwise use the regular products endpoint
+        url = `${API_CONFIG.BASE_URL}/products?limit=100`;
+        if (selectedCategory !== 'all') {
+          url += `&category=${selectedCategory}`;
+        }
+        console.log('🔍 Using regular search:', url);
       }
 
+      console.log('🔍 Search term:', searchTerm, 'Category:', selectedCategory);
       const response = await fetch(url, { headers });
       const data = await response.json();
 
       if (data.success) {
         setProducts(data.products);
+        console.log('✅ Products loaded:', data.products.length);
       }
     } catch (error) {
       console.error('Error loading products:', error);
@@ -65,7 +79,7 @@ const LandingPage: React.FC = () => {
     try {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const response = await fetch(`${API_CONFIG.BASE_URL}/products/categories`, { headers });
       const data = await response.json();
 
@@ -79,7 +93,7 @@ const LandingPage: React.FC = () => {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    loadProducts();
+    // useEffect will automatically trigger loadProducts
   };
 
   const handleSearch = () => {
@@ -89,10 +103,10 @@ const LandingPage: React.FC = () => {
   const handleAddToCart = async (product: Product) => {
     try {
       console.log(`🛒 Adding product to cart: ${product.name}`);
-      
+
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const response = await fetch(`${API_CONFIG.BASE_URL}/cart/add`, {
         method: 'POST',
         headers: {
@@ -110,7 +124,7 @@ const LandingPage: React.FC = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         console.log('✅ Product added to cart successfully');
         // Show success message
@@ -130,11 +144,11 @@ const LandingPage: React.FC = () => {
     if (product.image_url) {
       return product.image_url;
     }
-    
+
     // Fallback to emoji if no image URL
     const category = product.category?.toLowerCase() || '';
     const tags = product.tags.map(tag => tag.toLowerCase());
-    
+
     if (category.includes('vegetable') || tags.includes('vegetable')) {
       return '🥬';
     } else if (category.includes('fruit') || tags.includes('fruit')) {
@@ -171,9 +185,9 @@ const LandingPage: React.FC = () => {
           <h1>MealCart Shopping</h1>
         </div>
         <div className="header-right">
-          <Button 
-            variant="primary" 
-            size="lg" 
+          <Button
+            variant="primary"
+            size="lg"
             onClick={() => navigate('/dashboard')}
             className="chatbot-btn"
           >
@@ -194,7 +208,10 @@ const LandingPage: React.FC = () => {
             type="text"
             placeholder="Search products..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              console.log('🔍 Search term changed to:', e.target.value);
+              setSearchTerm(e.target.value);
+            }}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <Button onClick={handleSearch} variant="primary" size="sm">
@@ -236,8 +253,8 @@ const LandingPage: React.FC = () => {
               <div key={product.item_id} className="product-card">
                 <div className="product-image">
                   {product.image_url ? (
-                    <img 
-                      src={product.image_url} 
+                    <img
+                      src={product.image_url}
                       alt={product.name}
                       className="product-image-img"
                       onError={(e) => {
@@ -293,8 +310,8 @@ const LandingPage: React.FC = () => {
           <div className="footer-section">
             <h4>Need Help?</h4>
             <p>Our AI shopping assistant is here to help you find the perfect products!</p>
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               onClick={() => navigate('/dashboard')}
               className="footer-chatbot-btn"
             >
