@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from './common/Button';
+import { API_CONFIG } from '../config/api';
 import './CartWidget.css';
 
 interface CartItem {
@@ -48,7 +49,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://127.0.0.1:8100/api/v1/cart', { headers });
+      const response = await fetch(`${API_CONFIG.BASE_URL}/cart`, { headers });
       const data = await response.json();
       
       if (data.success) {
@@ -75,7 +76,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       
       console.log(`Updating quantity for item ${itemId}: ${quantity} -> ${newQuantity}`);
       
-      const response = await fetch('http://127.0.0.1:8100/api/v1/cart/update', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/cart/update`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({
@@ -101,7 +102,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch(`http://127.0.0.1:8100/api/v1/cart/remove/${itemId}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/cart/remove/${itemId}`, {
         method: 'DELETE',
         headers
       });
@@ -120,7 +121,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://127.0.0.1:8100/api/v1/cart/clear', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/cart/clear`, {
         method: 'DELETE',
         headers
       });

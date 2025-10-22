@@ -1,12 +1,10 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://127.0.0.1:8100/api/v1';
+import { API_CONFIG } from '../config/api';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.DEFAULT_HEADERS,
 });
 
 // Add auth token to requests

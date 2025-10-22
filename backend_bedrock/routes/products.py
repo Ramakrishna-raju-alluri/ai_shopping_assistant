@@ -1,11 +1,46 @@
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
-from boto3.dynamodb.conditions import Attr
-from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE
+from boto3.dynamodb.conditions import Attr, Contains
+from dynamo.client import dynamodb, PRODUCT_TABLE
+from dynamo.queries import get_products_by_names
 
 
 router = APIRouter()
+
+
+def get_dynamo_value(item, key, default=None):
+    """Extract value from DynamoDB format or plain format"""
+    if key in item:
+        value = item[key]
+        if isinstance(value, dict):
+            # DynamoDB format: {"S": "string", "N": "number", "BOOL": true, "L": [...]}
+            if "S" in value:
+                return value["S"]
+            elif "N" in value:
+                return float(value["N"])
+            elif "BOOL" in value:
+                return value["BOOL"]
+            elif "L" in value:
+                # Handle list of DynamoDB items properly
+                result = []
+                for list_item in value["L"]:
+                    if isinstance(list_item, dict):
+                        if "S" in list_item:
+                            result.append(list_item["S"])
+                        elif "N" in list_item:
+                            result.append(float(list_item["N"]))
+                        elif "BOOL" in list_item:
+                            result.append(list_item["BOOL"])
+                        else:
+                            result.append(list_item)
+                    else:
+                        result.append(list_item)
+                return result
+        else:
+            # Plain format
+            return value
+    return default
 
 
 class Product(BaseModel):
@@ -83,31 +118,36 @@ async def get_products(
         for product in products:
             product_list.append(
                 Product(
-                    item_id=product.get("item_id"),
-                    name=product.get("name"),
-                    price=float(product.get("price", 0)),
-                    tags=product.get("tags", []),
-                    in_stock=product.get("in_stock", True),
-                    promo=product.get("promo", False),
-                    calories=int(product.get("calories", 0)),
-                    category=product.get("category"),
-                    description=product.get("description"),
-                    image_url=product.get("image_url"),
+                    item_id=get_dynamo_value(product, "item_id", ""),
+                    name=get_dynamo_value(product, "name", ""),
+                    price=float(get_dynamo_value(product, "price", 0)),
+                    tags=get_dynamo_value(product, "tags", []),
+                    in_stock=get_dynamo_value(product, "in_stock", True),
+                    promo=get_dynamo_value(product, "promo", False),
+                    calories=int(get_dynamo_value(product, "calories", 0)),
+                    category=get_dynamo_value(product, "category", ""),
+                    description=get_dynamo_value(product, "description", ""),
+                    image_url=get_dynamo_value(product, "image_url", ""),
                 )
             )
 
         # categories and count
         all_scan = table.scan()
         all_items = all_scan.get("Items", [])
-        all_categories = sorted(list({p.get("category") for p in all_items if p.get("category")}))
+        all_categories = []
+        for p in all_items:
+            category = get_dynamo_value(p, "category")
+            if category:
+                all_categories.append(category)
         total_count = len(all_items)
         while "LastEvaluatedKey" in all_scan:
             all_scan = table.scan(ExclusiveStartKey=all_scan["LastEvaluatedKey"])
             items = all_scan.get("Items", [])
             total_count += len(items)
             for p in items:
-                if p.get("category"):
-                    all_categories.append(p.get("category"))
+                category = get_dynamo_value(p, "category")
+                if category:
+                    all_categories.append(category)
         all_categories = sorted(list(set(all_categories)))
 
         return ProductResponse(
@@ -162,6 +202,40 @@ async def get_product(item_id: str):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving product: {str(e)}")
+
+
+@router.get("/products/search/fuzzy")
+async def search_products_fuzzy(query: str = Query(...)):
+    """Search products using fuzzy matching from dynamo queries"""
+    try:
+        # Use the fuzzy search function from dynamo queries
+        products = get_products_by_names([query])
+        
+        # Convert to standard format
+        product_list = []
+        for product in products:
+            product_list.append(Product(
+                item_id=get_dynamo_value(product, "item_id", ""),
+                name=get_dynamo_value(product, "name", ""),
+                price=float(get_dynamo_value(product, "price", 0)),
+                tags=get_dynamo_value(product, "tags", []),
+                in_stock=get_dynamo_value(product, "in_stock", True),
+                promo=get_dynamo_value(product, "promo", False),
+                calories=int(get_dynamo_value(product, "calories", 0)),
+                category=get_dynamo_value(product, "category", ""),
+                description=get_dynamo_value(product, "description", ""),
+                image_url=get_dynamo_value(product, "image_url", ""),
+            ))
+        
+        return ProductResponse(
+            success=True,
+            message=f"Found {len(product_list)} products matching '{query}'",
+            products=product_list,
+            total_count=len(product_list),
+            categories=[]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error searching products: {str(e)}")
 
 
 @router.get("/products/search/suggestions")

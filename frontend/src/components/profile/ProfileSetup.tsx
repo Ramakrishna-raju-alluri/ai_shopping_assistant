@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/api';
 import './ProfileSetup.css';
 
 interface ProfileSetupOptions {
@@ -49,8 +50,6 @@ interface CompleteProfileSetup {
   meal_goal?: string;
 }
 
-const API_BASE_URL = 'http://127.0.0.1:8100/api/v1';
-
 const ProfileSetup: React.FC = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -61,31 +60,31 @@ const ProfileSetup: React.FC = () => {
   const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Form data
   const [dietary, setDietary] = useState<DietaryPreferences>({
     diet: '',
     allergies: [],
     restrictions: []
   });
-  
+
   const [cuisine, setCuisine] = useState<CuisinePreferences>({
     preferred_cuisines: [],
     disliked_cuisines: []
   });
-  
+
   const [cooking, setCooking] = useState<CookingPreferences>({
     skill_level: '',
     cooking_time_preference: '',
     kitchen_equipment: []
   });
-  
+
   const [budget, setBudget] = useState<BudgetPreferences>({
     budget_limit: 100,
     meal_budget: 15,
     shopping_frequency: 'weekly'
   });
-  
+
   const [mealGoal, setMealGoal] = useState<string>('');
 
   useEffect(() => {
@@ -97,18 +96,18 @@ const ProfileSetup: React.FC = () => {
   const loadProfileData = async () => {
     try {
       setLoading(true);
-      
+
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       // Load options
-      const optionsResponse = await axios.get(`${API_BASE_URL}/profile-setup/options`);
+      const optionsResponse = await axios.get(`${API_CONFIG.BASE_URL}/profile-setup/options`);
       setOptions(optionsResponse.data);
-      
+
       // Load profile status
-      const statusResponse = await axios.get(`${API_BASE_URL}/profile-setup/status`, { headers });
+      const statusResponse = await axios.get(`${API_CONFIG.BASE_URL}/profile-setup/status`, { headers });
       setProfileStatus(statusResponse.data);
-      
+
       // If this is update mode, always start from step 1 (fresh setup)
       if (isUpdateMode) {
         console.log('🔄 Update mode: Starting fresh profile setup for existing user');
@@ -121,7 +120,7 @@ const ProfileSetup: React.FC = () => {
           setCurrentStep(6); // Show completion step
         }
       }
-      
+
     } catch (err) {
       setError('Failed to load profile data');
       console.error('Error loading profile data:', err);
@@ -185,10 +184,10 @@ const ProfileSetup: React.FC = () => {
   const handleCompleteSetup = async () => {
     try {
       setLoading(true);
-      
+
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const completeProfile: CompleteProfileSetup = {
         dietary,
         cuisine,
@@ -196,12 +195,12 @@ const ProfileSetup: React.FC = () => {
         budget,
         meal_goal: mealGoal
       };
-      
-      await axios.post(`${API_BASE_URL}/profile-setup/complete`, completeProfile, { headers });
-      
+
+      await axios.post(`${API_CONFIG.BASE_URL}/profile-setup/complete`, completeProfile, { headers });
+
       // Move to completion step
       setCurrentStep(6);
-      
+
     } catch (err) {
       setError('Failed to complete profile setup');
       console.error('Error completing profile setup:', err);
@@ -214,11 +213,11 @@ const ProfileSetup: React.FC = () => {
     <div className="step-container">
       <h3>🥗 Dietary Preferences</h3>
       <p>Tell us about your dietary needs and restrictions</p>
-      
+
       <div className="form-group">
         <label>Dietary Preference:</label>
-        <select 
-          value={dietary.diet} 
+        <select
+          value={dietary.diet}
           onChange={(e) => handleDietaryChange('diet', e.target.value)}
           className="form-control"
         >
@@ -230,7 +229,7 @@ const ProfileSetup: React.FC = () => {
           ))}
         </select>
       </div>
-      
+
       <div className="form-group">
         <label>Food Allergies (comma-separated):</label>
         <input
@@ -241,7 +240,7 @@ const ProfileSetup: React.FC = () => {
           className="form-control"
         />
       </div>
-      
+
       <div className="form-group">
         <label>Other Restrictions (comma-separated):</label>
         <input
@@ -259,7 +258,7 @@ const ProfileSetup: React.FC = () => {
     <div className="step-container">
       <h3>🍽️ Cuisine Preferences</h3>
       <p>What types of cuisine do you enjoy?</p>
-      
+
       <div className="form-group">
         <label>Preferred Cuisines:</label>
         <div className="checkbox-group">
@@ -281,7 +280,7 @@ const ProfileSetup: React.FC = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="form-group">
         <label>Disliked Cuisines (optional):</label>
         <div className="checkbox-group">
@@ -310,11 +309,11 @@ const ProfileSetup: React.FC = () => {
     <div className="step-container">
       <h3>👨‍🍳 Cooking Preferences</h3>
       <p>Tell us about your cooking experience and preferences</p>
-      
+
       <div className="form-group">
         <label>Cooking Skill Level:</label>
-        <select 
-          value={cooking.skill_level} 
+        <select
+          value={cooking.skill_level}
           onChange={(e) => handleCookingChange('skill_level', e.target.value)}
           className="form-control"
         >
@@ -326,11 +325,11 @@ const ProfileSetup: React.FC = () => {
           ))}
         </select>
       </div>
-      
+
       <div className="form-group">
         <label>Cooking Time Preference:</label>
-        <select 
-          value={cooking.cooking_time_preference} 
+        <select
+          value={cooking.cooking_time_preference}
           onChange={(e) => handleCookingChange('cooking_time_preference', e.target.value)}
           className="form-control"
         >
@@ -342,7 +341,7 @@ const ProfileSetup: React.FC = () => {
           ))}
         </select>
       </div>
-      
+
       <div className="form-group">
         <label>Available Kitchen Equipment (comma-separated):</label>
         <input
@@ -360,7 +359,7 @@ const ProfileSetup: React.FC = () => {
     <div className="step-container">
       <h3>💰 Budget Preferences</h3>
       <p>Set your budget limits and shopping frequency</p>
-      
+
       <div className="form-group">
         <label>Monthly Budget Limit ($):</label>
         <input
@@ -373,7 +372,7 @@ const ProfileSetup: React.FC = () => {
           className="form-control"
         />
       </div>
-      
+
       <div className="form-group">
         <label>Per-Meal Budget ($):</label>
         <input
@@ -386,11 +385,11 @@ const ProfileSetup: React.FC = () => {
           className="form-control"
         />
       </div>
-      
+
       <div className="form-group">
         <label>Shopping Frequency:</label>
-        <select 
-          value={budget.shopping_frequency} 
+        <select
+          value={budget.shopping_frequency}
           onChange={(e) => handleBudgetChange('shopping_frequency', e.target.value)}
           className="form-control"
         >
@@ -408,11 +407,11 @@ const ProfileSetup: React.FC = () => {
     <div className="step-container">
       <h3>🎯 Meal Planning Goal</h3>
       <p>What's your primary goal for meal planning?</p>
-      
+
       <div className="form-group">
         <label>Meal Planning Goal:</label>
-        <select 
-          value={mealGoal} 
+        <select
+          value={mealGoal}
           onChange={(e) => setMealGoal(e.target.value)}
           className="form-control"
         >
@@ -426,7 +425,7 @@ const ProfileSetup: React.FC = () => {
           <option value="special_diet">Special Diet Requirements</option>
         </select>
       </div>
-      
+
       <div className="summary">
         <h4>📋 Profile Summary</h4>
         <div className="summary-grid">
@@ -448,7 +447,7 @@ const ProfileSetup: React.FC = () => {
         <>
           <h3>✅ Profile Updated Successfully!</h3>
           <p>Your profile has been updated with your new preferences. All changes have been saved to your account.</p>
-          
+
           <div className="completion-message">
             <div className="checkmark">Update Complete</div>
             <h4>Profile Update Complete!</h4>
@@ -460,9 +459,9 @@ const ProfileSetup: React.FC = () => {
               <li>All changes saved to DynamoDB</li>
             </ul>
           </div>
-          
-          <button 
-            onClick={() => navigate('/dashboard')} 
+
+          <button
+            onClick={() => navigate('/dashboard')}
             className="btn btn-primary"
           >
             Return to Dashboard
@@ -472,7 +471,7 @@ const ProfileSetup: React.FC = () => {
         <>
           <h3>Profile Setup Complete!</h3>
           <p>Your profile has been set up successfully. You can now enjoy personalized meal planning and product recommendations.</p>
-          
+
           <div className="completion-message">
             <div className="checkmark">Complete</div>
             <h4>What's Next?</h4>
@@ -483,9 +482,9 @@ const ProfileSetup: React.FC = () => {
               <li>Track your shopping history</li>
             </ul>
           </div>
-          
-          <button 
-            onClick={() => navigate('/dashboard')} 
+
+          <button
+            onClick={() => navigate('/dashboard')}
             className="btn btn-primary"
           >
             Go to Dashboard
@@ -520,14 +519,14 @@ const ProfileSetup: React.FC = () => {
   return (
     <div className="profile-setup-container">
       <div className="back-to-dashboard">
-        <button 
-          onClick={() => navigate('/dashboard')} 
+        <button
+          onClick={() => navigate('/dashboard')}
           className="btn btn-danger"
         >
           ← Back to Dashboard
         </button>
       </div>
-      
+
       <div className="setup-header">
         {isUpdateMode ? (
           <>
@@ -544,11 +543,11 @@ const ProfileSetup: React.FC = () => {
             <p>Let's personalize your experience</p>
           </>
         )}
-        
+
         <div className="progress-bar">
           {[1, 2, 3, 4, 5].map(step => (
-            <div 
-              key={step} 
+            <div
+              key={step}
               className={`progress-step ${step <= currentStep ? 'active' : ''}`}
             >
               {step}
@@ -556,7 +555,7 @@ const ProfileSetup: React.FC = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="setup-content">
         {currentStep === 1 && renderStep1()}
         {currentStep === 2 && renderStep2()}
@@ -565,23 +564,23 @@ const ProfileSetup: React.FC = () => {
         {currentStep === 5 && renderStep5()}
         {currentStep === 6 && renderStep6()}
       </div>
-      
+
       <div className="setup-actions">
         {currentStep > 1 && currentStep < 6 && (
           <button onClick={handleBack} className="btn btn-secondary">
             Back
           </button>
         )}
-        
+
         {currentStep < 5 && (
           <button onClick={handleNext} className="btn btn-primary">
             Next
           </button>
         )}
-        
+
         {currentStep === 5 && (
-          <button 
-            onClick={handleCompleteSetup} 
+          <button
+            onClick={handleCompleteSetup}
             className="btn btn-success"
             disabled={loading}
           >

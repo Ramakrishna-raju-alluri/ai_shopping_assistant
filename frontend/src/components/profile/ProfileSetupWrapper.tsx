@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { API_CONFIG } from '../../config/api';
 import ProfileSetup from './ProfileSetup';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -10,8 +11,6 @@ interface ProfileStatus {
   missing_sections: string[];
   profile_data: any;
 }
-
-const API_BASE_URL = 'http://127.0.0.1:8100/api/v1';
 
 const ProfileSetupWrapper: React.FC = () => {
   const { user, isNewUser } = useAuth();
@@ -33,7 +32,7 @@ const ProfileSetupWrapper: React.FC = () => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await axios.get(`${API_BASE_URL}/profile-setup/status`, { headers });
+      const response = await axios.get(`${API_CONFIG.BASE_URL}/profile-setup/status`, { headers });
       setProfileStatus(response.data);
       
     } catch (err) {

@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://127.0.0.1:8100/api/v1';
+import { API_CONFIG } from '../config/api';
 
 // Types
 export interface ChatSession {
@@ -44,7 +43,7 @@ export interface ChatHistoryListResponse {
 
 // Axios instance with authentication
 const chatHistoryAxios = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_CONFIG.BASE_URL,
   timeout: 30000, // 30 seconds
 });
 

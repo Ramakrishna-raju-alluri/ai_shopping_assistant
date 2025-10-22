@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
-from backend_bedrock.routes.auth import get_current_user
-import time
+from routes.auth import get_current_user
+import time 
 
 # Import cart operations
 try:
@@ -20,6 +20,17 @@ CACHE_DURATION = 5  # Cache for 5 seconds
 class CartItem(BaseModel):
     item_id: str
     quantity: int = 1
+
+
+class CartItemWithDetails(BaseModel):
+    item_id: str
+    name: str = None
+    price: float = None
+    quantity: int = 1
+
+
+class AddToCartRequest(BaseModel):
+    items: List[CartItemWithDetails]
 
 
 class UpdateCartItem(BaseModel):
@@ -102,33 +113,40 @@ async def get_cart(current_user: dict = Depends(get_current_user)) -> Dict[str, 
 
 
 @router.post("/cart/add")
-async def add_to_cart_api(item: CartItem, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
-    """Add item to cart"""
+async def add_to_cart_api(request: AddToCartRequest, current_user: dict = Depends(get_current_user)) -> Dict[str, Any]:
+    """Add items to cart (supports frontend format with items array)"""
     try:
         user_id = current_user.get("user_id", "default_user")
-        session_id = user_id  # Use user_id as session_id for consistency
-        print(f"🔍 Frontend POST /cart/add - user_id: {user_id}, session_id: {session_id}, item: {item.item_id}")
+        session_id = user_id
         
-        # Invalidate cache when cart is modified
-        cache_key = f"{user_id}_{session_id}"
-        if cache_key in cart_cache:
-            del cart_cache[cache_key]
+        if not request.items:
+            raise HTTPException(status_code=400, detail="No items provided")
         
-        # Add item using the same system agents use
-        result = add_to_cart(user_id, item.item_id, item.quantity, session_id)
+        print(f"🔍 Frontend POST /cart/add - user_id: {user_id}, items: {len(request.items)}")
+        
+        # Convert frontend format to add_to_cart format
+        products_to_add = []
+        for item in request.items:
+            products_to_add.append({
+                "item_id": item.item_id,
+                "quantity": item.quantity
+            })
+        
+        # Add items using the updated cart operations function
+        result = add_to_cart(user_id, products_to_add, session_id)
         
         if result['success']:
-            # Get updated cart after adding item
+            # Get updated cart
             updated_cart = get_cart_summary(user_id, session_id)
             if updated_cart['success']:
                 frontend_items = []
-                for item in updated_cart['data']['items']:
+                for cart_item in updated_cart['data']['items']:
                     frontend_items.append({
-                        "item_id": item.get('item_id'),
-                        "name": item.get('product_name'),
-                        "price": item.get('price'),
-                        "quantity": item.get('quantity'),
-                        "added_at": item.get('added_timestamp', '')
+                        "item_id": cart_item.get('item_id'),
+                        "name": cart_item.get('product_name'),
+                        "price": cart_item.get('price'),
+                        "quantity": cart_item.get('quantity'),
+                        "added_at": cart_item.get('added_timestamp', '')
                     })
                 
                 return {
@@ -142,20 +160,8 @@ async def add_to_cart_api(item: CartItem, current_user: dict = Depends(get_curre
                         "last_updated": "now"
                     }
                 }
-            else:
-                return {
-                    "success": True,
-                    "message": result['message'],
-                    "cart": {
-                        "user_id": user_id,
-                        "items": [],
-                        "total_items": 0,
-                        "total_cost": 0,
-                        "last_updated": "now"
-                    }
-                }
-        else:
-            raise HTTPException(status_code=400, detail=result['message'])
+        
+        raise HTTPException(status_code=400, detail=result['message'])
             
     except Exception as e:
         print(f"Error adding to cart: {e}")

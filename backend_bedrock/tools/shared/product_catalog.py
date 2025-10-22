@@ -184,7 +184,7 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
     Search products by name, description, or tags using robust fuzzy matching.
     
     Args:
-        query (str): Search term
+        query (str): Product item_id to search for
         limit (int): Maximum results to return
         
     Returns:
@@ -235,7 +235,7 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             'data': [],
             'count': 0,
             'query': query,
-            'message': f'Error searching products: {str(e)}'
+            'message': f'Error searching products by item_id: {str(e)}'
         }
 
 # @tool
