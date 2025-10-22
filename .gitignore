@@ -19,4 +19,8 @@ tests/
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+!.elasticbeanstalk/*.global.yml.
+
+
+.bedrock_agentcore.yaml
+.bedrock_agentcore/

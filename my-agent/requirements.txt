@@ -1,6 +1,4 @@
 # Core dependencies
-fastapi==0.115.0
-uvicorn[standard]==0.37.0
 pydantic==2.12.2
 python-dotenv==1.0.1
 boto3==1.40.53
@@ -13,3 +11,5 @@ bedrock-agentcore
 
 rapidfuzz==3.14.1
 nltk==3.9.2
+
+bedrock-agentcore-starter-toolkit
