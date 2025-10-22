@@ -19,8 +19,8 @@ from strands.handlers import PrintingCallbackHandler
 from dotenv import load_dotenv
 
 # Import structured output models and detection utilities
-from backend_bedrock.models.structured_outputs import GrocerySummary, CartItem
-from backend_bedrock.utils.output_detector import should_use_structured_output
+from models.structured_outputs import GrocerySummary, CartItem
+from utils.output_detector import should_use_structured_output
 
 load_dotenv()
 
