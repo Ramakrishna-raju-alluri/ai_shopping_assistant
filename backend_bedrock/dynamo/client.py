@@ -13,6 +13,6 @@ USER_TABLE = os.getenv("USER_TABLE", "mock-users2")
 PRODUCT_TABLE = os.getenv("PRODUCT_TABLE", "mock-products2_with_calories")
 RECIPE_TABLE = os.getenv("RECIPE_TABLE", "mock-recipes2")
 PROMO_TABLE = os.getenv("PROMO_TABLE", "promo_stock_feed2")
-CART_TABLE = os.getenv("CART_TABLE", "user_carts")
+CART_TABLE = os.getenv("CART_TABLE", "user_carts_v2")
 NUTRITION_TABLE = os.getenv("NUTRITION_TABLE", "nutrition_calendar_fe7ed2")
 

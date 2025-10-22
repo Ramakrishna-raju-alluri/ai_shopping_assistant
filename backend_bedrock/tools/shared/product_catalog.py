@@ -15,6 +15,8 @@ from strands import tool
 from rapidfuzz import fuzz, process
 from nltk.stem import WordNetLemmatizer
 import re
+import nltk
+nltk.download('wordnet')
 
 lemmatizer = WordNetLemmatizer()
 
@@ -238,6 +240,86 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             'message': f'Error searching products by item_id: {str(e)}'
         }
 
+def search_products_by_id(query: str, limit: int = 20) -> Dict[str, Any]:
+    """
+    Search products by item_id.
+    
+    Args:
+        query (str): Product item_id to search for
+        limit (int): Maximum results to return
+        
+    Returns:
+        Dict[str, Any]: Standardized response with matching products
+    """
+    try:
+        products = []
+        
+        # Try DynamoDB search first - search by item_id
+        try:
+            table = dynamodb.Table(PRODUCT_TABLE)
+            
+            # First try exact match by item_id
+            try:
+                response = table.get_item(Key={'item_id': query})
+                if 'Item' in response:
+                    products = [response['Item']]
+                else:
+                    # If no exact match, scan for partial matches
+                    response = table.scan(
+                        FilterExpression=Attr('item_id').contains(query)
+                    )
+                    products = response.get("Items", [])[:limit]
+            except Exception:
+                # Fallback to scan all and filter by item_id
+                response = table.scan()
+                all_products = response.get("Items", [])
+                
+                # Filter products by item_id (exact and partial matches)
+                products = []
+                for product in all_products:
+                    item_id = product.get("item_id", "")
+                    
+                    # Check if query matches item_id (exact or partial)
+                    if query == item_id or query in item_id:
+                        products.append(product)
+                        if len(products) >= limit:
+                            break
+                        
+        except Exception:
+            # Fallback to database query function
+            try:
+                all_products = db_get_all_products()
+                products = [p for p in all_products 
+                           if query == p.get("item_id", "") or query in p.get("item_id", "")][:limit]
+            except Exception:
+                products = []
+        
+        # If no products found, search mock data by item_id
+        if not products:
+            mock_products = get_mock_products()
+            products = [p for p in mock_products 
+                       if query == p.get("item_id", "") or query in p.get("item_id", "")][:limit]
+        
+        # Convert Decimal to float for JSON serialization
+        products = convert_decimal_to_float(products)
+        
+        return {
+            'success': True,
+            'data': products,
+            'count': len(products),
+            'query': query,
+            'message': f"Found {len(products)} products with item_id matching '{query}'"
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'data': [],
+            'count': 0,
+            'query': query,
+            'message': f'Error searching products by item_id: {str(e)}'
+        }
+
 # @tool
 # def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
 #     """
@@ -430,6 +512,7 @@ def check_product_availability(product_name) -> Dict[str, Any]:
             #'quantity_available': int(product.get('quantity_available', 0)),
             'price': float(product.get('price', 0))
         }
+        print(f"AVAILABILITY INFO:{availability_info}")
         
         status_message = (
             f"Yes, {availability_info['product_name']} is in stock" 

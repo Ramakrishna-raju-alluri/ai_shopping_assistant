@@ -29,13 +29,13 @@ if str(project_root) not in sys.path:
 try:
     from backend_bedrock.dynamo.client import dynamodb, CART_TABLE
     from backend_bedrock.tools.shared.user_profile import get_user_profile_raw
-    from backend_bedrock.tools.shared.product_catalog import search_products, check_product_availability
+    from backend_bedrock.tools.shared.product_catalog import search_products, check_product_availability, search_products_by_id
     from backend_bedrock.tools.shared.calculations import calculate_cart_total_session
 except ImportError:
     try:
         from dynamo.client import dynamodb, CART_TABLE
         from tools.shared.user_profile import get_user_profile_raw
-        from tools.shared.product_catalog import search_products, check_product_availability
+        from tools.shared.product_catalog import search_products, check_product_availability, search_products_by_id
         from tools.shared.calculations import calculate_cart_total_session
     except ImportError:
         print("⚠️ Error importing database modules in cart operations.py")
@@ -263,15 +263,13 @@ def remove_cart_item(session_id: str, item_id: str) -> bool:
 
 
 @tool
-def add_to_cart(user_id: str, products, session_id: str = None) -> Dict[str, Any]:
+def add_to_cart(user_id: str, item_id, session_id: str = None) -> Dict[str, Any]:
     """
     Add one or more items to the shopping cart.
     
     Args:
         user_id (str): User identifier
-        products: Either a single product_id (str) or list of dicts with product info
-                 Single: "product_123"
-                 Multiple: [{"item_id": "product_123", "quantity": 2}, {"item_id": "product_456", "quantity": 1}]
+        item_id: A single item_id (str)                
         session_id (str): Session ID for cart storage
         
     Returns:
@@ -279,19 +277,20 @@ def add_to_cart(user_id: str, products, session_id: str = None) -> Dict[str, Any
     """
     try:
         # Use provided session_id, but default to user_id if none provided
+        print(f"Product ID to be added to cart: {item_id}")
         if not session_id:
             session_id = user_id
         
         # Normalize products to list format
-        if isinstance(products, str):
+        if isinstance(item_id, str):
             # Single product ID
-            products_list = [{"item_id": products, "quantity": 1}]
-        elif isinstance(products, list):
+            products_list = [{"item_id": item_id, "quantity": 1}]
+        elif isinstance(item_id, list):
             # List of products
-            products_list = products
+            products_list = item_id
         else:
             # Single dict
-            products_list = [products]
+            products_list = [item_id]
         
         print(f"🛒 ADD_TO_CART called: user_id={user_id}, products={len(products_list)} items, session_id={session_id}")
         
@@ -311,7 +310,7 @@ def add_to_cart(user_id: str, products, session_id: str = None) -> Dict[str, Any
                 print(f"  Processing: {product_id} (qty: {quantity})")
                 
                 # Search for the product
-                search_result = search_products(product_id, limit=1)
+                search_result = search_products_by_id(product_id, limit=1)
                 
                 if not search_result['success'] or not search_result['data']:
                     failed_items.append(f"Product '{product_id}' not found")

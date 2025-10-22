@@ -29,7 +29,7 @@ SHARED_TOOL_FUNCTIONS = [
     
     # Calculation Tools
     calculate_cost,
-    calculate_calories,
+    # calculate_calories,
     # calculate_nutrition,
     calculate_cart_total
 ]

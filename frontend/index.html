@@ -385,7 +385,6 @@
                 if (data.data && data.data.add_to_cart_enabled) {
                     addCartActions(data.data);
                 }
-
             } catch (error) {
                 console.error('Error sending message:', error);
                 addChatMessage('assistant', 'Sorry, I encountered an error. Please try again.');
@@ -489,7 +488,7 @@
                     <div class="product-tags">
                         ${product.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
                     </div>
-                    <button class="add-to-cart-btn" onclick="addToCart('${product.item_id}', '${product.name}', ${product.price})">
+                    <button class="add-to-cart-btn" onclick="addToCart('${product.item_id}')">
                         Add to Cart
                     </button>
                 `;

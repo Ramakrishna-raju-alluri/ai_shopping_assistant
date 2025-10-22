@@ -9,3 +9,5 @@ email-validator==2.3.0
 strands-agents
 strands-agents-tools
 bedrock-agentcore
+rapidfuzz==3.14.1
+nltk==3.9.2

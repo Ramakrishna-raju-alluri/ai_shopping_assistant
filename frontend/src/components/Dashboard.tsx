@@ -182,78 +182,78 @@ const Dashboard: React.FC = () => {
 
     setLoading(true);
     try {
-      let response;
-      const lowerMessage = userMessageContent.toLowerCase().trim();
-      const lastMessage = messages[messages.length - 1];
-      const currentStep = lastMessage?.step;
+    let response;
+    const lowerMessage = userMessageContent.toLowerCase().trim();
+    const lastMessage = messages[messages.length - 1];
+    const currentStep = lastMessage?.step;
 
-      if (lastMessage?.requiresConfirmation && (lowerMessage === 'yes' || lowerMessage === 'y' || lowerMessage === 'no' || lowerMessage === 'n')) {
-        const confirmed = lowerMessage === 'yes' || lowerMessage === 'y';
-        if (currentStep === 'feedback_purchase') {
-          response = await chatAPI.submitPurchaseIntent(currentSessionId!, confirmed);
-        } else if (currentStep === 'final_cart_ready') {
-          response = await chatAPI.collectDetailedFeedback(currentSessionId!, confirmed);
-        } else {
-          response = await chatAPI.confirmStep(currentSessionId!, confirmed);
-        }
-      } else if (lastMessage?.requiresInput && currentStep?.startsWith('feedback_')) {
-        if (currentStep === 'feedback_rating') {
-          const rating = parseInt(userMessageContent, 10);
-          if (!isNaN(rating) && rating >= 1 && rating <= 5) {
-            response = await chatAPI.submitFeedbackRating(currentSessionId!, rating);
-          } else {
-            // Create a local error message without calling the backend
-            response = {
-              ...(lastMessage || {}),
-              content: "Please provide a valid rating between 1 and 5.",
-              assistant_message: "Please provide a valid rating between 1 and 5.",
-              requiresInput: true,
-            };
-          }
-        } else if (currentStep === 'feedback_liked_items') {
-          const likedItems = lowerMessage === 'none' ? [] : userMessageContent.split(',').map(item => item.trim());
-          response = await chatAPI.submitLikedItems(currentSessionId!, likedItems);
-        } else if (currentStep === 'feedback_disliked_items') {
-          const dislikedItems = lowerMessage === 'none' ? [] : userMessageContent.split(',').map(item => item.trim());
-          response = await chatAPI.submitDislikedItems(currentSessionId!, dislikedItems);
-        } else if (currentStep === 'feedback_suggestions') {
-          response = await chatAPI.submitSuggestions(currentSessionId!, userMessageContent);
-        }
+    if (lastMessage?.requiresConfirmation && (lowerMessage === 'yes' || lowerMessage === 'y' || lowerMessage === 'no' || lowerMessage === 'n')) {
+      const confirmed = lowerMessage === 'yes' || lowerMessage === 'y';
+      if (currentStep === 'feedback_purchase') {
+        response = await chatAPI.submitPurchaseIntent(currentSessionId!, confirmed);
+      } else if (currentStep === 'final_cart_ready') {
+        response = await chatAPI.collectDetailedFeedback(currentSessionId!, confirmed);
       } else {
-        response = await chatAPI.sendMessage(userMessageContent, currentSessionId || undefined);
+        response = await chatAPI.confirmStep(currentSessionId!, confirmed);
       }
-
-      if (response) {
-        if (!currentSessionId && response.session_id) {
-          setCurrentSessionId(response.session_id);
-          const newTitle = userMessageContent.substring(0, 50) + (userMessageContent.length > 50 ? '...' : '');
-          setCurrentSessionTitle(newTitle);
-          triggerDelayedRefresh(response.session_id);
+    } else if (lastMessage?.requiresInput && currentStep?.startsWith('feedback_')) {
+      if (currentStep === 'feedback_rating') {
+        const rating = parseInt(userMessageContent, 10);
+        if (!isNaN(rating) && rating >= 1 && rating <= 5) {
+          response = await chatAPI.submitFeedbackRating(currentSessionId!, rating);
+        } else {
+          // Create a local error message without calling the backend
+          response = {
+            ...(lastMessage || {}),
+            content: "Please provide a valid rating between 1 and 5.",
+            assistant_message: "Please provide a valid rating between 1 and 5.",
+            requiresInput: true,
+          };
         }
-
-        const assistantMessage: ChatMessageType = {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: response.assistant_message || response.message || 'Processing your request...',
-          timestamp: new Date(),
-          sessionId: response.session_id,
-          step: response.step,
-          requiresConfirmation: response.requires_confirmation,
-          confirmationPrompt: response.confirmation_prompt,
-          requiresInput: response.requires_input,
-          input_prompt: response.input_prompt,
-          input_type: response.input_type,
-          input_options: response.input_options,
-          data: response.data,
-        };
-        setMessages(prev => [...prev, assistantMessage]);
+      } else if (currentStep === 'feedback_liked_items') {
+        const likedItems = lowerMessage === 'none' ? [] : userMessageContent.split(',').map(item => item.trim());
+        response = await chatAPI.submitLikedItems(currentSessionId!, likedItems);
+      } else if (currentStep === 'feedback_disliked_items') {
+        const dislikedItems = lowerMessage === 'none' ? [] : userMessageContent.split(',').map(item => item.trim());
+        response = await chatAPI.submitDislikedItems(currentSessionId!, dislikedItems);
+      } else if (currentStep === 'feedback_suggestions') {
+        response = await chatAPI.submitSuggestions(currentSessionId!, userMessageContent);
       }
+    } else {
+      response = await chatAPI.sendMessage(userMessageContent, currentSessionId || undefined);
+    }
+
+    if (response) {
+      if (!currentSessionId && response.session_id) {
+        setCurrentSessionId(response.session_id);
+        const newTitle = userMessageContent.substring(0, 50) + (userMessageContent.length > 50 ? '...' : '');
+        setCurrentSessionTitle(newTitle);
+        triggerDelayedRefresh(response.session_id);
+      }
+
+      const assistantMessage: ChatMessageType = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: response.assistant_message || response.message || 'Processing your request...',
+        timestamp: new Date(),
+        sessionId: response.session_id,
+        step: response.step,
+        requiresConfirmation: response.requires_confirmation,
+        confirmationPrompt: response.confirmation_prompt,
+        requiresInput: response.requires_input,
+        input_prompt: response.input_prompt,
+        input_type: response.input_type,
+        input_options: response.input_options,
+        data: response.data,
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    }
     } catch (error: any) {
       console.error('Error:', error);
       const errorMessage: ChatMessageType = {
         id: Date.now().toString(),
         type: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: 'Sorry, I encountered a timeout error. Please try again.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -267,54 +267,54 @@ const Dashboard: React.FC = () => {
 
     setLoading(true);
     try {
-      // Get the current step from the last message
-      const lastMessage = messages[messages.length - 1];
-      const currentStep = lastMessage?.step;
+    // Get the current step from the last message
+    const lastMessage = messages[messages.length - 1];
+    const currentStep = lastMessage?.step;
 
-      console.log('Debug - Current step:', currentStep);
-      console.log('Debug - Last message:', lastMessage);
+    console.log('Debug - Current step:', currentStep);
+    console.log('Debug - Last message:', lastMessage);
 
-      let response;
+    let response;
 
-      // Use confirmStep for all confirmation operations
-      if (currentStep === 'casual_response') {
-        // For general query search confirmation from casual response
-        response = await chatAPI.confirmStep(currentSessionId, confirmed);
-      } else if (currentStep === 'general_query_search') {
-        // For general query search confirmation
-        response = await chatAPI.confirmStep(currentSessionId, confirmed);
-      } else if (currentStep === 'feedback_purchase') {
-        // For purchase intent confirmation
-        response = await chatAPI.submitPurchaseIntent(currentSessionId, confirmed);
-      } else {
-        // For all other confirmations (intent, goal, recipes_ready, cart_ready, etc.)
-        response = await chatAPI.confirmStep(currentSessionId, confirmed);
-      }
+    // Use confirmStep for all confirmation operations
+    if (currentStep === 'casual_response') {
+      // For general query search confirmation from casual response
+      response = await chatAPI.confirmStep(currentSessionId, confirmed);
+    } else if (currentStep === 'general_query_search') {
+      // For general query search confirmation
+      response = await chatAPI.confirmStep(currentSessionId, confirmed);
+    } else if (currentStep === 'feedback_purchase') {
+      // For purchase intent confirmation
+      response = await chatAPI.submitPurchaseIntent(currentSessionId, confirmed);
+    } else {
+      // For all other confirmations (intent, goal, recipes_ready, cart_ready, etc.)
+      response = await chatAPI.confirmStep(currentSessionId, confirmed);
+    }
 
-      const assistantMessage: ChatMessageType = {
-        id: Date.now().toString(),
-        type: 'assistant',
-        content: response.assistant_message || response.message || 'Processing your request...',
-        timestamp: new Date(),
-        sessionId: response.session_id,
-        step: response.step,
-        requiresConfirmation: response.requires_confirmation,
-        confirmationPrompt: response.confirmation_prompt,
-        data: response.data,
-      };
+    const assistantMessage: ChatMessageType = {
+      id: Date.now().toString(),
+      type: 'assistant',
+      content: response.assistant_message || response.message || 'Processing your request...',
+      timestamp: new Date(),
+      sessionId: response.session_id,
+      step: response.step,
+      requiresConfirmation: response.requires_confirmation,
+      confirmationPrompt: response.confirmation_prompt,
+      data: response.data,
+    };
 
-      setMessages(prev => [...prev, assistantMessage]);
+    setMessages(prev => [...prev, assistantMessage]);
 
-      // If the session is complete, show a completion message
-      if (response.is_complete) {
-        console.log("Session completed successfully!");
-      }
+    // If the session is complete, show a completion message
+    if (response.is_complete) {
+      console.log("Session completed successfully!");
+    }
     } catch (error: any) {
       console.error('Confirmation error:', error);
       const errorMessage: ChatMessageType = {
         id: Date.now().toString(),
         type: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: 'Sorry, I encountered a timeout error. Please try again.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -328,60 +328,60 @@ const Dashboard: React.FC = () => {
 
     setLoading(true);
     try {
-      // Get the current step from the last message
-      const lastMessage = messages[messages.length - 1];
-      const currentStep = lastMessage?.step;
+    // Get the current step from the last message
+    const lastMessage = messages[messages.length - 1];
+    const currentStep = lastMessage?.step;
 
-      let response;
+    let response;
 
-      // Call different endpoints based on the current step
-      if (currentStep === 'feedback_rating') {
-        // Handle rating submission
-        response = await chatAPI.submitFeedbackRating(currentSessionId, input as number);
-      } else if (currentStep === 'feedback_liked_items') {
-        // Handle liked items submission - parse string into array
-        const likedItems = (input as string).toLowerCase() === 'none' ? [] : (input as string).split(',').map(item => item.trim());
-        response = await chatAPI.submitLikedItems(currentSessionId, likedItems);
-      } else if (currentStep === 'feedback_disliked_items') {
-        // Handle disliked items submission - parse string into array
-        const dislikedItems = (input as string).toLowerCase() === 'none' ? [] : (input as string).split(',').map(item => item.trim());
-        response = await chatAPI.submitDislikedItems(currentSessionId, dislikedItems);
-      } else if (currentStep === 'feedback_suggestions') {
-        // Handle suggestions submission
-        response = await chatAPI.submitSuggestions(currentSessionId, input as string);
-      } else {
-        // Default to general input handling
-        response = await chatAPI.confirmStep(currentSessionId, true);
-      }
+    // Call different endpoints based on the current step
+    if (currentStep === 'feedback_rating') {
+      // Handle rating submission
+      response = await chatAPI.submitFeedbackRating(currentSessionId, input as number);
+    } else if (currentStep === 'feedback_liked_items') {
+      // Handle liked items submission - parse string into array
+      const likedItems = (input as string).toLowerCase() === 'none' ? [] : (input as string).split(',').map(item => item.trim());
+      response = await chatAPI.submitLikedItems(currentSessionId, likedItems);
+    } else if (currentStep === 'feedback_disliked_items') {
+      // Handle disliked items submission - parse string into array
+      const dislikedItems = (input as string).toLowerCase() === 'none' ? [] : (input as string).split(',').map(item => item.trim());
+      response = await chatAPI.submitDislikedItems(currentSessionId, dislikedItems);
+    } else if (currentStep === 'feedback_suggestions') {
+      // Handle suggestions submission
+      response = await chatAPI.submitSuggestions(currentSessionId, input as string);
+    } else {
+      // Default to general input handling
+      response = await chatAPI.confirmStep(currentSessionId, true);
+    }
 
-      const assistantMessage: ChatMessageType = {
-        id: Date.now().toString(),
-        type: 'assistant',
-        content: response.assistant_message || response.message || 'Processing your input...',
-        timestamp: new Date(),
-        sessionId: response.session_id,
-        step: response.step,
-        requiresConfirmation: response.requires_confirmation,
-        confirmationPrompt: response.confirmation_prompt,
-        requiresInput: response.requires_input,
-        input_prompt: response.input_prompt,
-        input_type: response.input_type,
-        input_options: response.input_options,
-        data: response.data,
-      };
+    const assistantMessage: ChatMessageType = {
+      id: Date.now().toString(),
+      type: 'assistant',
+      content: response.assistant_message || response.message || 'Processing your input...',
+      timestamp: new Date(),
+      sessionId: response.session_id,
+      step: response.step,
+      requiresConfirmation: response.requires_confirmation,
+      confirmationPrompt: response.confirmation_prompt,
+      requiresInput: response.requires_input,
+      input_prompt: response.input_prompt,
+      input_type: response.input_type,
+      input_options: response.input_options,
+      data: response.data,
+    };
 
-      setMessages(prev => [...prev, assistantMessage]);
+    setMessages(prev => [...prev, assistantMessage]);
 
-      // If the session is complete, show a completion message
-      if (response.is_complete) {
-        console.log("Session completed successfully!");
-      }
+    // If the session is complete, show a completion message
+    if (response.is_complete) {
+      console.log("Session completed successfully!");
+    }
     } catch (error: any) {
       console.error('Input submission error:', error);
       const errorMessage: ChatMessageType = {
         id: Date.now().toString(),
         type: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: 'Sorry, I encountered a timeout. Please try again.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);

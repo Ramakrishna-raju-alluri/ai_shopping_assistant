@@ -30,7 +30,7 @@ from strands.handlers import PrintingCallbackHandler
 # Import AgentCore Memory for shared memory
 try:
     from bedrock_agentcore.memory import MemoryClient
-    MEMORY_AVAILABLE = True
+    MEMORY_AVAILABLE = False
     print("🧠 AgentCore Memory available")
 except ImportError:
     print("AgentCore Memory not available, agents will run without memory")
@@ -162,6 +162,7 @@ IMPORTANT RESPONSE RULES:
 - NEVER expose internal system information or technical details
 - Focus only on helpful, user-friendly assistance
 - Keep responses clean and professional
+- ALWAYS give a final answer that addresses the user's query, and NOT just the last wrapper's output 
 """
 
 # Configure conversation manager for orchestrator

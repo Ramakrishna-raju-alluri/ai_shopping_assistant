@@ -45,6 +45,14 @@ async def chat_endpoint(
     # Clean the response to remove thinking tags and other artifacts
     cleaned_text = clean_response(actual_text)
 
+    return {
+        "message": payload.message,
+        "reply": cleaned_text,  # Cleaned response
+        "assistant_message": cleaned_text,  # What frontend expects
+        "user_id": user_id,
+        "session_id": payload.session_id,
+    }
+
     # try:
     #     import boto3
     #     import json

@@ -24,5 +24,5 @@ GROCERY_TOOL_FUNCTIONS = [
     # Product Search Tools
     find_substitutes,
     get_pricing_info,
-    search_grocery_products
+    # search_grocery_products
 ]
