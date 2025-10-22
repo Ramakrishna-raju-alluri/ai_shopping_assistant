@@ -128,3 +128,6 @@ The system uses specialized AI agents for different tasks:
 
 - **Frontend**: http://ai-shopping-assistant-frontend.s3-website-us-east-1.amazonaws.com/
 - **API Docs**: http://ai-shopping-assistant-env.eba-kdhudhcc.us-west-2.elasticbeanstalk.com/docs
+
+<img width="1919" height="882" alt="image" src="https://github.com/user-attachments/assets/6ac8f04a-842f-49e2-bbdf-1fea6d2bf868" />
+
