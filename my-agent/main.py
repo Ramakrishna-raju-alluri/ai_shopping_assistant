@@ -68,6 +68,5 @@ async def invoke(payload, context=None):
 if __name__ == "__main__":
     # app.run()
     # Test with proper user_id
-    
     response = agent("User ID: test-user-123. Query: how many calories are there in bananas")
     print(response)
