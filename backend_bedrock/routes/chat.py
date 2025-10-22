@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from backend_bedrock.routes.auth import get_current_user
 from backend_bedrock.agents.orchestrator import orchestrator_agent
+from backend_bedrock.utils.response_filter import clean_response
 
 router = APIRouter()
 
@@ -37,10 +38,13 @@ async def chat_endpoint(
     else:
         actual_text = str(result)
 
+    # Clean the response to remove thinking tags and other artifacts
+    cleaned_text = clean_response(actual_text)
+
     return {
         "message": payload.message,
-        "reply": actual_text,  # Simple string instead of complex object
-        "assistant_message": actual_text,  # What frontend expects
+        "reply": cleaned_text,  # Cleaned response
+        "assistant_message": cleaned_text,  # What frontend expects
         "user_id": user_id,
         "session_id": payload.session_id,
     }

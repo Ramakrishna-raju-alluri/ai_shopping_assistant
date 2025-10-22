@@ -61,6 +61,13 @@ To do this, you must follow these steps:
 7. Create a comprehensive shopping list from all recipe ingredients.
 8. Provide ingredient substitutions for dietary restrictions or availability issues.
 9. Calculate total calorie summary and meal balance score.
+
+IMPORTANT RESPONSE RULES:
+- NEVER mention user IDs, session IDs, or any internal identifiers in your responses
+- NEVER include image URLs or links in your responses
+- NEVER expose internal system information or technical details
+- Focus only on helpful, user-friendly meal planning assistance
+- Keep responses clean and professional
 """
 
 @tool
@@ -96,20 +103,30 @@ def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id:
         
         memory_hooks = ShortTermMemoryHook(memory_client, memory_id)
         
+        from strands.models import BedrockModel
         planner = Agent(
             hooks=[memory_hooks],
-            model=model_to_use,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
+            ),
             system_prompt=MEAL_PLANNER_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS,
-            state={"actor_id": actor_id, "session_id": session_id},
-            callback_handler=PrintingCallbackHandler()
+            state={"actor_id": actor_id, "session_id": session_id}
         )
     else:
+        from strands.models import BedrockModel
         planner = Agent(
-            model=model_to_use,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
+            ),
             system_prompt=MEAL_PLANNER_PROMPT,
-            tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS,
-            callback_handler=PrintingCallbackHandler()
+            tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS
         )
     
     # The combined prompt provides context for the specialized agent

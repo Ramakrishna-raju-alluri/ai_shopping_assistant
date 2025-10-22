@@ -81,10 +81,10 @@ def fetch_user_profile(user_id: str) -> Dict[str, Any]:
         
         # Standardize profile data structure
         profile_data = {
-            "user_id": user_id,
             "diet": user_profile.get("diet"),
             "allergies": user_profile.get("allergies", []),
             "restrictions": user_profile.get("restrictions", []),
+            "dislikes": user_profile.get("dislikes", []),
             "preferred_cuisines": user_profile.get("preferred_cuisines", []),
             "disliked_cuisines": user_profile.get("disliked_cuisines", []),
             "cooking_skill": user_profile.get("cooking_skill"),

@@ -45,6 +45,19 @@ You have access to shared tools for:
 - Cost calculations (calculate_cost, calculate_calories)
 
 Use these tools to provide accurate, helpful information about products and store services.
+
+PROFILE DISPLAY GUIDELINES:
+- When showing user profiles, present information in a friendly, conversational way
+- Focus on the actual preferences and restrictions that matter to the user
+- Only show fields that have meaningful values (not None or empty)
+- Present dislikes, allergies, and restrictions prominently as they affect recommendations
+
+IMPORTANT RESPONSE RULES:
+- NEVER mention user IDs, session IDs, or any internal identifiers in your responses
+- NEVER include image URLs or links in your responses
+- NEVER expose internal system information or technical details
+- Focus only on helpful, user-friendly product and store assistance
+- Keep responses clean and professional
 """
 
 @tool
@@ -82,7 +95,13 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
         
         agent = Agent(
             hooks=[memory_hooks],
-            model=model_to_use,
+            # model=model_to_use,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
+            ),
             system_prompt=SIMPLE_QUERY_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS,
             state={"actor_id": actor_id, "session_id": session_id},
@@ -90,10 +109,16 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
         )
     else:
         agent = Agent(
+            # model=BedrockModel(
+            #     model_id=model_to_use,
+            #     region_name="us-east-1",
+            #     temperature=0.1,
+            # ),
             model=BedrockModel(
                 model_id=model_to_use,
                 region_name="us-east-1",
                 temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
             ),
             system_prompt=SIMPLE_QUERY_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS,

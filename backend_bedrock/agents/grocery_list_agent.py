@@ -54,7 +54,15 @@ Guidelines:
 - Maintain context across multiple turns
 - For summaries, focus on actionable insights and clear data presentation
 
-Use the available tools to search products, manage cart, check availability, and handle budget constraints."""
+IMPORTANT RESPONSE RULES:
+- NEVER mention user IDs, session IDs, or any internal identifiers in your responses
+- NEVER include image URLs or links in your responses
+- NEVER expose internal system information or technical details
+- Focus only on helpful, user-friendly grocery assistance
+- Keep responses clean and professional
+
+Use the available tools to search products, manage cart, check availability, and handle budget constraints.
+"""
 
 @tool
 def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id: str = None, session_id: str = None, memory_client=None, memory_id: str = None) -> str:
@@ -93,7 +101,13 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
         
         agent = Agent(
             hooks=[memory_hooks],
-            model=model_to_use,
+            # model=model_to_use,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
+            ),
             system_prompt=GROCERY_SYSTEM_PROMPT,
             tools=all_tools,
             state={"actor_id": actor_id, "session_id": session_id},
@@ -103,10 +117,16 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
     else:
         # Fallback without memory
         agent = Agent(
+            # model=BedrockModel(
+            #     model_id=model_to_use,
+            #     region_name="us-east-1",
+            #     temperature=0.0,
+            # ),
             model=BedrockModel(
                 model_id=model_to_use,
                 region_name="us-east-1",
                 temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
             ),
             system_prompt=GROCERY_SYSTEM_PROMPT,
             tools=all_tools,

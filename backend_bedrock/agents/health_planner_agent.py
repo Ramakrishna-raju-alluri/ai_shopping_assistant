@@ -43,9 +43,16 @@ and nutrition totals (calories, protein, carbs, fat). You can:
 - Report remaining calories given a daily target
 - Fetch the current plan for a day
 - If asked for calorie breakup or calculation of any products, search for the products and get their calorie count
-Always ask for and use an explicit date (YYYY-MM-DD) and user id. If a date is
+Always ask for and use an explicit date (YYYY-MM-DD) format. If a date is
 missing, request clarification. Keep updates idempotent by re-writing the full day
 plan after changes.
+
+IMPORTANT RESPONSE RULES:
+- NEVER mention user IDs, session IDs, or any internal identifiers in your responses
+- NEVER include image URLs or links in your responses
+- NEVER expose internal system information or technical details
+- Focus only on helpful, user-friendly health and nutrition assistance
+- Keep responses clean and professional
 """
 
 @tool
@@ -84,7 +91,13 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
         
         planner = Agent(
             hooks=[memory_hooks],
-            model=model_to_use,
+            # model=model_to_use,
+            model=BedrockModel(
+                model_id=model_to_use,
+                region_name="us-east-1",
+                temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
+            ),
             system_prompt=HEALTH_PLANNER_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS,
             state={"actor_id": actor_id, "session_id": session_id},
@@ -92,15 +105,23 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
         )
     else:
         planner = Agent(
+            # model=BedrockModel(
+            #     model_id=model_to_use,
+            #     region_name="us-east-1",
+            #     temperature=0.1,
+            # ),
             model=BedrockModel(
                 model_id=model_to_use,
                 region_name="us-east-1",
                 temperature=0.1,
+                streaming=False  # Disable streaming for Nova Pro
             ),
             system_prompt=HEALTH_PLANNER_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS,
             callback_handler=PrintingCallbackHandler()
         )
+    # Use regular text response
+    combined_prompt = f"User ID: {user_id}. Request: {query}"
     response = planner(combined_prompt)
     return str(response)
     # Check if structured output is needed based on keywords

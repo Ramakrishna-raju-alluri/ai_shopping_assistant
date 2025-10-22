@@ -12,6 +12,12 @@ from typing import Dict, Any, List, Optional
 from boto3.dynamodb.conditions import Attr, Key
 from strands import tool
 
+from rapidfuzz import fuzz, process
+from nltk.stem import WordNetLemmatizer
+import re
+
+lemmatizer = WordNetLemmatizer()
+
 # Add parent directory to path for imports
 current_dir = Path(__file__).resolve().parent
 project_root = current_dir.parent.parent
@@ -149,11 +155,33 @@ def convert_decimal_to_float(obj):
 
 
 
+def normalize_text(text: str) -> str:
+    """Clean and lemmatize text for better matching."""
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text.lower().strip())
+    words = [lemmatizer.lemmatize(w) for w in text.split()]
+    return " ".join(words)
+
+def compute_similarity_score(query: str, product: Dict[str, Any]) -> float:
+    """Compute weighted similarity score between query and product fields."""
+    query_norm = normalize_text(query)
+    
+    name = normalize_text(product.get("name", ""))
+    desc = normalize_text(product.get("description", ""))
+    tags = " ".join([normalize_text(str(t)) for t in product.get("tags", [])])
+    
+    # Weights: name = 0.6, desc = 0.3, tags = 0.1
+    score_name = fuzz.partial_ratio(query_norm, name)
+    score_desc = fuzz.partial_ratio(query_norm, desc)
+    score_tags = fuzz.partial_ratio(query_norm, tags)
+    
+    # Weighted aggregate
+    total_score = (0.6 * score_name) + (0.3 * score_desc) + (0.1 * score_tags)
+    return total_score
 
 @tool
 def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
     """
-    Search products by name, description, or tags.
+    Search products by name, description, or tags using robust fuzzy matching.
     
     Args:
         query (str): Search term
@@ -163,69 +191,44 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
         Dict[str, Any]: Standardized response with matching products
     """
     try:
-        products = []
-        
-        # Try DynamoDB search first
         try:
             table = dynamodb.Table(PRODUCT_TABLE)
-            
-            # Get all products and do case-insensitive search in Python
-            # This is more reliable than DynamoDB's case-sensitive contains()
             response = table.scan()
             all_products = response.get("Items", [])
-            
-            # Filter products with case-insensitive search
-            query_lower = query.lower()
-            products = []
-            
-            for product in all_products:
-                name = product.get("name", "").lower()
-                description = product.get("description", "").lower()
-                tags = [str(tag).lower() for tag in product.get("tags", [])]
-                
-                # Check if query matches name, description, or any tag
-                if (query_lower in name or 
-                    query_lower in description or 
-                    any(query_lower in tag for tag in tags)):
-                    products.append(product)
-                    
-                    if len(products) >= limit:
-                        break
         except Exception:
-            #TODO: Remove
-            # Fallback to database query function
-            try:
-                all_products = db_get_all_products()
-                products = [
-                    p for p in all_products 
-                    if query.lower() in p.get("name", "").lower() or 
-                       query.lower() in p.get("description", "").lower() or
-                       any(query.lower() in str(tag).lower() for tag in p.get("tags", []))
-                ][:limit]
-            except Exception:
-                products = []
+            all_products = db_get_all_products()
+
+        if not all_products:
+            return {
+                'success': True,
+                'data': [],
+                'count': 0,
+                'query': query,
+                'message': f"No products found for '{query}'"
+            }
+
+        query_norm = normalize_text(query)
+        scored_products = []
+
+        for product in all_products:
+            score = compute_similarity_score(query_norm, product)
+            scored_products.append((product, score))
         
-        # If no products found, search mock data
-        # if not products:
-        #     mock_products = get_mock_products()
-        #     products = [
-        #         p for p in mock_products 
-        #         if query.lower() in p["name"].lower() or 
-        #            query.lower() in p["description"].lower() or
-        #            any(query.lower() in tag.lower() for tag in p["tags"])
-        #     ][:limit]
+        # Sort by score, descending
+        scored_products.sort(key=lambda x: x[1], reverse=True)
         
-        # Convert Decimal to float for JSON serialization
-        products = convert_decimal_to_float(products)
+        # Keep only good matches above a threshold
+        threshold = 55  # Adjust based on testing
+        filtered = [p for p, s in scored_products if s >= threshold][:limit]
         
         return {
             'success': True,
-            'data': products,
-            'count': len(products),
+            'data': convert_decimal_to_float(filtered),
+            'count': len(filtered),
             'query': query,
-            'message': f"Found {len(products)} products matching '{query}'"
+            'message': f"Found {len(filtered)} products matching '{query}'"
         }
-        
+
     except Exception as e:
         return {
             'success': False,
@@ -235,12 +238,155 @@ def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
             'message': f'Error searching products: {str(e)}'
         }
 
+# @tool
+# def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
+#     """
+#     Search products by name, description, or tags using robust fuzzy matching.
+    
+#     Args:
+#         query (str): Search term
+#         limit (int): Maximum results to return
+        
+#     Returns:
+#         Dict[str, Any]: Standardized response with matching products
+#     """
+#     try:
+#         products = []
+        
+#         # Try DynamoDB search first
+#         try:
+#             table = dynamodb.Table(PRODUCT_TABLE)
+#             response = table.scan()
+#             all_products = response.get("Items", [])
+            
+#             # Use enhanced fuzzy matching logic (based on get_products_by_names)
+#             query_lower = query.lower()
+#             matched_products = []
+            
+#             # Step 1: Try exact match first
+#             exact_matches = [p for p in all_products if p.get("name", "").lower() == query_lower]
+#             if exact_matches:
+#                 matched_products.extend(exact_matches)
+            
+#             # Step 2: Try partial match (query is contained in product name)
+#             if len(matched_products) < limit:
+#                 partial_matches = [p for p in all_products 
+#                                  if query_lower in p.get("name", "").lower() and p not in matched_products]
+#                 matched_products.extend(partial_matches)
+            
+#             # Step 3: Try reverse partial match (product name is contained in query)
+#             if len(matched_products) < limit:
+#                 reverse_matches = [p for p in all_products 
+#                                  if p.get("name", "").lower() in query_lower and p not in matched_products]
+#                 matched_products.extend(reverse_matches)
+            
+#             # Step 4: Try word-based matching for names
+#             if len(matched_products) < limit:
+#                 query_words = query_lower.split()
+#                 word_matches = []
+#                 for product in all_products:
+#                     if product in matched_products:
+#                         continue
+#                     product_name = product.get("name", "").lower()
+#                     # Check if any word from query matches product name
+#                     if any(word in product_name for word in query_words if len(word) > 2):
+#                         word_matches.append(product)
+#                 matched_products.extend(word_matches)
+            
+#             # Step 5: Search in descriptions
+#             if len(matched_products) < limit:
+#                 desc_matches = []
+#                 for product in all_products:
+#                     if product in matched_products:
+#                         continue
+#                     description = product.get("description", "").lower()
+#                     if query_lower in description:
+#                         desc_matches.append(product)
+#                 matched_products.extend(desc_matches)
+            
+#             # Step 6: Search in tags
+#             if len(matched_products) < limit:
+#                 tag_matches = []
+#                 for product in all_products:
+#                     if product in matched_products:
+#                         continue
+#                     tags = [str(tag).lower() for tag in product.get("tags", [])]
+#                     if any(query_lower in tag for tag in tags):
+#                         tag_matches.append(product)
+#                 matched_products.extend(tag_matches)
+            
+#             # Step 7: Handle singular/plural variations
+#             if len(matched_products) < limit:
+#                 def matches_with_variations(text, query):
+#                     if query in text:
+#                         return True
+#                     # Handle singular/plural variations
+#                     if query.endswith('s') and query[:-1] in text:  # "strawberries" -> "strawberry"
+#                         return True
+#                     if not query.endswith('s') and (query + 's') in text:  # "strawberry" -> "strawberries"
+#                         return True
+#                     if not query.endswith('s') and (query + 'ies') in text:  # "berry" -> "berries"
+#                         return True
+#                     if query.endswith('ies') and (query[:-3] + 'y') in text:  # "berries" -> "berry"
+#                         return True
+#                     return False
+                
+#                 variation_matches = []
+#                 for product in all_products:
+#                     if product in matched_products:
+#                         continue
+#                     name = product.get("name", "").lower()
+#                     description = product.get("description", "").lower()
+#                     tags = [str(tag).lower() for tag in product.get("tags", [])]
+                    
+#                     if (matches_with_variations(name, query_lower) or 
+#                         matches_with_variations(description, query_lower) or 
+#                         any(matches_with_variations(tag, query_lower) for tag in tags)):
+#                         variation_matches.append(product)
+#                 matched_products.extend(variation_matches)
+            
+#             # Apply limit and remove duplicates
+#             products = matched_products[:limit]
+            
+#         except Exception:
+#             # Fallback to database query function
+#             try:
+#                 all_products = db_get_all_products()
+#                 products = [
+#                     p for p in all_products 
+#                     if query.lower() in p.get("name", "").lower() or 
+#                        query.lower() in p.get("description", "").lower() or
+#                        any(query.lower() in str(tag).lower() for tag in p.get("tags", []))
+#                 ][:limit]
+#             except Exception:
+#                 products = []
+        
+#         # Convert Decimal to float for JSON serialization
+#         products = convert_decimal_to_float(products)
+        
+#         return {
+#             'success': True,
+#             'data': products,
+#             'count': len(products),
+#             'query': query,
+#             'message': f"Found {len(products)} products matching '{query}'"
+#         }
+        
+#     except Exception as e:
+#         return {
+#             'success': False,
+#             'data': [],
+#             'count': 0,
+#             'query': query,
+#             'message': f'Error searching products: {str(e)}'
+#         }
+
 
 
 
 
 @tool
-def check_product_availability(product_name: str) -> Dict[str, Any]:
+def check_product_availability(product_name) -> Dict[str, Any]:
     """
     Check product availability and stock status with fuzzy name matching.
     
@@ -251,45 +397,61 @@ def check_product_availability(product_name: str) -> Dict[str, Any]:
         Dict[str, Any]: Standardized response with availability information
     """
     try:
-        # Search for the product
-        search_result = search_products(product_name, limit=5)
+        print(f"🔍 CHECK_PRODUCT_AVAILABILITY called with: {product_name}")
+        print(f"🔍 Product name type: {type(product_name)}")
         
-        if not search_result['success'] or not search_result['data']:
-            return {
+        # Validate input
+        if not product_name:
+            return convert_decimal_to_float({
+                'success': False,
+                'data': None,
+                'message': 'No product name provided'
+            })
+        
+        # Convert to string if needed
+        product_name = str(product_name).strip()
+        # Search for the product using a simple approach
+        search_result = search_products(str(product_name).strip(), limit=1)
+        
+        if not search_result.get('success') or not search_result.get('data'):
+            return convert_decimal_to_float({
                 'success': False,
                 'data': None,
                 'message': f"Could not find '{product_name}' in the catalog"
-            }
+            })
         
         # Get the best match (first result)
         product = search_result['data'][0]
         
         availability_info = {
-            'product_name': product.get('name', product_name),
-            'item_id': product.get('item_id'),
-            'in_stock': product.get('in_stock', False),
-            'quantity_available': product.get('quantity_available', 0),
-            'price': product.get('price', 0)
+            'product_name': str(product.get('name', product_name)),
+            'item_id': str(product.get('item_id', '')),
+            'in_stock': bool(product.get('in_stock', False)),
+            #'quantity_available': int(product.get('quantity_available', 0)),
+            'price': float(product.get('price', 0))
         }
         
         status_message = (
-            f"Yes, {availability_info['product_name']} are in stock" 
+            f"Yes, {availability_info['product_name']} is in stock" 
             if availability_info['in_stock'] 
-            else f"No, {availability_info['product_name']} are out of stock"
+            else f"No, {availability_info['product_name']} is out of stock"
         )
         
-        return {
+        result = {
             'success': True,
             'data': availability_info,
             'message': status_message
         }
         
+        # Ensure clean JSON serialization
+        return convert_decimal_to_float(result)
+        
     except Exception as e:
-        return {
+        return convert_decimal_to_float({
             'success': False,
             'data': None,
             'message': f'Error checking product availability: {str(e)}'
-        }
+        })
 
 
 @tool
@@ -345,7 +507,7 @@ def fetch_available_items(category: str = None, in_stock: bool = True, limit: in
         }
         return result #json.dumps(result)
     except Exception as e:
-        return json.dumps({"error": f"Failed to fetch products: {str(e)}", "products": []})
+        return {"error": f"Failed to fetch products: {str(e)}", "products": []}
 
 # Legacy compatibility functions for existing code
 @tool
@@ -403,3 +565,16 @@ def get_all_products_raw():
         return db_get_all_products()
     except Exception:
         return get_mock_products()
+@tool
+
+def simple_test_tool(message: str = "test") -> str:
+    """
+    Simple test tool to verify tool calling is working.
+    
+    Args:
+        message: Test message to echo back
+        
+    Returns:
+        str: Echo of the input message
+    """
+    return f"Test tool working! Message: {message}"

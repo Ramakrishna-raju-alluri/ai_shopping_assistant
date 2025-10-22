@@ -19,24 +19,32 @@ if str(project_root) not in sys.path:
 
 # Import database functions with flexible import system
 try:
-    from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE
-    from backend_bedrock.tools.shared.product_catalog import get_all_products_raw
+    from dynamo.client import dynamodb, PRODUCT_TABLE
+    from dynamo.queries import get_all_products
+    from tools.shared.product_catalog import search_products
 except ImportError:
     try:
-        from dynamo.client import dynamodb, PRODUCT_TABLE
-        from tools.shared.product_catalog import get_all_products_raw
+        from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE
+        from backend_bedrock.dynamo.queries import get_all_products
+        from backend_bedrock.tools.shared.product_catalog import search_products
     except ImportError:
-        print("⚠️ Error importing database modules in calculations.py - using fallback")
-        #sys.exit(1)
-        # Fallback for testing
-        # import boto3
-        # try:
-        #     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        # except:
-        #     dynamodb = None
+        print("⚠️ Error importing database modules in calculations.py")
+        # Fallback implementations
+        # dynamodb = None
         # PRODUCT_TABLE = "mock-products2_with_calories"
-        # def get_all_products_raw():
+        
+        # def get_all_products():
         #     return []
+        
+        # def search_products(query: str, limit: int = 20) -> Dict[str, Any]:
+        #     """Fallback search_products function"""
+        #     return {
+        #         'success': False,
+        #         'data': [],
+        #         'count': 0,
+        #         'query': query,
+        #         'message': f"Database not available - no products found for '{query}'"
+        #     }
 
 
 def convert_decimal_to_float(obj):
@@ -51,70 +59,17 @@ def convert_decimal_to_float(obj):
     return obj
 
 
-def get_product_mapping(products_data: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
-    """
-    Create a mapping of product names to product data for efficient lookups.
-    
-    Args:
-        products_data (List[Dict[str, Any]]): List of product data
-        
-    Returns:
-        Dict[str, Dict[str, Any]]: Mapping of lowercase product names to product data
-    """
-    product_mapping = {}
-    
-    for product in products_data:
-        name = product.get("name", "").lower()
-        if name:
-            product_mapping[name] = product
-    
-    return product_mapping
 
-@tool
-def find_product_by_name(product_name: str, product_mapping: Dict[str, Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-    """
-    Find a product by name using fuzzy matching.
-    
-    Args:
-        product_name (str): Product name to search for
-        product_mapping (Dict[str, Dict[str, Any]]): Product mapping
-        
-    Returns:
-        Optional[Dict[str, Any]]: Product data if found, None otherwise
-    """
-    name_lower = product_name.lower()
-    
-    # Try exact match first
-    if name_lower in product_mapping:
-        return product_mapping[name_lower]
-    
-    # Try partial match (product name contains search term)
-    for prod_name, product_data in product_mapping.items():
-        if name_lower in prod_name:
-            return product_data
-    
-    # Try reverse partial match (search term contains product name)
-    for prod_name, product_data in product_mapping.items():
-        if prod_name in name_lower:
-            return product_data
-    
-    # Try word-based matching
-    search_words = name_lower.split()
-    for prod_name, product_data in product_mapping.items():
-        if any(word in prod_name for word in search_words if len(word) > 2):
-            return product_data
-    
-    return None
 
 
 @tool
-def calculate_cost(items: Union[List[str], List[Dict[str, Any]], Dict[str, int]]) -> Dict[str, Any]:
+def calculate_cost(items) -> Dict[str, Any]:
     """
     Calculate total cost for a list of items.
     
     Args:
         items: Can be:
-            - List[str]: Product names
+            - List[str]: Product names like ["eggs", "milk", "bread"]
             - List[Dict]: Items with 'name' and optional 'quantity' keys
             - Dict[str, int]: item_id -> quantity mapping
             
@@ -122,8 +77,23 @@ def calculate_cost(items: Union[List[str], List[Dict[str, Any]], Dict[str, int]]
         Dict[str, Any]: Standardized response with cost calculation
     """
     try:
+        print(f"🔍 CALCULATE_COST called with items: {items}")
+        print(f"🔍 Items type: {type(items)}")
+        
+        # Validate input
+        if not items:
+            return {
+                'success': False,
+                'data': None,
+                'message': 'No items provided for cost calculation'
+            }
+        
+        # Convert string to list if needed
+        if isinstance(items, str):
+            items = [items]
+        
         # Get product data
-        products_data = get_all_products_raw()
+        products_data = get_all_products()
         
         # if not products_data:
         #     # Fallback to mock data
@@ -183,8 +153,6 @@ def calculate_cost(items: Union[List[str], List[Dict[str, Any]], Dict[str, int]]
         
         else:
             # Handle list of product names or item dictionaries
-            product_mapping = get_product_mapping(products_data)
-            
             for item in items:
                 if isinstance(item, str):
                     # Simple product name
@@ -197,10 +165,11 @@ def calculate_cost(items: Union[List[str], List[Dict[str, Any]], Dict[str, int]]
                 else:
                     continue
                 
-                # Find product by name
-                product_data = find_product_by_name(product_name, product_mapping)
+                # Find product by name using search_products
+                search_result = search_products(product_name, limit=1)
                 
-                if product_data:
+                if search_result['success'] and search_result['data']:
+                    product_data = search_result['data'][0]
                     price = float(product_data.get("price", 0))
                     item_total = price * quantity
                     total_cost += item_total
@@ -245,97 +214,163 @@ def calculate_cost(items: Union[List[str], List[Dict[str, Any]], Dict[str, int]]
 
 
 @tool
-def calculate_calories(items: Union[List[str], List[Dict[str, Any]]]) -> Dict[str, Any]:
+def calculate_calories(items) -> Dict[str, Any]:
     """
-    Calculate total calories for a list of items.
+    Calculate total calories for a list of items, showing all relevant product matches.
     
     Args:
         items: Can be:
             - List[str]: Product names
             - List[Dict]: Items with 'name' and optional 'quantity' keys
+            - str: Single product name
+            - Dict: Single item with name and quantity
             
     Returns:
-        Dict[str, Any]: Standardized response with calorie calculation
+        Dict[str, Any]: Standardized response with calorie calculation for all matching products
     """
     try:
-        # Get product data
-        products_data = get_all_products_raw()
+        print(f"==================================================")
+        print(f"🚨 LOOK FOR THIS MESSAGE IN YOUR LOGS! 🚨")
+        print(f"==================================================")
+        print(f"🔍 CALCULATE_CALORIES called with items: {items}")
+        print(f"🔍 Items type: {type(items)}")
+        print(f"🔍 Items repr: {repr(items)}")
+        print(f"==================================================")
         
-        # if not products_data:
-        #     # Fallback to mock data with calories
-        #     products_data = [
-        #         {"name": "Large Eggs", "calories": 70, "calories_per_unit": 70},
-        #         {"name": "Whole Milk", "calories": 150, "calories_per_unit": 150},
-        #         {"name": "White Bread", "calories": 80, "calories_per_unit": 80},
-        #         {"name": "Chicken Breast", "calories": 165, "calories_per_unit": 165},
-        #         {"name": "Organic Tomatoes", "calories": 18, "calories_per_unit": 18},
-        #         {"name": "Organic Spinach", "calories": 7, "calories_per_unit": 7},
-        #         {"name": "Organic Onions", "calories": 40, "calories_per_unit": 40},
-        #         {"name": "Organic Carrots", "calories": 41, "calories_per_unit": 41}
-        #     ]
+        # Handle different input formats that Nova Pro might send
+        if isinstance(items, str):
+            # If it's a string, try to parse it as a single product name
+            print(f"🔄 Converting string to list: {items}")
+            items = [items]
+        elif isinstance(items, dict):
+            # If it's a dict, convert to list format
+            print(f"🔄 Converting dict to list: {items}")
+            if 'name' in items or 'product_name' in items:
+                items = [items]
+            else:
+                # Handle other dict formats
+                items = [{'name': k, 'quantity': v} for k, v in items.items()]
+        elif not isinstance(items, list):
+            print(f"❌ Invalid items format: expected list, string, or dict, got {type(items)}")
+            return {
+                'success': False,
+                'data': None,
+                'message': f'Invalid items format: expected list, string, or dict, got {type(items)}'
+            }
         
-        product_mapping = get_product_mapping(products_data)
+        print(f"🔍 Processed items: {items}")
+        all_products_breakdown = []
         
-        total_calories = 0
-        item_breakdown = []
-        
-        for item in items:
+        for i, item in enumerate(items):
+            print(f"🔍 Processing item {i+1}: {item} (type: {type(item)})")
+            
             if isinstance(item, str):
                 # Simple product name
                 product_name = item
                 quantity = 1
+                print(f"🔍 String item - name: '{product_name}', quantity: {quantity}")
             elif isinstance(item, dict):
                 # Item dictionary with name and optional quantity
-                product_name = item.get("name", "")
+                product_name = (
+                    item.get("name", "") or 
+                    item.get("product_name", "") or 
+                    item.get("item_name", "") or
+                    str(item)
+                )
                 quantity = item.get("quantity", 1)
+                print(f"🔍 Dict item - name: '{product_name}', quantity: {quantity}")
             else:
+                print(f"⚠️ Skipping unknown item type: {type(item)}")
                 continue
             
-            # Find product by name
-            product_data = find_product_by_name(product_name, product_mapping)
+            if not product_name:
+                print(f"⚠️ Skipping item with empty product name: {item}")
+                all_products_breakdown.append({
+                    "search_term": str(item),
+                    "matched_products": [],
+                    "error": "Empty product name"
+                })
+                continue
             
-            if product_data:
-                # Try different calorie fields
-                calories_per_unit = (
-                    product_data.get("calories_per_unit") or 
-                    product_data.get("calories") or 
-                    0
-                )
-                calories_per_unit = int(calories_per_unit) if calories_per_unit else 0
-                item_calories = calories_per_unit * quantity
-                total_calories += item_calories
-                
-                item_breakdown.append({
-                    "product_name": product_name,
-                    "matched_name": product_data.get("name", product_name),
-                    "calories_per_unit": calories_per_unit,
-                    "quantity": quantity,
-                    "total_calories": item_calories
+            print(f"🔍 Searching for products matching: '{product_name}'")
+            
+            # Search for products matching the product name
+            print(f"🔍 Searching for products matching: '{product_name}'")
+            search_result = search_products(product_name, limit=5)
+            print(f"🔍 Search result success: {search_result.get('success', False)}")
+            print(f"🔍 Search result data count: {len(search_result.get('data', []))}")
+            
+            all_matched_products = []
+            
+            if search_result.get('success') and search_result.get('data'):
+                for product_data in search_result['data']:
+                    product_name_found = product_data.get('name', 'Unknown')
+                    
+                    print(f"🔍 Found product: {product_name_found}")
+                    
+                    # Try different calorie fields
+                    calories_per_unit = (
+                        product_data.get("calories_per_unit") or 
+                        product_data.get("calories") or 
+                        0
+                    )
+                    calories_per_unit = int(calories_per_unit) if calories_per_unit else 0
+                    item_calories = calories_per_unit * quantity
+                    
+                    print(f"🔍 Calories per unit: {calories_per_unit}, Total for {quantity}x: {item_calories}")
+                    
+                    all_matched_products.append({
+                        "product_name": product_name_found,
+                        "calories_per_unit": calories_per_unit,
+                        "quantity": quantity,
+                        "total_calories": item_calories,
+                        "price": product_data.get("price", 0),
+                        "category": product_data.get("category", ""),
+                        "in_stock": product_data.get("in_stock", True)
+                    })
+            
+            if all_matched_products:
+                all_products_breakdown.append({
+                    "search_term": product_name,
+                    "matched_products": all_matched_products,
+                    "products_found": len(all_matched_products)
                 })
             else:
-                item_breakdown.append({
-                    "product_name": product_name,
-                    "matched_name": None,
-                    "calories_per_unit": 0,
-                    "quantity": quantity,
-                    "total_calories": 0,
-                    "error": "Product not found"
+                print(f"❌ No products found for: '{product_name}'")
+                all_products_breakdown.append({
+                    "search_term": product_name,
+                    "matched_products": [],
+                    "products_found": 0,
+                    "error": "No products found",
+                    "suggestion": f"Try searching for more specific terms like 'whole {product_name}' or '{product_name} brand'"
                 })
         
+        # Calculate summary statistics
+        total_searches = len(all_products_breakdown)
+        total_products_found = sum(item.get("products_found", 0) for item in all_products_breakdown)
+        
         result = {
-            "total_calories": total_calories,
-            "item_breakdown": item_breakdown,
-            "items_found": len([item for item in item_breakdown if item.get("calories_per_unit", 0) > 0]),
-            "total_items": len(item_breakdown)
+            "search_results": all_products_breakdown,
+            "summary": {
+                "total_searches": total_searches,
+                "total_products_found": total_products_found,
+                "searches_with_results": len([item for item in all_products_breakdown if item.get("products_found", 0) > 0])
+            }
         }
+        
+        print(f"🔍 Final result: {result}")
+        print(f"==================================================")
         
         return {
             'success': True,
             'data': result,
-            'message': f'Calculated calories for {len(item_breakdown)} items: {total_calories} calories'
+            'message': f'Found {total_products_found} products across {total_searches} searches'
         }
         
     except Exception as e:
+        print(f"❌ Exception in calculate_calories: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {
             'success': False,
             'data': None,
@@ -373,8 +408,6 @@ def calculate_nutrition(items: Union[List[str], List[Dict[str, Any]]]) -> Dict[s
         #         {"name": "Organic Carrots", "calories": 41, "protein": 1, "carbs": 10, "fat": 0}
         #     ]
         
-        product_mapping = get_product_mapping(products_data)
-        
         totals = {
             "calories": 0,
             "protein": 0,
@@ -396,10 +429,11 @@ def calculate_nutrition(items: Union[List[str], List[Dict[str, Any]]]) -> Dict[s
             else:
                 continue
             
-            # Find product by name
-            product_data = find_product_by_name(product_name, product_mapping)
+            # Find product by name using search_products
+            search_result = search_products(product_name, limit=1)
             
-            if product_data:
+            if search_result['success'] and search_result['data']:
+                product_data = search_result['data'][0]
                 # Extract nutritional values
                 calories = int(product_data.get("calories", 0)) * quantity
                 protein = float(product_data.get("protein", 0)) * quantity

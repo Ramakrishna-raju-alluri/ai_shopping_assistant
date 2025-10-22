@@ -117,13 +117,22 @@ except ImportError:
     except ImportError:
         from shared_memory_hook import ShortTermMemoryHook
 
+# Import response filter
+try:
+    from backend_bedrock.utils.response_filter import clean_response
+except ImportError:
+    try:
+        from utils.response_filter import clean_response
+    except ImportError:
+        from response_filter import clean_response
+
 ORCHESTRATOR_PROMPT = """
 You are an orchestrator agent that routes user requests to specialized agents based on the request type while maintaining shared context across all interactions.
 
 ROUTING GUIDELINES:
 - For meal planning and recipe creation, use `meal_planner_wrapper`
 - For nutrition tracking, calorie counting, daily meal logging, and health goals, use `health_planner_wrapper`  
-- For product availability, stock checks, store information, user profile related qeuries, and simple catalog queries, use `simple_query_wrapper`
+- For product availability, stock checks, store information, user profile related queries or updates, and simple catalog queries, use `simple_query_wrapper`
 - For grocery cart operations (add/remove items), shopping cart management, and grocery list building, use `grocery_list_wrapper`
 - For general questions not requiring specialized tools, handle directly with your knowledge
 
@@ -138,7 +147,7 @@ EXAMPLES:
 - "Give me 3 dinner recipes" → ONE call to meal_planner_wrapper with full query  
 - "Add apples and bananas to cart" → ONE call to grocery_list_wrapper with full query
 - "Check if eggs and milk are available" → ONE call to simple_query_wrapper with full query
-
+- "I dislike milk" → ONE call to simple_query_wrapper with full query
 SHARED CONTEXT AWARENESS:
 - All agents share the same session memory, so they can reference previous interactions
 - When routing to agents, include relevant context from the conversation
@@ -146,6 +155,13 @@ SHARED CONTEXT AWARENESS:
 
 If user's query requires multiple different agent types, use the appropriate combination, but NEVER call the same agent twice.
 Always pass the user_id and the complete user query to the selected agent.
+
+IMPORTANT RESPONSE RULES:
+- NEVER mention user IDs, session IDs, or any internal identifiers in your responses
+- NEVER include image URLs or links in your responses
+- NEVER expose internal system information or technical details
+- Focus only on helpful, user-friendly assistance
+- Keep responses clean and professional
 """
 
 # Configure conversation manager for orchestrator
@@ -159,9 +175,12 @@ conversation_manager = SummarizingConversationManager(
 def meal_planner_wrapper(user_id: str, query: str) -> str:
     """Wrapper for meal planner agent with memory parameters and structured output support"""
     print(f"🍽️ MEAL_PLANNER_WRAPPER called with user_id: {user_id}, query: {query}")
+    print("=" * 50)
+    print("🚨 LOOK FOR THIS MESSAGE IN YOUR LOGS! 🚨")
+    print("=" * 50)
     
     if MEMORY_AVAILABLE:
-        return meal_planner_agent.meal_planner_agent(
+        response = meal_planner_agent.meal_planner_agent(
             user_id=user_id, 
             query=query,
             model_id=MODEL_ID,
@@ -171,7 +190,9 @@ def meal_planner_wrapper(user_id: str, query: str) -> str:
             memory_id=memory_id
         )
     else:
-        return meal_planner_agent.meal_planner_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+        response = meal_planner_agent.meal_planner_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+    
+    return clean_response(str(response))
 
 @tool
 def grocery_list_wrapper(user_id: str, query: str) -> str:
@@ -186,7 +207,7 @@ def grocery_list_wrapper(user_id: str, query: str) -> str:
     #                    f"Structured Output: {use_structured}, Output Type: {output_type}")
     
     if MEMORY_AVAILABLE:
-        return grocery_list_agent.grocery_list_agent(
+        response = grocery_list_agent.grocery_list_agent(
             user_id=user_id, 
             query=query,
             model_id=MODEL_ID,
@@ -196,7 +217,9 @@ def grocery_list_wrapper(user_id: str, query: str) -> str:
             memory_id=memory_id
         )
     else:
-        return grocery_list_agent.grocery_list_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+        response = grocery_list_agent.grocery_list_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+    
+    return clean_response(str(response))
 
 @tool
 def health_planner_wrapper(user_id: str, query: str) -> str:
@@ -204,7 +227,7 @@ def health_planner_wrapper(user_id: str, query: str) -> str:
     print(f"🏥 HEALTH_PLANNER_WRAPPER called with user_id: {user_id}, query: {query}")
     
     if MEMORY_AVAILABLE:
-        return health_planner_agent.health_planner_agent(
+        response = health_planner_agent.health_planner_agent(
             user_id=user_id, 
             query=query,
             model_id=MODEL_ID,
@@ -214,7 +237,9 @@ def health_planner_wrapper(user_id: str, query: str) -> str:
             memory_id=memory_id
         )
     else:
-        return health_planner_agent.health_planner_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+        response = health_planner_agent.health_planner_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+    
+    return clean_response(str(response))
 
 @tool
 def simple_query_wrapper(user_id: str, query: str) -> str:
@@ -222,7 +247,7 @@ def simple_query_wrapper(user_id: str, query: str) -> str:
     print(f"❓ SIMPLE_QUERY_WRAPPER called with user_id: {user_id}, query: {query}")
     
     if MEMORY_AVAILABLE:
-        return simple_query_agent.simple_query_agent(
+        response = simple_query_agent.simple_query_agent(
             user_id=user_id, 
             query=query,
             model_id=MODEL_ID,
@@ -232,12 +257,20 @@ def simple_query_wrapper(user_id: str, query: str) -> str:
             memory_id=memory_id
         )
     else:
-        return simple_query_agent.simple_query_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+        response = simple_query_agent.simple_query_agent(user_id=user_id, query=query, model_id=MODEL_ID)
+    
+    return clean_response(str(response))
 
 # Create orchestrator without memory (agents handle their own memory)
+from strands.models import BedrockModel
 orchestrator_agent = Agent(
     system_prompt=ORCHESTRATOR_PROMPT,
-    model=MODEL_ID,
+    model=BedrockModel(
+        model_id=MODEL_ID,
+        region_name="us-east-1",
+        temperature=0.1,
+        streaming=False  # Disable streaming for Nova Pro compatibility
+    ),
     tools=[
         meal_planner_wrapper,
         health_planner_wrapper,
@@ -245,7 +278,6 @@ orchestrator_agent = Agent(
         grocery_list_wrapper
     ],
     conversation_manager=conversation_manager,
-    callback_handler=PrintingCallbackHandler(),
 )
 
 print("🚀 Multi-Agent System with Shared Memory is ready!")
