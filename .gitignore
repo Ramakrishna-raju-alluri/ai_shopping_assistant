@@ -24,3 +24,5 @@ tests/
 
 .bedrock_agentcore.yaml
 .bedrock_agentcore/
+
+frontend/.env.production

@@ -57,7 +57,7 @@ async def chat_endpoint(
         
         # Call Bedrock AgentCore
         response = client.invoke_agent_runtime(
-            agentRuntimeArn='arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/ai_shopping_assistant-qJc8zT395J',
+            agentRuntimeArn=os.getenv('AGENT_RUNTIME_ARN'),
             runtimeSessionId=session_id,
             payload=agentcore_payload,
             qualifier="DEFAULT"
