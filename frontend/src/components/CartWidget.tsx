@@ -27,6 +27,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
 
   // Helper function to safely format prices
   const formatPrice = (price: number | string): string => {
@@ -34,17 +35,25 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
     return numPrice.toFixed(2);
   };
 
-  const loadCart = async () => {
+  const loadCart = async (forceRefresh: boolean = false) => {
+    // Prevent redundant API calls - only fetch if it's been more than 10 seconds since last fetch
+    const now = Date.now();
+    if (!forceRefresh && now - lastFetchTime < 10000) {
+      console.log('Cart fetch skipped - too recent');
+      return;
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8100/api/v1/cart', { headers });
+      const response = await fetch('http://127.0.0.1:8100/api/v1/cart', { headers });
       const data = await response.json();
       
       if (data.success) {
         setCart(data.cart);
+        setLastFetchTime(now);
       }
     } catch (error) {
       console.error('Error loading cart:', error);
@@ -66,7 +75,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       
       console.log(`Updating quantity for item ${itemId}: ${quantity} -> ${newQuantity}`);
       
-      const response = await fetch('http://localhost:8100/api/v1/cart/update', {
+      const response = await fetch('http://127.0.0.1:8100/api/v1/cart/update', {
         method: 'PUT',
         headers,
         body: JSON.stringify({
@@ -92,7 +101,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch(`http://localhost:8100/api/v1/cart/remove/${itemId}`, {
+      const response = await fetch(`http://127.0.0.1:8100/api/v1/cart/remove/${itemId}`, {
         method: 'DELETE',
         headers
       });
@@ -111,7 +120,7 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
       
-      const response = await fetch('http://localhost:8100/api/v1/cart/clear', {
+      const response = await fetch('http://127.0.0.1:8100/api/v1/cart/clear', {
         method: 'DELETE',
         headers
       });
@@ -125,25 +134,15 @@ const CartWidget: React.FC<CartWidgetProps> = ({ isVisible, onToggle }) => {
     }
   };
 
-  // Load cart when component mounts or when cart changes
+  // Load cart only when component first mounts
   useEffect(() => {
-    if (isVisible) {
-      loadCart();
-    }
-  }, [isVisible]);
+    loadCart();
+  }, []);
 
-  // Auto-refresh cart every 30 seconds
-  useEffect(() => {
-    if (isVisible) {
-      const interval = setInterval(loadCart, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [isVisible]);
-
-  // Load cart when modal opens
+  // Only refresh cart when modal is opened (user actively wants to see cart)
   useEffect(() => {
     if (isModalOpen) {
-      loadCart();
+      loadCart(true); // Force refresh when modal opens
     }
   }, [isModalOpen]);
 

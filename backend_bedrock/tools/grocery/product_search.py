@@ -22,33 +22,35 @@ if str(project_root) not in sys.path:
 try:
     from backend_bedrock.dynamo.client import dynamodb, PRODUCT_TABLE, PROMO_TABLE
     from backend_bedrock.tools.shared.product_catalog import (
-        search_products, fetch_all_products, get_products_by_category
+        search_products
     )
-    from backend_bedrock.tools.shared.user_profile import get_user_preferences
+
 except ImportError:
     try:
         from dynamo.client import dynamodb, PRODUCT_TABLE, PROMO_TABLE
         from tools.shared.product_catalog import (
-            search_products, fetch_all_products, get_products_by_category
+            search_products
         )
-        from tools.shared.user_profile import get_user_preferences
+
     except ImportError:
+        print("⚠️ Error importing database modules in product search.py")
+        #sys.exit(1)
         # Fallback for testing
-        import boto3
-        try:
-            dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        except:
-            dynamodb = None
-        PRODUCT_TABLE = "mock-products2_with_calories"
-        PROMO_TABLE = "mock-promo-table"
-        def search_products(query, limit=20):
-            return {"success": True, "data": []}
-        def fetch_all_products(limit=100, category=None):
-            return {"success": True, "data": []}
-        def get_products_by_category(category, limit=50):
-            return {"success": True, "data": []}
-        def get_user_preferences(user_id):
-            return {"success": True, "data": {}}
+        # import boto3
+        # try:
+        #     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        # except:
+        #     dynamodb = None
+        # PRODUCT_TABLE = "mock-products2_with_calories"
+        # PROMO_TABLE = "mock-promo-table"
+        # def search_products(query, limit=20):
+        #     return {"success": True, "data": []}
+        # def fetch_all_products(limit=100, category=None):
+        #     return {"success": True, "data": []}
+        # def get_products_by_category(category, limit=50):
+        #     return {"success": True, "data": []}
+        # def get_user_preferences(user_id):
+        #     return {"success": True, "data": {}}
 
 
 def convert_decimal_to_float(obj):
@@ -63,60 +65,7 @@ def convert_decimal_to_float(obj):
     return obj
 
 
-@tool
-def check_availability(product_id: str) -> Dict[str, Any]:
-    """
-    Check if a specific product is available and get stock info.
-    
-    Args:
-        product_id (str): Product ID to check
-        
-    Returns:
-        Dict[str, Any]: Standardized response with availability status
-    """
-    try:
-        table = dynamodb.Table(PRODUCT_TABLE)
-        response = table.get_item(Key={"item_id": product_id})
-        
-        if "Item" not in response:
-            return {
-                'success': False,
-                'data': None,
-                'message': f"Product {product_id} not found"
-            }
-        
-        product = response["Item"]
-        product = convert_decimal_to_float(product)
-        
-        is_available = product.get("in_stock", False)
-        quantity_available = product.get("quantity_available", 0)
-        
-        availability_info = {
-            'product_id': product_id,
-            'product_name': product.get('name', ''),
-            'available': is_available,
-            'quantity_available': quantity_available,
-            'price': product.get('price', 0),
-            'category': product.get('category', ''),
-            'product_details': product
-        }
-        
-        message = f"Product {product.get('name', product_id)} is {'available' if is_available else 'out of stock'}"
-        if is_available and quantity_available > 0:
-            message += f" ({quantity_available} in stock)"
-        
-        return {
-            'success': True,
-            'data': availability_info,
-            'message': message
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error checking product availability: {str(e)}'
-        }
+
 
 
 @tool
@@ -153,10 +102,7 @@ def find_substitutes(product_id: str, max_price: Optional[float] = None, user_id
         
         # Get user preferences for personalized suggestions
         user_preferences = {}
-        if user_id:
-            pref_result = get_user_preferences(user_id)
-            if pref_result['success']:
-                user_preferences = pref_result['data']
+        # Note: get_user_preferences function was removed, so skipping user preferences
         
         # Build filter expression
         filter_expr = Attr("category").eq(original_category)
@@ -427,66 +373,7 @@ def search_grocery_products(query: str, category: Optional[str] = None, max_pric
         }
 
 
-@tool
-def check_item_availability_by_name(item_name: str) -> Dict[str, Any]:
-    """
-    Check availability of a product by name (with fuzzy matching).
-    
-    Args:
-        item_name (str): Product name to check
-        
-    Returns:
-        Dict[str, Any]: Standardized response with availability status
-    """
-    try:
-        # Search for the product by name
-        search_result = search_products(item_name, limit=5)
-        
-        if not search_result['success'] or not search_result['data']:
-            return {
-                'success': False,
-                'data': None,
-                'message': f"Could not find product '{item_name}' in catalog"
-            }
-        
-        products = search_result['data']
-        available_products = []
-        out_of_stock_products = []
-        
-        for product in products:
-            if product.get('in_stock', False):
-                available_products.append(product)
-            else:
-                out_of_stock_products.append(product)
-        
-        availability_summary = {
-            'search_term': item_name,
-            'available_products': available_products,
-            'out_of_stock_products': out_of_stock_products,
-            'total_found': len(products),
-            'available_count': len(available_products),
-            'out_of_stock_count': len(out_of_stock_products)
-        }
-        
-        if available_products:
-            message = f"Yes, {item_name} is available. Found {len(available_products)} matching products in stock."
-        else:
-            message = f"Sorry, {item_name} is currently out of stock."
-            if out_of_stock_products:
-                message += f" Found {len(out_of_stock_products)} matching products but they're not available."
-        
-        return {
-            'success': True,
-            'data': availability_summary,
-            'message': message
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error checking item availability: {str(e)}'
-        }
+
 
 
 # Legacy compatibility functions for existing code

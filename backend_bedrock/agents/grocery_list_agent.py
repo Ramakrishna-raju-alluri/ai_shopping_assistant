@@ -15,6 +15,7 @@ from tools.grocery.registry import GROCERY_TOOL_FUNCTIONS
 
 from strands import Agent, tool
 from strands.models import BedrockModel
+from strands.handlers import PrintingCallbackHandler
 from dotenv import load_dotenv
 
 # Import structured output models and detection utilities
@@ -95,7 +96,8 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
             model=model_to_use,
             system_prompt=GROCERY_SYSTEM_PROMPT,
             tools=all_tools,
-            state={"actor_id": actor_id, "session_id": session_id}
+            state={"actor_id": actor_id, "session_id": session_id},
+            callback_handler=PrintingCallbackHandler()
         )
         print(f"🧠 Grocery agent created with memory: actor_id={actor_id}, session_id={session_id}")
     else:
@@ -108,6 +110,7 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
             ),
             system_prompt=GROCERY_SYSTEM_PROMPT,
             tools=all_tools,
+            callback_handler=PrintingCallbackHandler()
         )
         print(f"🤖 Grocery agent created without memory")
     
@@ -116,22 +119,25 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
     # The cart operations will automatically use user_id as session_id when none is provided
     combined_prompt = f"User ID: {user_id}. Request: {query}"
     
-    # Check if structured output is needed based on keywords
-    if should_use_structured_output(query):
-        try:
-            # Use structured output for summaries/reports
-            structured_response = agent.structured_output(
-                output_model=GrocerySummary,
-                prompt=combined_prompt
-            )
-            # Convert to JSON string for consistent return type
-            return structured_response.model_dump_json()
-        except Exception as e:
-            # Fallback to text response on error
-            print(f"Structured output failed for grocery agent: {e}")
-            response = agent(combined_prompt)
-            return str(response)
-    else:
-        # Use regular text response for simple queries
-        response = agent(combined_prompt)
-        return str(response)
+    response = agent(combined_prompt)
+    return str(response)
+
+    # # Check if structured output is needed based on keywords
+    # if should_use_structured_output(query):
+    #     try:
+    #         # Use structured output for summaries/reports
+    #         structured_response = agent.structured_output(
+    #             output_model=GrocerySummary,
+    #             prompt=combined_prompt
+    #         )
+    #         # Convert to JSON string for consistent return type
+    #         return structured_response.model_dump_json()
+    #     except Exception as e:
+    #         # Fallback to text response on error
+    #         print(f"Structured output failed for grocery agent: {e}")
+    #         response = agent(combined_prompt)
+    #         return str(response)
+    # else:
+    #     # Use regular text response for simple queries
+    #     response = agent(combined_prompt)
+    #     return str(response)

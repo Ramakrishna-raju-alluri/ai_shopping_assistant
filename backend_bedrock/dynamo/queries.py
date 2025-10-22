@@ -2,8 +2,10 @@
 import boto3
 import os
 from boto3.dynamodb.conditions import Key, Attr
-from .client import dynamodb, USER_TABLE, PRODUCT_TABLE, RECIPE_TABLE, PROMO_TABLE
-
+try:
+    from .client import dynamodb, USER_TABLE, PRODUCT_TABLE, RECIPE_TABLE, PROMO_TABLE
+except ImportError:
+    from client import dynamodb, USER_TABLE, PRODUCT_TABLE, RECIPE_TABLE, PROMO_TABLE
 # --- USER FUNCTIONS ---
 def get_user_profile(user_id):
     table = dynamodb.Table(USER_TABLE)

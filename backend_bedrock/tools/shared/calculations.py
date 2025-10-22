@@ -26,15 +26,17 @@ except ImportError:
         from dynamo.client import dynamodb, PRODUCT_TABLE
         from tools.shared.product_catalog import get_all_products_raw
     except ImportError:
+        print("⚠️ Error importing database modules in calculations.py - using fallback")
+        #sys.exit(1)
         # Fallback for testing
-        import boto3
-        try:
-            dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        except:
-            dynamodb = None
-        PRODUCT_TABLE = "mock-products2_with_calories"
-        def get_all_products_raw():
-            return []
+        # import boto3
+        # try:
+        #     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        # except:
+        #     dynamodb = None
+        # PRODUCT_TABLE = "mock-products2_with_calories"
+        # def get_all_products_raw():
+        #     return []
 
 
 def convert_decimal_to_float(obj):
@@ -48,7 +50,7 @@ def convert_decimal_to_float(obj):
         return [convert_decimal_to_float(item) for item in obj]
     return obj
 
-@tool
+
 def get_product_mapping(products_data: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     """
     Create a mapping of product names to product data for efficient lookups.
@@ -123,18 +125,18 @@ def calculate_cost(items: Union[List[str], List[Dict[str, Any]], Dict[str, int]]
         # Get product data
         products_data = get_all_products_raw()
         
-        if not products_data:
-            # Fallback to mock data
-            products_data = [
-                {"name": "Large Eggs", "price": 3.99, "item_id": "eggs_001"},
-                {"name": "Whole Milk", "price": 4.29, "item_id": "milk_001"},
-                {"name": "White Bread", "price": 2.49, "item_id": "bread_001"},
-                {"name": "Chicken Breast", "price": 6.99, "item_id": "chicken_001"},
-                {"name": "Organic Tomatoes", "price": 2.99, "item_id": "tomatoes_001"},
-                {"name": "Organic Spinach", "price": 3.99, "item_id": "spinach_001"},
-                {"name": "Organic Onions", "price": 1.99, "item_id": "onions_001"},
-                {"name": "Organic Carrots", "price": 2.49, "item_id": "carrots_001"}
-            ]
+        # if not products_data:
+        #     # Fallback to mock data
+        #     products_data = [
+        #         {"name": "Large Eggs", "price": 3.99, "item_id": "eggs_001"},
+        #         {"name": "Whole Milk", "price": 4.29, "item_id": "milk_001"},
+        #         {"name": "White Bread", "price": 2.49, "item_id": "bread_001"},
+        #         {"name": "Chicken Breast", "price": 6.99, "item_id": "chicken_001"},
+        #         {"name": "Organic Tomatoes", "price": 2.99, "item_id": "tomatoes_001"},
+        #         {"name": "Organic Spinach", "price": 3.99, "item_id": "spinach_001"},
+        #         {"name": "Organic Onions", "price": 1.99, "item_id": "onions_001"},
+        #         {"name": "Organic Carrots", "price": 2.49, "item_id": "carrots_001"}
+        #     ]
         
         total_cost = 0.0
         item_breakdown = []
@@ -259,18 +261,18 @@ def calculate_calories(items: Union[List[str], List[Dict[str, Any]]]) -> Dict[st
         # Get product data
         products_data = get_all_products_raw()
         
-        if not products_data:
-            # Fallback to mock data with calories
-            products_data = [
-                {"name": "Large Eggs", "calories": 70, "calories_per_unit": 70},
-                {"name": "Whole Milk", "calories": 150, "calories_per_unit": 150},
-                {"name": "White Bread", "calories": 80, "calories_per_unit": 80},
-                {"name": "Chicken Breast", "calories": 165, "calories_per_unit": 165},
-                {"name": "Organic Tomatoes", "calories": 18, "calories_per_unit": 18},
-                {"name": "Organic Spinach", "calories": 7, "calories_per_unit": 7},
-                {"name": "Organic Onions", "calories": 40, "calories_per_unit": 40},
-                {"name": "Organic Carrots", "calories": 41, "calories_per_unit": 41}
-            ]
+        # if not products_data:
+        #     # Fallback to mock data with calories
+        #     products_data = [
+        #         {"name": "Large Eggs", "calories": 70, "calories_per_unit": 70},
+        #         {"name": "Whole Milk", "calories": 150, "calories_per_unit": 150},
+        #         {"name": "White Bread", "calories": 80, "calories_per_unit": 80},
+        #         {"name": "Chicken Breast", "calories": 165, "calories_per_unit": 165},
+        #         {"name": "Organic Tomatoes", "calories": 18, "calories_per_unit": 18},
+        #         {"name": "Organic Spinach", "calories": 7, "calories_per_unit": 7},
+        #         {"name": "Organic Onions", "calories": 40, "calories_per_unit": 40},
+        #         {"name": "Organic Carrots", "calories": 41, "calories_per_unit": 41}
+        #     ]
         
         product_mapping = get_product_mapping(products_data)
         
@@ -358,18 +360,18 @@ def calculate_nutrition(items: Union[List[str], List[Dict[str, Any]]]) -> Dict[s
         # Get product data
         products_data = get_all_products_raw()
         
-        if not products_data:
-            # Fallback to mock data with nutrition info
-            products_data = [
-                {"name": "Large Eggs", "calories": 70, "protein": 6, "carbs": 1, "fat": 5},
-                {"name": "Whole Milk", "calories": 150, "protein": 8, "carbs": 12, "fat": 8},
-                {"name": "White Bread", "calories": 80, "protein": 3, "carbs": 15, "fat": 1},
-                {"name": "Chicken Breast", "calories": 165, "protein": 31, "carbs": 0, "fat": 4},
-                {"name": "Organic Tomatoes", "calories": 18, "protein": 1, "carbs": 4, "fat": 0},
-                {"name": "Organic Spinach", "calories": 7, "protein": 1, "carbs": 1, "fat": 0},
-                {"name": "Organic Onions", "calories": 40, "protein": 1, "carbs": 9, "fat": 0},
-                {"name": "Organic Carrots", "calories": 41, "protein": 1, "carbs": 10, "fat": 0}
-            ]
+        # if not products_data:
+        #     # Fallback to mock data with nutrition info
+        #     products_data = [
+        #         {"name": "Large Eggs", "calories": 70, "protein": 6, "carbs": 1, "fat": 5},
+        #         {"name": "Whole Milk", "calories": 150, "protein": 8, "carbs": 12, "fat": 8},
+        #         {"name": "White Bread", "calories": 80, "protein": 3, "carbs": 15, "fat": 1},
+        #         {"name": "Chicken Breast", "calories": 165, "protein": 31, "carbs": 0, "fat": 4},
+        #         {"name": "Organic Tomatoes", "calories": 18, "protein": 1, "carbs": 4, "fat": 0},
+        #         {"name": "Organic Spinach", "calories": 7, "protein": 1, "carbs": 1, "fat": 0},
+        #         {"name": "Organic Onions", "calories": 40, "protein": 1, "carbs": 9, "fat": 0},
+        #         {"name": "Organic Carrots", "calories": 41, "protein": 1, "carbs": 10, "fat": 0}
+        #     ]
         
         product_mapping = get_product_mapping(products_data)
         

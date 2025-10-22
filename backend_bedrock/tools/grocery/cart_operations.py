@@ -38,37 +38,38 @@ except ImportError:
         from tools.shared.product_catalog import search_products, check_product_availability
         from tools.shared.calculations import calculate_cart_total_session
     except ImportError:
+        print("⚠️ Error importing database modules in cart operations.py")
+        #sys.exit(1)
         # Fallback - create DynamoDB resource with explicit credentials from environment
-        import boto3
-        try:
-            # Try to create DynamoDB resource with environment credentials
-            dynamodb = boto3.resource(
-                "dynamodb", 
-                region_name=os.getenv("AWS_DEFAULT_REGION", "us-east-1"),
-                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
-            )
-            print(f"✅ DynamoDB resource created with explicit credentials")
-        except Exception as e:
-            print(f"❌ Failed to create DynamoDB resource: {e}")
-            dynamodb = None
+        # import boto3
+        # try:
+        #     # Try to create DynamoDB resource with environment credentials
+        #     dynamodb = boto3.resource(
+        #         "dynamodb", 
+        #         region_name=os.getenv("AWS_DEFAULT_REGION", "us-east-1"),
+        #         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        #         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
+        #     )
+        #     print(f"✅ DynamoDB resource created with explicit credentials")
+        # except Exception as e:
+        #     print(f"❌ Failed to create DynamoDB resource: {e}")
+        #     dynamodb = None
         
-        # Fallback cart table name
-        CART_TABLE = os.getenv("CART_TABLE", "user_carts")
+        # # Fallback cart table name
+        # CART_TABLE = os.getenv("CART_TABLE", "user_carts")
         
-        def get_user_profile_raw(user_id):
-            return {"budget_limit": 100}
-        def search_products(query, limit=5):
-            return {"success": True, "data": [{"name": "Sample Product", "price": 2.99, "in_stock": True}]}
-        def check_product_availability(product_name):
-            return {"success": True, "data": {"in_stock": True}}
-        def calculate_cart_total_session(session_id, items):
-            return {"total_cost": 0, "item_count": 0}
+        # def get_user_profile_raw(user_id):
+        #     return {"budget_limit": 100}
+        # def search_products(query, limit=5):
+        #     return {"success": True, "data": [{"name": "Sample Product", "price": 2.99, "in_stock": True}]}
+        # def check_product_availability(product_name):
+        #     return {"success": True, "data": {"in_stock": True}}
+        # def calculate_cart_total_session(session_id, items):
+        #     return {"total_cost": 0, "item_count": 0}
 
 # In-memory cart storage as fallback
 _cart_storage = {}
 
-@tool
 def create_cart_table_if_not_exists():
     """Create the cart table if it doesn't exist."""
     try:
@@ -99,7 +100,7 @@ def convert_decimal_to_float(obj):
         return [convert_decimal_to_float(item) for item in obj]
     return obj
 
-@tool
+
 def save_cart_item(session_id: str, user_id: str, item: Dict[str, Any]) -> bool:
     """
     Save an item to the user's cart session.
@@ -182,14 +183,8 @@ def get_cart_items(session_id: str) -> List[Dict[str, Any]]:
         List[Dict[str, Any]]: List of cart items
     """
     try:
-        if not create_cart_table_if_not_exists():
-            # Use in-memory storage as fallback
-            print(f"🔍 GET_CART_ITEMS: Getting cart items for session_id: {session_id}")
-            print(f"🔍 GET_CART_ITEMS: Current _cart_storage keys: {list(_cart_storage.keys())}")
-            items = _cart_storage.get(session_id, [])
-            print(f"🔍 GET_CART_ITEMS: Found {len(items)} items in cart: {items}")
-            return items
-            
+        print(f"🔍 GET_CART_ITEMS: Getting cart items for session_id: {session_id}")
+        
         table = dynamodb.Table(CART_TABLE)
         
         # Query by session_id (partition key)
@@ -198,12 +193,16 @@ def get_cart_items(session_id: str) -> List[Dict[str, Any]]:
         )
         
         items = response.get("Items", [])
+        print(f"🔍 GET_CART_ITEMS: Found {len(items)} items in DynamoDB")
         
         # Convert Decimal to float for JSON serialization
-        return convert_decimal_to_float(items)
+        converted_items = convert_decimal_to_float(items)
+        print(f"🔍 GET_CART_ITEMS: Returning {len(converted_items)} items: {[item.get('product_name', 'Unknown') for item in converted_items]}")
+        
+        return converted_items
         
     except Exception as e:
-        print(f"Error getting cart items: {e}")
+        print(f"🔍 Error getting cart items: {e}")
         return []
 
 @tool
@@ -219,29 +218,30 @@ def remove_cart_item(session_id: str, item_id: str) -> bool:
         bool: Success status
     """
     try:
-        if not create_cart_table_if_not_exists():
-            # Use in-memory storage as fallback
-            print(f"Removing item {item_id} from session_id: {session_id}")
-            if session_id in _cart_storage:
-                _cart_storage[session_id] = [
-                    item for item in _cart_storage[session_id] 
-                    if item.get("item_id") != item_id
-                ]
-                print(f"Updated cart after removal: {_cart_storage[session_id]}")
-            return True
-            
+        print(f"🗑️ REMOVE_CART_ITEM: Removing item {item_id} from session_id: {session_id}")
+        
         table = dynamodb.Table(CART_TABLE)
         
         # Delete using composite primary key (session_id + item_id)
-        table.delete_item(Key={
-            "session_id": session_id,
-            "item_id": item_id
-        })
+        response = table.delete_item(
+            Key={
+                "session_id": session_id,
+                "item_id": item_id
+            },
+            ReturnValues="ALL_OLD"  # Return the deleted item to confirm it existed
+        )
         
-        return True
+        # Check if an item was actually deleted
+        deleted_item = response.get("Attributes")
+        if deleted_item:
+            print(f"🗑️ Successfully deleted item: {deleted_item.get('product_name', item_id)}")
+            return True
+        else:
+            print(f"🗑️ No item found with item_id: {item_id}")
+            return False
         
     except Exception as e:
-        print(f"Error removing cart item: {e}")
+        print(f"🗑️ Error removing cart item: {e}")
         return False
 
 
@@ -361,7 +361,7 @@ def remove_from_cart(user_id: str, product_id: str, session_id: str = None) -> D
     
     Args:
         user_id (str): User identifier
-        product_id (str): Product ID to remove
+        product_id (str): Product ID or name to remove
         session_id (str): Session ID for cart storage
         
     Returns:
@@ -375,28 +375,60 @@ def remove_from_cart(user_id: str, product_id: str, session_id: str = None) -> D
         
         print(f"🗑️ REMOVE_FROM_CART called: user_id={user_id}, product_id={product_id}, session_id={session_id}")
         
-        # Remove item from cart
-        success = remove_cart_item(session_id, product_id)
+        # Get current cart items to find the matching item
+        current_items = get_cart_items(session_id)
+        print(f"🗑️ Current cart items: {current_items}")
+        
+        # Find the item to remove by matching product_id or product name
+        item_to_remove = None
+        for item in current_items:
+            item_id = item.get("item_id", "")
+            product_name = item.get("product_name", "").lower()
+            
+            # Match by exact item_id or by product name (case-insensitive)
+            if (item_id == product_id or 
+                product_name == product_id.lower() or 
+                product_id.lower() in product_name):
+                item_to_remove = item
+                break
+        
+        if not item_to_remove:
+            return {
+                'success': False,
+                'data': None,
+                'message': f"Item '{product_id}' not found in cart"
+            }
+        
+        actual_item_id = item_to_remove.get("item_id")
+        product_name = item_to_remove.get("product_name", product_id)
+        
+        print(f"🗑️ Found item to remove: {actual_item_id} ({product_name})")
+        
+        # Remove item from cart using the actual item_id
+        success = remove_cart_item(session_id, actual_item_id)
         
         if success:
             # Get updated cart summary
             updated_items = get_cart_items(session_id)
             cart_total = calculate_cart_total_session(session_id, updated_items)
             
+            print(f"🗑️ Successfully removed {product_name}. New cart total: ${cart_total.get('total_cost', 0):.2f}")
+            
             return {
                 'success': True,
                 'data': {
-                    'removed_item_id': product_id,
+                    'removed_item_id': actual_item_id,
+                    'removed_product_name': product_name,
                     'cart_total': cart_total.get("total_cost", 0),
                     'items_remaining': cart_total.get("item_count", 0)
                 },
-                'message': f"Removed item {product_id} from cart"
+                'message': f"Removed {product_name} from cart"
             }
         else:
             return {
                 'success': False,
                 'data': None,
-                'message': f"Failed to remove item {product_id} from cart"
+                'message': f"Failed to remove {product_name} from cart"
             }
         
     except Exception as e:

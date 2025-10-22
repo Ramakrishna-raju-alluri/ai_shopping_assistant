@@ -27,15 +27,17 @@ except ImportError:
         from dynamo.client import dynamodb, NUTRITION_TABLE
         from tools.shared.calculations import calculate_calories
     except ImportError:
+        print("⚠️ Error importing database modules in calorie tracking.py")
+        #sys.exit(1)
         # Fallback for testing
-        import boto3
-        try:
-            dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        except:
-            dynamodb = None
-        NUTRITION_TABLE = "nutrition_calendar"
-        def calculate_calories(items):
-            return {"success": True, "data": {"total_calories": 400}}
+        # import boto3
+        # try:
+        #     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        # except:
+        #     dynamodb = None
+        # NUTRITION_TABLE = "nutrition_calendar"
+        # def calculate_calories(items):
+        #     return {"success": True, "data": {"total_calories": 400}}
 
 
 def _table():

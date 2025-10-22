@@ -25,6 +25,7 @@ from strands import Agent, tool
 from strands.models import BedrockModel
 from strands.agent.conversation_manager import SummarizingConversationManager
 from strands.hooks import AgentInitializedEvent, HookProvider, HookRegistry, MessageAddedEvent
+from strands.handlers import PrintingCallbackHandler
 
 # Import AgentCore Memory for shared memory
 try:
@@ -99,13 +100,13 @@ except ImportError:
         import grocery_list_agent
 
 # Import output detection utilities for structured output routing
-try:
-    from backend_bedrock.utils.output_detector import should_use_structured_output, get_output_type
-except ImportError:
-    try:
-        from utils.output_detector import should_use_structured_output, get_output_type
-    except ImportError:
-        from output_detector import should_use_structured_output, get_output_type
+# try:
+#     from backend_bedrock.utils.output_detector import should_use_structured_output, get_output_type
+# except ImportError:
+#     try:
+#         from utils.output_detector import should_use_structured_output, get_output_type
+#     except ImportError:
+#         from output_detector import should_use_structured_output, get_output_type
 
 # Import shared memory hook
 try:
@@ -120,18 +121,30 @@ ORCHESTRATOR_PROMPT = """
 You are an orchestrator agent that routes user requests to specialized agents based on the request type while maintaining shared context across all interactions.
 
 ROUTING GUIDELINES:
-- For meal planning, recipe creation, and food-related requests → use `meal_planner_wrapper`
-- For nutrition tracking, calorie counting, daily meal logging, and health goals → use `health_planner_wrapper`  
-- For product availability, stock checks, store information, and simple catalog queries → use `simple_query_wrapper`
-- For grocery cart operations (add/remove items), shopping cart management, and grocery list building → use `grocery_list_wrapper`
+- For meal planning and recipe creation, use `meal_planner_wrapper`
+- For nutrition tracking, calorie counting, daily meal logging, and health goals, use `health_planner_wrapper`  
+- For product availability, stock checks, store information, user profile related qeuries, and simple catalog queries, use `simple_query_wrapper`
+- For grocery cart operations (add/remove items), shopping cart management, and grocery list building, use `grocery_list_wrapper`
 - For general questions not requiring specialized tools, handle directly with your knowledge
+
+CRITICAL ROUTING RULES:
+1. NEVER call the same agent wrapper multiple times for a single user request
+2. When users ask for multiple items (e.g., "2 breakfast options", "3 dinner recipes"), make ONE call to the appropriate agent with the complete request
+3. The specialized agents are designed to handle multiple items internally - do not split requests
+4. Each agent wrapper should be called AT MOST ONCE per user query
+
+EXAMPLES:
+- "I want 2 breakfast options" → ONE call to meal_planner_wrapper with full query
+- "Give me 3 dinner recipes" → ONE call to meal_planner_wrapper with full query  
+- "Add apples and bananas to cart" → ONE call to grocery_list_wrapper with full query
+- "Check if eggs and milk are available" → ONE call to simple_query_wrapper with full query
 
 SHARED CONTEXT AWARENESS:
 - All agents share the same session memory, so they can reference previous interactions
 - When routing to agents, include relevant context from the conversation
 - Help users understand connections between different agent capabilities
 
-If user's query requires multiple 'agents', use any combination of the above to answer.
+If user's query requires multiple different agent types, use the appropriate combination, but NEVER call the same agent twice.
 Always pass the user_id and the complete user query to the selected agent.
 """
 
@@ -145,12 +158,7 @@ conversation_manager = SummarizingConversationManager(
 @tool
 def meal_planner_wrapper(user_id: str, query: str) -> str:
     """Wrapper for meal planner agent with memory parameters and structured output support"""
-    # Detect if structured output is needed and log routing decision
-    use_structured = should_use_structured_output(query)
-    output_type = get_output_type(query, 'meal')
-    
-    routing_logger.info(f"Meal Planner - User: {user_id}, Query: '{query[:50]}...', "
-                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    print(f"🍽️ MEAL_PLANNER_WRAPPER called with user_id: {user_id}, query: {query}")
     
     if MEMORY_AVAILABLE:
         return meal_planner_agent.meal_planner_agent(
@@ -171,11 +179,11 @@ def grocery_list_wrapper(user_id: str, query: str) -> str:
     print(f"🔍 GROCERY_LIST_WRAPPER called with user_id: {user_id}, query: {query[:50]}...")
     
     # Detect if structured output is needed and log routing decision
-    use_structured = should_use_structured_output(query)
-    output_type = get_output_type(query, 'grocery')
+    # use_structured = should_use_structured_output(query)
+    # output_type = get_output_type(query, 'grocery')
     
-    routing_logger.info(f"Grocery List - User: {user_id}, Query: '{query[:50]}...', "
-                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    # routing_logger.info(f"Grocery List - User: {user_id}, Query: '{query[:50]}...', "
+    #                    f"Structured Output: {use_structured}, Output Type: {output_type}")
     
     if MEMORY_AVAILABLE:
         return grocery_list_agent.grocery_list_agent(
@@ -193,12 +201,7 @@ def grocery_list_wrapper(user_id: str, query: str) -> str:
 @tool
 def health_planner_wrapper(user_id: str, query: str) -> str:
     """Wrapper for health planner agent with memory parameters and structured output support"""
-    # Detect if structured output is needed and log routing decision
-    use_structured = should_use_structured_output(query)
-    output_type = get_output_type(query, 'health')
-    
-    routing_logger.info(f"Health Planner - User: {user_id}, Query: '{query[:50]}...', "
-                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    print(f"🏥 HEALTH_PLANNER_WRAPPER called with user_id: {user_id}, query: {query}")
     
     if MEMORY_AVAILABLE:
         return health_planner_agent.health_planner_agent(
@@ -216,12 +219,7 @@ def health_planner_wrapper(user_id: str, query: str) -> str:
 @tool
 def simple_query_wrapper(user_id: str, query: str) -> str:
     """Wrapper for simple query agent with memory parameters and structured output support"""
-    # Simple query agent typically doesn't use structured output, but log for consistency
-    use_structured = should_use_structured_output(query)
-    output_type = get_output_type(query, 'simple')
-    
-    routing_logger.info(f"Simple Query - User: {user_id}, Query: '{query[:50]}...', "
-                       f"Structured Output: {use_structured}, Output Type: {output_type}")
+    print(f"❓ SIMPLE_QUERY_WRAPPER called with user_id: {user_id}, query: {query}")
     
     if MEMORY_AVAILABLE:
         return simple_query_agent.simple_query_agent(
@@ -247,6 +245,7 @@ orchestrator_agent = Agent(
         grocery_list_wrapper
     ],
     conversation_manager=conversation_manager,
+    callback_handler=PrintingCallbackHandler(),
 )
 
 print("🚀 Multi-Agent System with Shared Memory is ready!")

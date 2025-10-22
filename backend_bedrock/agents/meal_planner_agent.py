@@ -2,6 +2,7 @@ import sys
 import os
 from pathlib import Path
 from strands import Agent, tool
+from strands.handlers import PrintingCallbackHandler
 from dotenv import load_dotenv
 load_dotenv()
 # Add parent directory to path for imports when running directly
@@ -36,20 +37,30 @@ except ImportError:
 MEAL_PLANNER_PROMPT = """
 You are a specialized meal planning assistant. Your goal is to generate comprehensive meal plans with detailed recipes.
 
-For structured meal plan outputs, provide:
+IMPORTANT: When users request multiple recipes (e.g., "2 breakfast options", "3 dinner recipes"), provide DIVERSE and DIFFERENT recipes, not variations of the same dish.
+
+For meal planning requests, provide:
 1. Detailed recipes with ingredients, instructions, prep/cook times, and nutritional information
 2. Complete shopping lists with quantities needed for all recipes
 3. Dietary restriction considerations and ingredient substitutions
 4. Nutritional balance analysis and cost estimates
 
+RECIPE DIVERSITY GUIDELINES:
+- For multiple recipe requests, ensure each recipe has different main ingredients
+- Vary cooking methods (grilled, baked, stir-fried, etc.)
+- Include different cuisine types when possible
+- Avoid repetitive ingredient combinations
+
 To do this, you must follow these steps:
-1. Fetch the user's profile to understand their preferences and constraints.
-2. Fetch available items from the store.
-3. Generate a list of three distinct meal recipes (breakfast, lunch, dinner) based on the user's preferences and available items.
-4. For each recipe, calculate the estimated cost and calories using the provided tools.
-5. Create a comprehensive shopping list from all recipe ingredients.
-6. Provide ingredient substitutions for dietary restrictions or availability issues.
-7. Calculate total nutritional summary and meal balance score.
+1. ALWAYS Fetch the user's profile to understand their preferences and constraints using 'fetch_user_profile'.
+2. ALWAYS get the available ingredients in stock using 'fetch_available_items'
+3. Suggest recipes/meals based on the user's preferences and ingredients availability 
+4. Try to get diverse recipe options based on available ingredients.
+5. Select recipes that offer variety in ingredients, cooking methods, and flavors.
+6. For each recipe, calculate the estimated cost and calories using the provided tools.
+7. Create a comprehensive shopping list from all recipe ingredients.
+8. Provide ingredient substitutions for dietary restrictions or availability issues.
+9. Calculate total calorie summary and meal balance score.
 """
 
 @tool
@@ -90,37 +101,42 @@ def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id:
             model=model_to_use,
             system_prompt=MEAL_PLANNER_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS,
-            state={"actor_id": actor_id, "session_id": session_id}
+            state={"actor_id": actor_id, "session_id": session_id},
+            callback_handler=PrintingCallbackHandler()
         )
     else:
         planner = Agent(
             model=model_to_use,
             system_prompt=MEAL_PLANNER_PROMPT,
-            tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS
+            tools=SHARED_TOOL_FUNCTIONS + MEAL_PLANNING_TOOL_FUNCTIONS,
+            callback_handler=PrintingCallbackHandler()
         )
     
     # The combined prompt provides context for the specialized agent
     combined_prompt = f"User ID: {user_id}. Request: {query}"
     
+    response = planner(combined_prompt)
+    return str(response)
+
     # Check if structured output is needed based on keywords
-    if should_use_structured_output and should_use_structured_output(query) and MealPlan:
-        try:
-            # Use structured output for meal plans and recipe summaries
-            structured_response = planner.structured_output(
-                output_model=MealPlan,
-                prompt=combined_prompt
-            )
-            # Convert to JSON string for consistent return type
-            return structured_response.model_dump_json()
-        except Exception as e:
-            # Fallback to text response on error
-            print(f"Structured output failed: {e}")
-            response = planner(combined_prompt)
-            return str(response)
-    else:
-        # Use regular text response for simple queries
-        response = planner(combined_prompt)
-        return str(response)
+    # if should_use_structured_output and should_use_structured_output(query) and MealPlan:
+    #     try:
+    #         # Use structured output for meal plans and recipe summaries
+    #         structured_response = planner.structured_output(
+    #             output_model=MealPlan,
+    #             prompt=combined_prompt
+    #         )
+    #         # Convert to JSON string for consistent return type
+    #         return structured_response.model_dump_json()
+    #     except Exception as e:
+    #         # Fallback to text response on error
+    #         print(f"Structured output failed: {e}")
+    #         response = planner(combined_prompt)
+    #         return str(response)
+    # else:
+    #     # Use regular text response for simple queries
+    #     response = planner(combined_prompt)
+    #     return str(response)
 
 # def main():
 #     """Test the meal planner agent"""

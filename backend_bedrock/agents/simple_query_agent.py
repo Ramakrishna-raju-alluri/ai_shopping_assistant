@@ -1,4 +1,5 @@
 from strands import Agent, tool
+from strands.handlers import PrintingCallbackHandler
 import argparse
 import json
 import os
@@ -84,7 +85,8 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
             model=model_to_use,
             system_prompt=SIMPLE_QUERY_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS,
-            state={"actor_id": actor_id, "session_id": session_id}
+            state={"actor_id": actor_id, "session_id": session_id},
+            callback_handler=PrintingCallbackHandler()
         )
     else:
         agent = Agent(
@@ -94,7 +96,8 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
                 temperature=0.1,
             ),
             system_prompt=SIMPLE_QUERY_PROMPT,
-            tools=SHARED_TOOL_FUNCTIONS
+            tools=SHARED_TOOL_FUNCTIONS,
+            callback_handler=PrintingCallbackHandler()
         )
     
     response = agent(f"User ID: {user_id}. Query: {query}")

@@ -20,23 +20,25 @@ if str(project_root) not in sys.path:
 # Import dependencies with flexible import system
 try:
     from backend_bedrock.tools.shared.calculations import calculate_nutrition, calculate_calories
-    from backend_bedrock.tools.shared.user_profile import get_user_preferences
-    from backend_bedrock.tools.shared.product_catalog import find_products_by_names
+    from backend_bedrock.tools.shared.user_profile import fetch_user_profile
+    from backend_bedrock.tools.shared.product_catalog import search_products
 except ImportError:
     try:
         from tools.shared.calculations import calculate_nutrition, calculate_calories
-        from tools.shared.user_profile import get_user_preferences
-        from tools.shared.product_catalog import find_products_by_names
+        from tools.shared.user_profile import fetch_user_profile
+        from tools.shared.product_catalog import search_products
     except ImportError:
+        print("⚠️ Error importing database modules in nutrition analysis.py")
+        #sys.exit(1)
         # Fallback for testing
-        def calculate_nutrition(items):
-            return {"success": True, "data": {"totals": {"calories": 400, "protein": 25, "carbs": 45, "fat": 12}}}
-        def calculate_calories(items):
-            return {"success": True, "data": {"total_calories": 400}}
-        def get_user_preferences(user_id):
-            return {"success": True, "data": {"allergies": [], "restrictions": []}}
-        def find_products_by_names(names):
-            return {"success": True, "data": []}
+        # def calculate_nutrition(items):
+        #     return {"success": True, "data": {"totals": {"calories": 400, "protein": 25, "carbs": 45, "fat": 12}}}
+        # def calculate_calories(items):
+        #     return {"success": True, "data": {"total_calories": 400}}
+        # def get_user_preferences(user_id):
+        #     return {"success": True, "data": {"allergies": [], "restrictions": []}}
+        # def find_products_by_names(names):
+        #     return {"success": True, "data": []}
 
 
 @tool

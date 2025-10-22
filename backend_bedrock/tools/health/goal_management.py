@@ -27,14 +27,16 @@ except ImportError:
         from dynamo.client import dynamodb
         from tools.health.calorie_tracking import get_calorie_history
     except ImportError:
+        print("⚠️ Error importing database modules in goal management.py")
+        #sys.exit(1)
         # Fallback for testing
-        import boto3
-        try:
-            dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        except:
-            dynamodb = None
-        def get_calorie_history(user_id, date_range):
-            return {"success": True, "data": {"average_daily_calories": 2000}}
+        # import boto3
+        # try:
+        #     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        # except:
+        #     dynamodb = None
+        # def get_calorie_history(user_id, date_range):
+        #     return {"success": True, "data": {"average_daily_calories": 2000}}
 
 # Health goals table
 HEALTH_GOALS_TABLE = "health_goals"

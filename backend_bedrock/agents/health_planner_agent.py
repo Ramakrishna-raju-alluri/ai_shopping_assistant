@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from strands import Agent, tool
 from strands.models import BedrockModel
+from strands.handlers import PrintingCallbackHandler
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -41,7 +42,7 @@ and nutrition totals (calories, protein, carbs, fat). You can:
 - Append a meal to a day
 - Report remaining calories given a daily target
 - Fetch the current plan for a day
-
+- If asked for calorie breakup or calculation of any products, search for the products and get their calorie count
 Always ask for and use an explicit date (YYYY-MM-DD) and user id. If a date is
 missing, request clarification. Keep updates idempotent by re-writing the full day
 plan after changes.
@@ -86,7 +87,8 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
             model=model_to_use,
             system_prompt=HEALTH_PLANNER_PROMPT,
             tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS,
-            state={"actor_id": actor_id, "session_id": session_id}
+            state={"actor_id": actor_id, "session_id": session_id},
+            callback_handler=PrintingCallbackHandler()
         )
     else:
         planner = Agent(
@@ -96,28 +98,30 @@ def health_planner_agent(user_id: str, query: str, model_id: str = None, actor_i
                 temperature=0.1,
             ),
             system_prompt=HEALTH_PLANNER_PROMPT,
-            tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS
+            tools=SHARED_TOOL_FUNCTIONS + HEALTH_TOOL_FUNCTIONS,
+            callback_handler=PrintingCallbackHandler()
         )
-    
+    response = planner(combined_prompt)
+    return str(response)
     # Check if structured output is needed based on keywords
-    if should_use_structured_output and HealthSummary and should_use_structured_output(query):
-        try:
-            # Use structured output for summaries/reports
-            structured_response = planner.structured_output(
-                output_model=HealthSummary,
-                prompt=f"User ID: {user_id}. Request: {query}"
-            )
-            # Convert to JSON string for consistent return type
-            return structured_response.model_dump_json()
-        except Exception as e:
-            # Fallback to text response on error
-            print(f"Structured output failed: {e}")
-            response = planner(f"User ID: {user_id}. Request: {query}")
-            return str(response)
-    else:
-        # Use regular text response for simple queries
-        response = planner(f"User ID: {user_id}. Request: {query}")
-        return str(response)
+    # if should_use_structured_output and HealthSummary and should_use_structured_output(query):
+    #     try:
+    #         # Use structured output for summaries/reports
+    #         structured_response = planner.structured_output(
+    #             output_model=HealthSummary,
+    #             prompt=f"User ID: {user_id}. Request: {query}"
+    #         )
+    #         # Convert to JSON string for consistent return type
+    #         return structured_response.model_dump_json()
+    #     except Exception as e:
+    #         # Fallback to text response on error
+    #         print(f"Structured output failed: {e}")
+    #         response = planner(f"User ID: {user_id}. Request: {query}")
+    #         return str(response)
+    # else:
+    #     # Use regular text response for simple queries
+    #     response = planner(f"User ID: {user_id}. Request: {query}")
+    #     return str(response)
 
 
 # def main():

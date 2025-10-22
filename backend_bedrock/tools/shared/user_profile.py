@@ -28,13 +28,15 @@ except ImportError:
         from dynamo.queries import update_user_profile as db_update_user_profile
         from dynamo.queries import create_user_profile as db_create_user_profile
     except ImportError:
+        print("⚠️ Error importing database modules in user profiles.py")
+        #sys.exit(1)
         # Fallback for testing
-        def db_get_user_profile(user_id):
-            return {"diet": "omnivore", "budget_limit": 100, "allergies": [], "restrictions": []}
-        def db_update_user_profile(user_id, profile_data):
-            return profile_data
-        def db_create_user_profile(user_id, profile_data):
-            return profile_data
+        # def db_get_user_profile(user_id):
+        #     return {"diet": "omnivore", "budget_limit": 100, "allergies": [], "restrictions": []}
+        # def db_update_user_profile(user_id, profile_data):
+        #     return profile_data
+        # def db_create_user_profile(user_id, profile_data):
+        #     return profile_data
 
 
 def convert_decimal_to_float(obj):
@@ -60,11 +62,14 @@ def fetch_user_profile(user_id: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Standardized response with user profile data
     """
+    print(f"🔍 FETCH_USER_PROFILE called with user_id: {user_id}")
     try:
         # Direct database call
         user_profile = db_get_user_profile(user_id)
-        
+        print(f"🔍 Database returned: {user_profile}")
+
         if not user_profile:
+            print(f"❌ No user profile found for user_id: {user_id}")
             return {
                 'success': False,
                 'data': None,
@@ -142,125 +147,7 @@ def update_user_profile(user_id: str, profile_data: Dict[str, Any]) -> Dict[str,
         }
 
 
-@tool
-def get_user_preferences(user_id: str) -> Dict[str, Any]:
-    """
-    Get user dietary preferences and restrictions.
-    
-    Args:
-        user_id (str): The user identifier
-    
-    Returns:
-        Dict[str, Any]: Standardized response with user preferences
-    """
-    try:
-        profile_result = fetch_user_profile(user_id)
-        
-        if not profile_result['success']:
-            return profile_result
-        
-        profile_data = profile_result['data']
-        
-        # Extract preference-specific data
-        preferences = {
-            "diet": profile_data.get("diet"),
-            "allergies": profile_data.get("allergies", []),
-            "restrictions": profile_data.get("restrictions", []),
-            "preferred_cuisines": profile_data.get("preferred_cuisines", []),
-            "disliked_cuisines": profile_data.get("disliked_cuisines", []),
-            "cooking_skill": profile_data.get("cooking_skill"),
-            "cooking_time_preference": profile_data.get("cooking_time_preference"),
-            "kitchen_equipment": profile_data.get("kitchen_equipment", []),
-        }
-        
-        return {
-            'success': True,
-            'data': preferences,
-            'message': 'User preferences retrieved successfully'
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error fetching user preferences: {str(e)}'
-        }
 
-
-@tool
-def get_user_budget_info(user_id: str) -> Dict[str, Any]:
-    """
-    Get user budget information.
-    
-    Args:
-        user_id (str): The user identifier
-    
-    Returns:
-        Dict[str, Any]: Standardized response with budget information
-    """
-    try:
-        profile_result = fetch_user_profile(user_id)
-        
-        if not profile_result['success']:
-            return profile_result
-        
-        profile_data = profile_result['data']
-        
-        # Extract budget-specific data
-        budget_info = {
-            "budget_limit": profile_data.get("budget_limit", 0),
-            "meal_budget": profile_data.get("meal_budget"),
-            "shopping_frequency": profile_data.get("shopping_frequency"),
-        }
-        
-        return {
-            'success': True,
-            'data': budget_info,
-            'message': 'User budget information retrieved successfully'
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error fetching user budget info: {str(e)}'
-        }
-
-
-@tool
-def create_user_profile(user_id: str, profile_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Create a new user profile.
-    
-    Args:
-        user_id (str): The user identifier
-        profile_data (Dict[str, Any]): Initial profile data
-    
-    Returns:
-        Dict[str, Any]: Standardized response with created profile data
-    """
-    try:
-        # Ensure user_id is included in profile data
-        profile_data["user_id"] = user_id
-        
-        # Create profile in database
-        created_profile = db_create_user_profile(user_id, profile_data)
-        
-        # Convert Decimal objects to float for JSON compatibility
-        created_profile = convert_decimal_to_float(created_profile)
-        
-        return {
-            'success': True,
-            'data': created_profile,
-            'message': 'User profile created successfully'
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error creating user profile: {str(e)}'
-        }
 
 
 # Legacy compatibility functions for existing code

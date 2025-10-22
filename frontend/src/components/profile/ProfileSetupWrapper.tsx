@@ -11,7 +11,7 @@ interface ProfileStatus {
   profile_data: any;
 }
 
-const API_BASE_URL = 'http://localhost:8100/api/v1';
+const API_BASE_URL = 'http://127.0.0.1:8100/api/v1';
 
 const ProfileSetupWrapper: React.FC = () => {
   const { user, isNewUser } = useAuth();

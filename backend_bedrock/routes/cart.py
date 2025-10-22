@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
 from backend_bedrock.routes.auth import get_current_user
+import time
 
 # Import cart operations
 try:
@@ -10,6 +11,10 @@ except ImportError:
     from tools.grocery.cart_operations import get_cart_summary, add_to_cart, remove_from_cart
 
 router = APIRouter()
+
+# Simple cache to prevent redundant cart queries
+cart_cache = {}
+CACHE_DURATION = 5  # Cache for 5 seconds
 
 
 class CartItem(BaseModel):
@@ -28,6 +33,17 @@ async def get_cart(current_user: dict = Depends(get_current_user)) -> Dict[str, 
     try:
         user_id = current_user.get("user_id", "default_user")
         session_id = user_id  # Use user_id as session_id for consistency
+        
+        # Check cache first to prevent redundant queries
+        cache_key = f"{user_id}_{session_id}"
+        current_time = time.time()
+        
+        if cache_key in cart_cache:
+            cached_data, cache_time = cart_cache[cache_key]
+            if current_time - cache_time < CACHE_DURATION:
+                print(f"🔍 Frontend GET /cart - CACHED - user_id: {user_id}")
+                return cached_data
+        
         print(f"🔍 Frontend GET /cart - user_id: {user_id}, session_id: {session_id}")
         
         # Get cart summary using the same system agents use
@@ -63,6 +79,9 @@ async def get_cart(current_user: dict = Depends(get_current_user)) -> Dict[str, 
             for item in frontend_items:
                 print(f"    - {item.get('name', 'Unknown')} (qty: {item.get('quantity', 0)})")
             print(f"🔍 Returning cart data with {len(frontend_items)} items")
+            
+            # Cache the result
+            cart_cache[cache_key] = (cart_data, current_time)
             return cart_data
         else:
             print(f"❌ Cart operation failed: {result.get('message', 'Unknown error')}")
@@ -89,6 +108,11 @@ async def add_to_cart_api(item: CartItem, current_user: dict = Depends(get_curre
         user_id = current_user.get("user_id", "default_user")
         session_id = user_id  # Use user_id as session_id for consistency
         print(f"🔍 Frontend POST /cart/add - user_id: {user_id}, session_id: {session_id}, item: {item.item_id}")
+        
+        # Invalidate cache when cart is modified
+        cache_key = f"{user_id}_{session_id}"
+        if cache_key in cart_cache:
+            del cart_cache[cache_key]
         
         # Add item using the same system agents use
         result = add_to_cart(user_id, item.item_id, item.quantity, session_id)
@@ -145,6 +169,11 @@ async def remove_from_cart_api(item_id: str, current_user: dict = Depends(get_cu
         user_id = current_user.get("user_id", "default_user")
         session_id = user_id  # Use user_id as session_id for consistency
         print(f"🔍 Frontend DELETE /cart/remove - user_id: {user_id}, session_id: {session_id}, item_id: {item_id}")
+        
+        # Invalidate cache when cart is modified
+        cache_key = f"{user_id}_{session_id}"
+        if cache_key in cart_cache:
+            del cart_cache[cache_key]
         
         # Remove item using the same system agents use
         result = remove_from_cart(user_id, item_id, session_id)
@@ -215,6 +244,11 @@ async def update_cart_item_api(item: UpdateCartItem, current_user: dict = Depend
         session_id = user_id
         print(f"🔍 Frontend PUT /cart/update - user_id: {user_id}, item_id: {item.item_id}, quantity: {item.quantity}")
         
+        # Invalidate cache when cart is modified
+        cache_key = f"{user_id}_{session_id}"
+        if cache_key in cart_cache:
+            del cart_cache[cache_key]
+        
         # Import the new update function
         from tools.grocery.cart_operations import update_cart_item
         
@@ -273,6 +307,11 @@ async def clear_cart_api(current_user: dict = Depends(get_current_user)) -> Dict
         user_id = current_user.get("user_id", "default_user")
         session_id = user_id
         print(f"🔍 Frontend DELETE /cart/clear - user_id: {user_id}")
+        
+        # Invalidate cache when cart is modified
+        cache_key = f"{user_id}_{session_id}"
+        if cache_key in cart_cache:
+            del cart_cache[cache_key]
         
         # Import clear_cart function
         from tools.grocery.cart_operations import clear_cart

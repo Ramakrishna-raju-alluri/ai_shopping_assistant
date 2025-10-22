@@ -7,6 +7,7 @@ functionality for meal planning agents.
 
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from strands import tool
@@ -21,185 +22,104 @@ if str(project_root) not in sys.path:
 try:
     from backend_bedrock.dynamo.client import dynamodb, RECIPE_TABLE
     from backend_bedrock.tools.shared.user_profile import fetch_user_profile
-    from backend_bedrock.tools.shared.product_catalog import find_products_by_names
+
     from backend_bedrock.tools.shared.calculations import calculate_cost, calculate_nutrition
 except ImportError:
     try:
         from dynamo.client import dynamodb, RECIPE_TABLE
         from tools.shared.user_profile import fetch_user_profile
-        from tools.shared.product_catalog import find_products_by_names
+
         from tools.shared.calculations import calculate_cost, calculate_nutrition
     except ImportError:
+        print("⚠️ Error importing database modules in recipe management.py")
+        #sys.exit(1)
         # Fallback for testing
-        import boto3
-        try:
-            dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        except:
-            dynamodb = None
-        RECIPE_TABLE = "recipes"
-        def fetch_user_profile(user_id):
-            return {"success": True, "data": {"diet": "omnivore", "budget_limit": 100}}
-        def find_products_by_names(names):
-            return {"success": True, "data": []}
-        def calculate_cost(items):
-            return {"success": True, "data": {"total_cost": 0}}
-        def calculate_nutrition(items):
-            return {"success": True, "data": {"totals": {"calories": 0}}}
+        # import boto3
+        # try:
+        #     dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
+        # except:
+        #     dynamodb = None
+        # RECIPE_TABLE = "recipes"
+        # def fetch_user_profile(user_id):
+        #     return {"success": True, "data": {"diet": "omnivore", "budget_limit": 100}}
+        # def find_products_by_names(names):
+        #     return {"success": True, "data": []}
+        # def calculate_cost(items):
+        #     return {"success": True, "data": {"total_cost": 0}}
+        # def calculate_nutrition(items):
+        #     return {"success": True, "data": {"totals": {"calories": 0}}}
 
 
-@tool
-def create_meal_plan(user_id: str, preferences: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Generate meal plans based on user preferences.
+
+
+
+#@tool
+# def suggest_recipes(ingredients: List[str], dietary_restrictions: Optional[List[str]] = None) -> Dict[str, Any]:
+#     """
+#     Suggest recipes based on available ingredients.
     
-    Args:
-        user_id (str): User identifier
-        preferences (Dict[str, Any]): Meal planning preferences
+#     Args:
+#         ingredients (List[str]): Available ingredients
+#         dietary_restrictions (Optional[List[str]]): Dietary restrictions to consider
         
-    Returns:
-        Dict[str, Any]: Standardized response with meal plan
-    """
-    try:
-        # Get user profile
-        profile_result = fetch_user_profile(user_id)
-        if not profile_result['success']:
-            return profile_result
+#     Returns:
+#         Dict[str, Any]: Standardized response with recipe suggestions
+#     """
+#     try:
+#         # Mock recipe suggestions (in real implementation, would query recipe database)
+#         suggested_recipes = []
         
-        user_profile = profile_result['data']
-        
-        # Extract preferences
-        days = preferences.get('days', 7)
-        meals_per_day = preferences.get('meals_per_day', 3)
-        diet_type = preferences.get('diet', user_profile.get('diet', 'omnivore'))
-        budget_limit = preferences.get('budget_limit', user_profile.get('budget_limit', 100))
-        
-        # Mock meal plan generation (in real implementation, would use recipe database)
-        meal_plan = {
-            'user_id': user_id,
-            'duration_days': days,
-            'meals_per_day': meals_per_day,
-            'diet_type': diet_type,
-            'budget_limit': budget_limit,
-            'daily_plans': []
-        }
-        
-        # Generate daily meal plans
-        for day in range(1, days + 1):
-            daily_plan = {
-                'day': day,
-                'meals': [],
-                'daily_cost': 0,
-                'daily_calories': 0
-            }
+#         # Generate mock recipes based on ingredients
+#         for i, ingredient in enumerate(ingredients[:3]):  # Limit to 3 recipes
+#             recipe = {
+#                 'recipe_id': f'recipe_{i+1}',
+#                 'name': f'{ingredient.title()} Special',
+#                 'description': f'Delicious recipe featuring {ingredient}',
+#                 'ingredients': ingredients[:3],  # Use first 3 ingredients
+#                 'instructions': [
+#                     f'Prepare {ingredient}',
+#                     'Combine with other ingredients',
+#                     'Cook according to preference'
+#                 ],
+#                 'prep_time': 15 + (i * 10),
+#                 'cook_time': 20 + (i * 5),
+#                 'servings': 2 + i,
+#                 'difficulty': ['easy', 'medium', 'hard'][i % 3],
+#                 'estimated_cost': 8.0 + (i * 2),
+#                 'estimated_calories': 350 + (i * 50),
+#                 'dietary_tags': ['vegetarian'] if 'meat' not in ingredient.lower() else ['omnivore']
+#             }
             
-            meal_types = ['breakfast', 'lunch', 'dinner'][:meals_per_day]
-            
-            for meal_type in meal_types:
-                # Mock meal generation
-                meal = {
-                    'meal_type': meal_type,
-                    'recipe_name': f"Sample {meal_type.title()}",
-                    'ingredients': ['ingredient1', 'ingredient2'],
-                    'estimated_cost': 5.0,
-                    'estimated_calories': 400,
-                    'prep_time': 30,
-                    'difficulty': 'easy'
-                }
-                daily_plan['meals'].append(meal)
-                daily_plan['daily_cost'] += meal['estimated_cost']
-                daily_plan['daily_calories'] += meal['estimated_calories']
-            
-            meal_plan['daily_plans'].append(daily_plan)
-        
-        # Calculate totals
-        total_cost = sum(day['daily_cost'] for day in meal_plan['daily_plans'])
-        avg_daily_calories = sum(day['daily_calories'] for day in meal_plan['daily_plans']) / days
-        
-        meal_plan['total_cost'] = total_cost
-        meal_plan['average_daily_calories'] = avg_daily_calories
-        meal_plan['within_budget'] = total_cost <= budget_limit
-        
-        return {
-            'success': True,
-            'data': meal_plan,
-            'message': f'Generated {days}-day meal plan with {len(meal_plan["daily_plans"][0]["meals"])} meals per day'
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error creating meal plan: {str(e)}'
-        }
-
-
-@tool
-def suggest_recipes(ingredients: List[str], dietary_restrictions: Optional[List[str]] = None) -> Dict[str, Any]:
-    """
-    Suggest recipes based on available ingredients.
-    
-    Args:
-        ingredients (List[str]): Available ingredients
-        dietary_restrictions (Optional[List[str]]): Dietary restrictions to consider
-        
-    Returns:
-        Dict[str, Any]: Standardized response with recipe suggestions
-    """
-    try:
-        # Mock recipe suggestions (in real implementation, would query recipe database)
-        suggested_recipes = []
-        
-        # Generate mock recipes based on ingredients
-        for i, ingredient in enumerate(ingredients[:3]):  # Limit to 3 recipes
-            recipe = {
-                'recipe_id': f'recipe_{i+1}',
-                'name': f'{ingredient.title()} Special',
-                'description': f'Delicious recipe featuring {ingredient}',
-                'ingredients': ingredients[:3],  # Use first 3 ingredients
-                'instructions': [
-                    f'Prepare {ingredient}',
-                    'Combine with other ingredients',
-                    'Cook according to preference'
-                ],
-                'prep_time': 15 + (i * 10),
-                'cook_time': 20 + (i * 5),
-                'servings': 2 + i,
-                'difficulty': ['easy', 'medium', 'hard'][i % 3],
-                'estimated_cost': 8.0 + (i * 2),
-                'estimated_calories': 350 + (i * 50),
-                'dietary_tags': ['vegetarian'] if 'meat' not in ingredient.lower() else ['omnivore']
-            }
-            
-            # Filter by dietary restrictions
-            if dietary_restrictions:
-                recipe_compatible = True
-                for restriction in dietary_restrictions:
-                    if restriction.lower() in recipe['name'].lower():
-                        recipe_compatible = False
-                        break
+#             # Filter by dietary restrictions
+#             if dietary_restrictions:
+#                 recipe_compatible = True
+#                 for restriction in dietary_restrictions:
+#                     if restriction.lower() in recipe['name'].lower():
+#                         recipe_compatible = False
+#                         break
                 
-                if recipe_compatible:
-                    suggested_recipes.append(recipe)
-            else:
-                suggested_recipes.append(recipe)
+#                 if recipe_compatible:
+#                     suggested_recipes.append(recipe)
+#             else:
+#                 suggested_recipes.append(recipe)
         
-        return {
-            'success': True,
-            'data': {
-                'recipes': suggested_recipes,
-                'total_found': len(suggested_recipes),
-                'search_ingredients': ingredients,
-                'dietary_restrictions': dietary_restrictions or []
-            },
-            'message': f'Found {len(suggested_recipes)} recipe suggestions using your ingredients'
-        }
+#         return {
+#             'success': True,
+#             'data': {
+#                 'recipes': suggested_recipes,
+#                 'total_found': len(suggested_recipes),
+#                 'search_ingredients': ingredients,
+#                 'dietary_restrictions': dietary_restrictions or []
+#             },
+#             'message': f'Found {len(suggested_recipes)} recipe suggestions using your ingredients'
+#         }
         
-    except Exception as e:
-        return {
-            'success': False,
-            'data': None,
-            'message': f'Error suggesting recipes: {str(e)}'
-        }
+#     except Exception as e:
+#         return {
+#             'success': False,
+#             'data': None,
+#             'message': f'Error suggesting recipes: {str(e)}'
+#         }
 
 
 @tool
