@@ -1,6 +1,7 @@
 # dynamo/queries.py
 import boto3
 import os
+from difflib import SequenceMatcher
 from boto3.dynamodb.conditions import Key, Attr
 from .client import dynamodb, USER_TABLE, PRODUCT_TABLE, RECIPE_TABLE, PROMO_TABLE
 
@@ -47,12 +48,19 @@ def get_products_by_names(product_names):
     response = table.scan()
     all_products = response.get("Items", [])
     
+    def calculate_similarity(str1, str2):
+        """Calculate similarity ratio between two strings using difflib"""
+        return SequenceMatcher(None, str1.lower(), str2.lower()).ratio()
+    
     for ingredient_name in product_names:
+        found_matches = False
+        
         # Try exact match first
         exact_matches = [p for p in all_products if p.get("name", "").lower() == ingredient_name.lower()]
         
         if exact_matches:
             items.extend(exact_matches)
+            found_matches = True
             continue
         
         # Try partial match (ingredient name is contained in product name)
@@ -60,6 +68,7 @@ def get_products_by_names(product_names):
         
         if partial_matches:
             items.extend(partial_matches)
+            found_matches = True
             continue
         
         # Try reverse partial match (product name is contained in ingredient name)
@@ -67,6 +76,7 @@ def get_products_by_names(product_names):
         
         if reverse_matches:
             items.extend(reverse_matches)
+            found_matches = True
             continue
         
         # Try word-based matching
@@ -80,6 +90,35 @@ def get_products_by_names(product_names):
         
         if word_matches:
             items.extend(word_matches)
+            found_matches = True
+            continue
+        
+        # Try fuzzy matching for typos (e.g., "mlk" -> "milk", "strwberry" -> "strawberry")
+        if not found_matches:
+            fuzzy_matches = []
+            for product in all_products:
+                product_name = product.get("name", "").lower()
+                
+                # Calculate similarity between search term and product name
+                name_similarity = calculate_similarity(ingredient_name, product_name)
+                
+                # Also check similarity with individual words in product name
+                max_word_similarity = 0
+                for word in product_name.split():
+                    if len(word) > 2:  # Skip very short words
+                        word_similarity = calculate_similarity(ingredient_name, word)
+                        max_word_similarity = max(max_word_similarity, word_similarity)
+                
+                # Use the higher of the two similarity scores
+                best_similarity = max(name_similarity, max_word_similarity)
+                
+                # If similarity is above threshold, consider it a match
+                if best_similarity >= 0.6:  # 60% similarity threshold
+                    fuzzy_matches.append((product, best_similarity))
+            
+            # Sort by similarity score (highest first) and take top 3 matches
+            fuzzy_matches.sort(key=lambda x: x[1], reverse=True)
+            items.extend([match[0] for match in fuzzy_matches[:3]])
     
     # Remove duplicates based on item_id
     unique_items = []

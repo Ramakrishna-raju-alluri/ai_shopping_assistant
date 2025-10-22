@@ -1,4 +1,4 @@
-default_agent: main
+default_agent: shopping_assistant_ai
 agents:
   shopping_assistant:
     name: shopping_assistant
@@ -46,11 +46,11 @@ agents:
     container_runtime: none
     source_path: C:\Users\Administrator\Desktop\Coles_2\coles-shopping-assistant\my-agent
     aws:
-      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-7cdfc231f0
-      execution_role_auto_create: false
-      account: '799440957487'
+      execution_role: null
+      execution_role_auto_create: true
+      account: 058264125602
       region: us-east-1
-      ecr_repository: 799440957487.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-shopping_assistant_ai
+      ecr_repository: 058264125602.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-shopping_assistant_ai
       ecr_auto_create: false
       network_configuration:
         network_mode: PUBLIC
@@ -64,17 +64,17 @@ agents:
       agent_arn: arn:aws:bedrock-agentcore:us-east-1:799440957487:runtime/shopping_assistant_ai-VNQKQcB5de
       agent_session_id: ce88452b-c3ea-4652-94ce-6ca3b4bfc05a
     codebuild:
-      project_name: bedrock-agentcore-shopping_assistant_ai-builder
-      execution_role: arn:aws:iam::799440957487:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-7cdfc231f0
-      source_bucket: bedrock-agentcore-codebuild-sources-799440957487-us-east-1
+      project_name: null
+      execution_role: null
+      source_bucket: null
     memory:
-      mode: STM_AND_LTM
-      memory_id: shopping_assistant_mem-C6xHri8z2a
-      memory_arn: null
-      memory_name: shopping_assistant_ai_memory
+      mode: STM_ONLY
+      memory_id: shopping_assistant_ai_mem-nLH6IlErt0
+      memory_arn: arn:aws:bedrock-agentcore:us-east-1:058264125602:memory/shopping_assistant_ai_mem-nLH6IlErt0
+      memory_name: shopping_assistant_ai_mem
       event_expiry_days: 30
-      first_invoke_memory_check_done: true
-      was_created_by_toolkit: false
+      first_invoke_memory_check_done: false
+      was_created_by_toolkit: true
     authorizer_configuration: null
     request_header_configuration: null
     oauth_configuration: null

@@ -21,6 +21,7 @@ interface ProductCatalogProps {
 }
 
 const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddToCart, onCartUpdate }) => {
+  console.log('🔄 ProductCatalog render, isOpen:', isOpen);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -28,31 +29,50 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    console.log('🚀 ProductCatalog mounted, isOpen:', isOpen);
     if (isOpen) {
       loadProducts();
       loadCategories();
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    console.log('🔄 useEffect triggered - isOpen:', isOpen, 'searchTerm:', searchTerm, 'category:', selectedCategory);
+    if (isOpen) {
+      loadProducts();
+    }
+  }, [selectedCategory, searchTerm]);
+
   const loadProducts = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
-      let url = 'http://localhost:8100/api/v1/products?limit=100';
-      if (selectedCategory !== 'all') {
-        url += `&category=${selectedCategory}`;
-      }
-      if (searchTerm) {
-        url += `&search=${searchTerm}`;
+
+      let url;
+      console.log('🔍 hi');
+      // If there's a search term, use the fuzzy search endpoint
+      if (searchTerm && searchTerm.trim()) {
+        console.log('🔍 hi');
+        url = `http://localhost:8100/api/v1/products/search/fuzzy?query=${encodeURIComponent(searchTerm.trim())}`;
+        console.log('🔍 Using fuzzy search:', url);
+      } else {
+        // Otherwise use the regular products endpoint
+        console.log('🔍 hi');
+        url = 'http://localhost:8100/api/v1/products?limit=100';
+        if (selectedCategory !== 'all') {
+          url += `&category=${selectedCategory}`;
+        }
+        console.log('� Using rgegular search:', url);
       }
 
+      console.log('🔍 Search term:', searchTerm, 'Category:', selectedCategory);
       const response = await fetch(url, { headers });
       const data = await response.json();
 
       if (data.success) {
         setProducts(data.products);
+        console.log('✅ Products loaded:', data.products.length);
       }
     } catch (error) {
       console.error('Error loading products:', error);
@@ -65,7 +85,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
     try {
       const token = localStorage.getItem('access_token');
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const response = await fetch('http://localhost:8100/api/v1/products/categories', { headers });
       const data = await response.json();
 
@@ -79,10 +99,12 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    loadProducts();
   };
 
   const handleSearch = () => {
+    console.log('🔍 Manual search triggered with term:', searchTerm);
+    // The useEffect will automatically trigger loadProducts when searchTerm changes
+    // This function can be used for manual search trigger if needed
     loadProducts();
   };
 
@@ -90,7 +112,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
     // Generate placeholder images based on product category/tags
     const category = product.category?.toLowerCase() || '';
     const tags = product.tags.map(tag => tag.toLowerCase());
-    
+
     if (category.includes('vegetable') || tags.includes('vegetable')) {
       return '🥬';
     } else if (category.includes('fruit') || tags.includes('fruit')) {
@@ -140,11 +162,14 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
               type="text"
               placeholder="Search products..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                console.log('🔍 Search term changed to:', e.target.value);
+                setSearchTerm(e.target.value);
+              }}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
             <Button onClick={handleSearch} variant="primary" size="sm">
-               Search
+              Search
             </Button>
           </div>
 
@@ -186,19 +211,19 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({ isOpen, onClose, onAddT
                       ))}
                     </div>
                     <div className="product-actions">
-                                             <Button
-                         onClick={() => {
-                           onAddToCart(product);
-                           if (onCartUpdate) {
-                             onCartUpdate();
-                           }
-                         }}
-                         variant="success"
-                         size="sm"
-                         disabled={!product.in_stock}
-                       >
-                         {product.in_stock ? '🛒 Add to Cart' : '❌ Out of Stock'}
-                       </Button>
+                      <Button
+                        onClick={() => {
+                          onAddToCart(product);
+                          if (onCartUpdate) {
+                            onCartUpdate();
+                          }
+                        }}
+                        variant="success"
+                        size="sm"
+                        disabled={!product.in_stock}
+                      >
+                        {product.in_stock ? '🛒 Add to Cart' : '❌ Out of Stock'}
+                      </Button>
                       {product.promo && <span className="promo-badge">🔥 Sale</span>}
                     </div>
                   </div>
