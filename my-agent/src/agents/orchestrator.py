@@ -78,7 +78,7 @@ health_planner_actor_id = f"health-planner-user-{datetime.now().strftime('%Y%m%d
 simple_query_actor_id = f"simple-query-user-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 session_id = f"grocery-session-{datetime.now().strftime('%Y%m%d%H%M%S')}"
 # Load model ID from environment with fallback
-MODEL_ID = os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
+MODEL_ID = os.getenv("MODEL_ID", "amazon.nova-lite-v1:0")
 print(f"🤖 Using model: {MODEL_ID}")
 
 print(f"🔧 Session ID: {session_id}")
@@ -87,17 +87,8 @@ print(f"🔧 Grocery List Actor ID: {grocery_list_actor_id}")
 print(f"🔧 Health Planner Actor ID: {health_planner_actor_id}")
 print(f"🔧 Simple Query Actor ID: {simple_query_actor_id}")
 
-# Import with flexible import system
-try:
-    from backend_bedrock.agents import meal_planner_agent, simple_query_agent, health_planner_agent, grocery_list_agent
-except ImportError:
-    try:
-        from agents import meal_planner_agent, simple_query_agent, health_planner_agent, grocery_list_agent
-    except ImportError:
-        import meal_planner_agent
-        import simple_query_agent
-        import health_planner_agent
-        import grocery_list_agent
+# Import agents from the same directory (all agents are in src/agents/)
+from . import meal_planner_agent, simple_query_agent, health_planner_agent, grocery_list_agent
 
 # Import output detection utilities for structured output routing
 # try:
@@ -108,23 +99,16 @@ except ImportError:
 #     except ImportError:
 #         from output_detector import should_use_structured_output, get_output_type
 
-# Import shared memory hook
-try:
-    from backend_bedrock.agents.shared_memory_hook import ShortTermMemoryHook
-except ImportError:
-    try:
-        from agents.shared_memory_hook import ShortTermMemoryHook
-    except ImportError:
-        from shared_memory_hook import ShortTermMemoryHook
+# Import shared memory hook from the same directory
+from .shared_memory_hook import ShortTermMemoryHook
 
-# Import response filter
+# Import response filter - create a simple fallback if utils don't exist
 try:
-    from backend_bedrock.utils.response_filter import clean_response
+    from ..utils.response_filter import clean_response
 except ImportError:
-    try:
-        from utils.response_filter import clean_response
-    except ImportError:
-        from response_filter import clean_response
+    # Simple fallback function if response_filter doesn't exist
+    def clean_response(response):
+        return response
 
 ORCHESTRATOR_PROMPT = """
 You are an orchestrator agent that routes user requests to specialized agents based on the request type while maintaining shared context across all interactions.

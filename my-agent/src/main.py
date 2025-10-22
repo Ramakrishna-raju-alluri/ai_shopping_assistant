@@ -14,7 +14,7 @@ from strands import Agent
 from strands.models import BedrockModel
 from bedrock_agentcore import BedrockAgentCoreApp
 
-# Import the new orchestrator from backend_bedrock agents
+# Import the orchestrator from the same src directory
 from agents.orchestrator import orchestrator_agent
 
 # Configure logging
@@ -68,5 +68,5 @@ async def invoke(payload, context=None):
 if __name__ == "__main__":
     # app.run()
     # Test with proper user_id
-    response = agent("User ID: test-user-123. Query: how many calories are there in bananas")
+    response = agent("User ID: user_101. Query: suggest three meals")
     print(response)

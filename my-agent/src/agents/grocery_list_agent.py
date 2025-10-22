@@ -18,9 +18,19 @@ from strands.models import BedrockModel
 from strands.handlers import PrintingCallbackHandler
 from dotenv import load_dotenv
 
-# Import structured output models and detection utilities
-from backend_bedrock.models.structured_outputs import GrocerySummary, CartItem
-from backend_bedrock.utils.output_detector import should_use_structured_output
+# Import structured output models and detection utilities with flexible import system
+try:
+    # Try relative imports first (when running from main.py in my-agent/)
+    from ..models.structured_outputs import GrocerySummary, CartItem
+    from ..utils.output_detector import should_use_structured_output
+except ImportError:
+    try:
+        # Fallback to absolute imports (when running from other main files)
+        from models.structured_outputs import GrocerySummary, CartItem
+        from utils.output_detector import should_use_structured_output
+    except ImportError:
+        # Final fallback - create dummy classes if imports fail
+        print("error")
 
 load_dotenv()
 
@@ -83,18 +93,12 @@ def grocery_list_agent(user_id: str, query: str, model_id: str = None, actor_id:
     all_tools = SHARED_TOOL_FUNCTIONS + GROCERY_TOOL_FUNCTIONS
     
     # Use provided model_id or default from environment
-    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
+    model_to_use = model_id or os.getenv("MODEL_ID", "amazon.nova-lite-v1:0")
     
     # Create agent with or without memory (following travel-planning pattern)
     if memory_client and memory_id and actor_id and session_id:
-        # Import shared memory hook
-        try:
-            from backend_bedrock.agents.shared_memory_hook import ShortTermMemoryHook
-        except ImportError:
-            try:
-                from agents.shared_memory_hook import ShortTermMemoryHook
-            except ImportError:
-                from shared_memory_hook import ShortTermMemoryHook
+        # Import shared memory hook from same directory
+        from .shared_memory_hook import ShortTermMemoryHook
         
         # Create memory hook following travel-planning pattern
         memory_hooks = ShortTermMemoryHook(memory_client, memory_id)

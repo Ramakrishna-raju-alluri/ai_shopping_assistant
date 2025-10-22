@@ -14,14 +14,14 @@ if str(project_root) not in sys.path:
 
 # Import with flexible import system
 try:
-    from backend_bedrock.tools.shared.registry import SHARED_TOOL_FUNCTIONS
-    from backend_bedrock.tools.meal_planning.registry import MEAL_PLANNING_TOOL_FUNCTIONS
-    from backend_bedrock.models.structured_outputs import MealPlan, Recipe
-    from backend_bedrock.utils.output_detector import should_use_structured_output
+    # Use local imports first (my-agent structure)
+    from ..tools.shared.registry import SHARED_TOOL_FUNCTIONS
+    from ..tools.meal_planning.registry import MEAL_PLANNING_TOOL_FUNCTIONS
+    from ..models.structured_outputs import MealPlan, Recipe
+    from ..utils.output_detector import should_use_structured_output
 except ImportError:
     try:
-        # When running from backend_bedrock directory
-        sys.path.insert(0, str(parent_dir))
+        # Fallback to absolute imports
         from tools.shared.registry import SHARED_TOOL_FUNCTIONS
         from tools.meal_planning.registry import MEAL_PLANNING_TOOL_FUNCTIONS
         from models.structured_outputs import MealPlan, Recipe
@@ -86,13 +86,13 @@ def meal_planner_agent(user_id: str, query: str, model_id: str = None, actor_id:
         str: Meal plan with recipes, ingredients, costs, and nutrition info
     """
     # Use provided model_id or default from environment
-    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
+    model_to_use = model_id or os.getenv("MODEL_ID", "amazon.nova-lite-v1:0")
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:
         # Import shared memory hook
         try:
-            from backend_bedrock.agents.shared_memory_hook import ShortTermMemoryHook
+            from agents.shared_memory_hook import ShortTermMemoryHook
         except ImportError:
             try:
                 from agents.shared_memory_hook import ShortTermMemoryHook

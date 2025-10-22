@@ -14,8 +14,8 @@ from strands import Agent
 from strands.models import BedrockModel
 from bedrock_agentcore import BedrockAgentCoreApp
 
-# Import the new orchestrator from backend_bedrock agents
-from agents.orchestrator import orchestrator_agent
+# Import the orchestrator from src/agents directory
+from src.agents.orchestrator import orchestrator_agent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -68,5 +68,10 @@ async def invoke(payload, context=None):
 if __name__ == "__main__":
     # app.run()
     # Test with proper user_id
+<<<<<<< Updated upstream
     response = agent("User ID: test-user-123. Query: how many calories are there in bananas")
+=======
+    
+    response = agent("User ID: user_101. Query: suggest three meals")
+>>>>>>> Stashed changes
     print(response)

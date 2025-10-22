@@ -18,13 +18,14 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 try:
-    from backend_bedrock.tools.shared.registry import SHARED_TOOL_FUNCTIONS
-    from backend_bedrock.tools.shared.product_catalog import check_product_availability
+    # Use local imports first (my-agent structure)
+    from ..tools.shared.registry import SHARED_TOOL_FUNCTIONS
+    from ..tools.shared.product_catalog import check_product_availability
 except ImportError:
     try:
-        sys.path.insert(0, str(parent_dir))
-        from tools.shared.registry import SHARED_TOOL_FUNCTIONS
-        from tools.shared.product_catalog import check_product_availability
+        # Fallback to backend_bedrock imports
+        from backend_bedrock.tools.shared.registry import SHARED_TOOL_FUNCTIONS
+        from backend_bedrock.tools.shared.product_catalog import check_product_availability
     except ImportError:
         # If import fails, define a no-op placeholder
         SHARED_TOOL_FUNCTIONS = []
@@ -78,7 +79,7 @@ def simple_query_agent(user_id: str, query: str, model_id: str = None, actor_id:
         str: Product availability, store info, or catalog results
     """
     # Use provided model_id or default from environment
-    model_to_use = model_id or os.getenv("MODEL_ID", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
+    model_to_use = model_id or os.getenv("MODEL_ID", "amazon.nova-lite-v1:0")
     
     # Create agent with or without memory
     if memory_client and memory_id and actor_id and session_id:
